@@ -1,11 +1,11 @@
 {
-    "name": "officer_career_app",
-    "short_name": "officer_career_app",
+    "name": "Next Career After Fauj",
+    "short_name": "Next Career",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "AI career-translation app for Indian Armed Forces officers transitioning to civilian careers.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

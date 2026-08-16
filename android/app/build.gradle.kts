@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.officer_career_app"
+    namespace = "com.example.next_career_after_fauj"
     // flutter.compileSdkVersion (34) is behind what the file_picker plugin's
     // transitive dependencies require; pinned explicitly until Flutter's own
     // default catches up.
@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.officer_career_app"
+        applicationId = "com.example.next_career_after_fauj"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:officer_career_app/core/models/officer_profile.dart';
-import 'package:officer_career_app/core/routing/app_routes.dart';
-import 'package:officer_career_app/core/services/file_picker_service.dart';
-import 'package:officer_career_app/core/services/profile_repository.dart';
-import 'package:officer_career_app/core/theme/app_theme.dart';
-import 'package:officer_career_app/core/utils/date_format.dart';
-import 'package:officer_career_app/features/onboarding/onboarding_screen.dart';
-import 'package:officer_career_app/features/profile/profile_screen.dart';
+import 'package:next_career_after_fauj/core/models/officer_profile.dart';
+import 'package:next_career_after_fauj/core/routing/app_routes.dart';
+import 'package:next_career_after_fauj/core/services/file_picker_service.dart';
+import 'package:next_career_after_fauj/core/services/profile_repository.dart';
+import 'package:next_career_after_fauj/core/theme/app_theme.dart';
+import 'package:next_career_after_fauj/core/utils/date_format.dart';
+import 'package:next_career_after_fauj/features/onboarding/onboarding_screen.dart';
+import 'package:next_career_after_fauj/features/profile/profile_screen.dart';
 import 'package:provider/provider.dart';
 
 Widget _appUnderTest({required FileNamePicker pickFile}) {

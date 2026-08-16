@@ -9,18 +9,18 @@ import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
 
 void main() {
-  runApp(const OfficerCareerApp());
+  runApp(const NextCareerAfterFaujApp());
 }
 
-class OfficerCareerApp extends StatelessWidget {
-  const OfficerCareerApp({super.key});
+class NextCareerAfterFaujApp extends StatelessWidget {
+  const NextCareerAfterFaujApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ProfileRepository(),
       child: MaterialApp(
-        title: 'Officer Career App',
+        title: 'Next Career After Fauj',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         initialRoute: AppRoutes.onboarding,

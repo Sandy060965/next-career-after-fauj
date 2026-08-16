@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="officer_career_app"
+        android:label="Next Career After Fauj"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

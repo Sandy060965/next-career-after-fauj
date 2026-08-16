@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:officer_career_app/core/theme/app_theme.dart';
-import 'package:officer_career_app/features/jd_match/jd_match_screen.dart';
+import 'package:next_career_after_fauj/core/theme/app_theme.dart';
+import 'package:next_career_after_fauj/features/jd_match/jd_match_screen.dart';
 
 Widget _appUnderTest({required Future<String?> Function() pickFile}) {
   return MaterialApp(

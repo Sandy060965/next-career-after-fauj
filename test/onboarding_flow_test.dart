@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:officer_career_app/core/models/officer_profile.dart';
 import 'package:officer_career_app/core/routing/app_routes.dart';
+import 'package:officer_career_app/core/services/file_picker_service.dart';
 import 'package:officer_career_app/core/services/profile_repository.dart';
 import 'package:officer_career_app/core/theme/app_theme.dart';
 import 'package:officer_career_app/core/utils/date_format.dart';
@@ -9,7 +10,7 @@ import 'package:officer_career_app/features/onboarding/onboarding_screen.dart';
 import 'package:officer_career_app/features/profile/profile_screen.dart';
 import 'package:provider/provider.dart';
 
-Widget _appUnderTest({required CvPicker pickFile}) {
+Widget _appUnderTest({required FileNamePicker pickFile}) {
   return ChangeNotifierProvider(
     create: (_) => ProfileRepository(),
     child: MaterialApp(
@@ -37,8 +38,19 @@ void main() {
       );
 
       // Step 1: service verification, in the required
-      // rank / name / DOB / service / mobile / email sequence.
-      await tester.enterText(find.byKey(const Key('rankField')), 'Major');
+      // service / rank / name / DOB / work experience / mobile / email
+      // sequence. Rank is dependent on Service, so Service must be picked
+      // first for the Rank dropdown's options to populate.
+      await tester.tap(find.byKey(const Key('serviceDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Army').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('rankDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Major').last);
+      await tester.pumpAndSettle();
+
       await tester.enterText(find.byKey(const Key('nameField')), 'Maj. A Verma');
 
       await tester.tap(find.byKey(const Key('dobField')));
@@ -56,11 +68,6 @@ void main() {
       await tester.tap(find.byKey(const Key('workExperienceMonthsDropdown')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('5').last);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('serviceDropdown')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Army').last);
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('mobileField')), '9876543210');

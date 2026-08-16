@@ -38,6 +38,7 @@ class ProfileScreen extends StatelessWidget {
           _SectionCard(
             title: 'Profile details',
             children: [
+              _InfoRow(label: 'Service', value: profile.service.label),
               _InfoRow(label: 'Rank', value: profile.rank),
               _InfoRow(label: 'Name', value: profile.fullName),
               _InfoRow(label: 'Date of birth', value: formatDate(profile.dateOfBirth)),
@@ -45,7 +46,6 @@ class ProfileScreen extends StatelessWidget {
                 label: 'Work experience',
                 value: '${profile.workExperienceYears} yrs ${profile.workExperienceMonths} mos',
               ),
-              _InfoRow(label: 'Service', value: profile.service.label),
               _InfoRow(label: 'Mobile', value: profile.mobileNumber),
               _InfoRow(label: 'Email', value: profile.email),
             ],
@@ -55,10 +55,19 @@ class ProfileScreen extends StatelessWidget {
             title: 'CV',
             children: [_InfoRow(label: 'File', value: profile.cvFileName)],
           ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('jdMatchButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jdMatch),
+              child: const Text('JD Match'),
+            ),
+          ),
           const SizedBox(height: 24),
           Text(
-            'JD matching, career-path taxonomy, skills-gap prep and subscription '
-            'unlock as this build progresses.',
+            'Career-path taxonomy, skills-gap prep and subscription unlock as '
+            'this build progresses.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

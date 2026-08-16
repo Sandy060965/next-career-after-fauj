@@ -1,29 +1,23 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/models/officer_profile.dart';
 import '../../core/routing/app_routes.dart';
+import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import 'rank_options.dart';
 import 'widgets/segment_selector.dart';
 
-typedef CvPicker = Future<String?> Function();
-
-Future<String?> _defaultPickFile() async {
-  final file = await FilePicker.pickFile(
-    type: FileType.custom,
-    allowedExtensions: ['pdf', 'doc', 'docx'],
-  );
-  return file?.name;
-}
+Future<String?> _defaultPickCv() =>
+    pickFileName(allowedExtensions: const ['pdf', 'doc', 'docx']);
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key, this.pickFile = _defaultPickFile});
+  const OnboardingScreen({super.key, this.pickFile = _defaultPickCv});
 
   /// Overridable for testing so the native file-picker channel never needs
   /// to be invoked.
-  final CvPicker pickFile;
+  final FileNamePicker pickFile;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -35,7 +29,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   final GlobalKey<FormState> _verificationFormKey = GlobalKey<FormState>();
 
-  final TextEditingController _rankController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -46,10 +39,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   bool _verificationAttempted = false;
   bool _segmentAttempted = false;
   OfficerSegment? _segment;
+  OfficerService? _service;
+  String? _rank;
   DateTime? _dateOfBirth;
   int? _workExperienceYears;
   int? _workExperienceMonths;
-  OfficerService? _service;
   String? _uploadedFileName;
   String? _cvError;
 
@@ -58,13 +52,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.initState();
     final existing = context.read<ProfileRepository>().profile;
     if (existing != null) {
-      _rankController.text = existing.rank;
+      _service = existing.service;
+      _rank = existing.rank;
       _nameController.text = existing.fullName;
       _dateOfBirth = existing.dateOfBirth;
       _dobController.text = formatDate(existing.dateOfBirth);
       _workExperienceYears = existing.workExperienceYears;
       _workExperienceMonths = existing.workExperienceMonths;
-      _service = existing.service;
       _emailController.text = existing.email;
       _mobileController.text = existing.mobileNumber;
       _consentGiven = true;
@@ -76,7 +70,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void dispose() {
     _pageController.dispose();
-    _rankController.dispose();
     _nameController.dispose();
     _dobController.dispose();
     _emailController.dispose();
@@ -148,7 +141,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
 
     final profile = OfficerProfile(
-      rank: _rankController.text.trim(),
+      rank: _rank!,
       fullName: _nameController.text.trim(),
       dateOfBirth: _dateOfBirth!,
       workExperienceYears: _workExperienceYears!,
@@ -223,14 +216,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
-            TextFormField(
-              key: const Key('rankField'),
-              controller: _rankController,
-              decoration: const InputDecoration(
+            DropdownButtonFormField<OfficerService>(
+              key: const Key('serviceDropdown'),
+              initialValue: _service,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Service'),
+              items: OfficerService.values
+                  .map((s) => DropdownMenuItem(value: s, child: Text(s.label)))
+                  .toList(),
+              onChanged: (v) => setState(() {
+                _service = v;
+                if (_rank != null && (v == null || !kRanksByService[v]!.contains(_rank))) {
+                  _rank = null;
+                }
+              }),
+              validator: (v) => v == null ? 'Select a service' : null,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              key: const Key('rankDropdown'),
+              initialValue: _rank,
+              isExpanded: true,
+              decoration: InputDecoration(
                 labelText: 'Rank',
-                hintText: 'e.g. Major, Lt Col, Wing Commander, Commander',
+                hintText: _service == null ? 'Select service first' : null,
               ),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              items: (_service == null ? const <String>[] : kRanksByService[_service]!)
+                  .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                  .toList(),
+              onChanged: _service == null ? null : (v) => setState(() => _rank = v),
+              validator: (v) => v == null ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -284,18 +299,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<OfficerService>(
-              key: const Key('serviceDropdown'),
-              initialValue: _service,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Service'),
-              items: OfficerService.values
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s.label)))
-                  .toList(),
-              onChanged: (v) => setState(() => _service = v),
-              validator: (v) => v == null ? 'Select a service' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(

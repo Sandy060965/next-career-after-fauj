@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/services/file_picker_service.dart';
+import '../../core/services/profile_repository.dart';
+import '../fitment/fitment_service.dart';
+import '../fitment/score_gap_screen.dart';
 
 enum JdInputMethod { paste, upload }
 
@@ -8,11 +12,19 @@ Future<String?> _defaultPickJd() =>
     pickFileName(allowedExtensions: const ['pdf', 'doc', 'docx', 'txt']);
 
 class JdMatchScreen extends StatefulWidget {
-  const JdMatchScreen({super.key, this.pickFile = _defaultPickJd});
+  const JdMatchScreen({
+    super.key,
+    this.pickFile = _defaultPickJd,
+    this.analyzeFitment = mockAnalyzeFitment,
+  });
 
   /// Overridable for testing so the native file-picker channel never needs
   /// to be invoked.
   final FileNamePicker pickFile;
+
+  /// Overridable for testing; defaults to sample data until the Cloudflare
+  /// Worker backend is wired in.
+  final FitmentAnalyzer analyzeFitment;
 
   @override
   State<JdMatchScreen> createState() => _JdMatchScreenState();
@@ -24,7 +36,7 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   JdInputMethod _inputMethod = JdInputMethod.paste;
   String? _uploadedFileName;
   String? _error;
-  String? _submittedSummary;
+  bool _isAnalyzing = false;
 
   @override
   void dispose() {
@@ -42,27 +54,36 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
     }
   }
 
-  void _checkMatch() {
+  Future<void> _checkMatch() async {
+    final String jdSource;
     if (_inputMethod == JdInputMethod.paste) {
       final text = _jdTextController.text.trim();
       if (text.isEmpty) {
         setState(() => _error = 'Paste a job description to continue');
         return;
       }
-      setState(() {
-        _error = null;
-        _submittedSummary = text;
-      });
+      jdSource = text;
     } else {
       if (_uploadedFileName == null) {
         setState(() => _error = 'Upload a job description to continue');
         return;
       }
-      setState(() {
-        _error = null;
-        _submittedSummary = _uploadedFileName;
-      });
+      jdSource = _uploadedFileName!;
     }
+
+    setState(() {
+      _error = null;
+      _isAnalyzing = true;
+    });
+
+    final cvFileName = context.read<ProfileRepository>().profile?.cvFileName ?? 'uploaded CV';
+    final result = await widget.analyzeFitment(jdText: jdSource, cvFileName: cvFileName);
+
+    if (!mounted) return;
+    setState(() => _isAnalyzing = false);
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => ScoreGapScreen(result: result)),
+    );
   }
 
   @override
@@ -131,38 +152,16 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 key: const Key('checkMatchButton'),
-                onPressed: _checkMatch,
-                child: const Text('Check match'),
+                onPressed: _isAnalyzing ? null : _checkMatch,
+                child: _isAnalyzing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Check match'),
               ),
             ),
-            if (_submittedSummary != null) ...[
-              const SizedBox(height: 24),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Received', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 8),
-                      Text(
-                        _submittedSummary!,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Match scoring and keyword-gap analysis are coming in a future '
-                        "release — this build only captures what you've provided.",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
           ],
         ),
       ),

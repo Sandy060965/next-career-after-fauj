@@ -52,3 +52,8 @@ app.*.map.json
 
 # Gradle build reports written before the custom buildDir redirect applies
 /android/build/
+
+# Cloudflare Worker backend (node deps + local dev state — secrets are
+# never in this repo, they're set via `wrangler secret put`)
+backend/cloudflare-worker/node_modules/
+backend/cloudflare-worker/.wrangler/

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/routing/app_routes.dart';
 import 'core/services/profile_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'features/career_paths/career_paths_screen.dart';
 import 'features/jd_match/jd_match_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
@@ -28,6 +29,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
           AppRoutes.jdMatch: (_) => const JdMatchScreen(),
+          AppRoutes.careerPaths: (_) => const CareerPathsScreen(),
         },
       ),
     );

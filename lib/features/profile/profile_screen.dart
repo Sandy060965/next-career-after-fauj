@@ -59,6 +59,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('careerPathsButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerPaths),
+              child: const Text('Career Paths'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('jdMatchButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jdMatch),
               child: const Text('JD Match'),
@@ -66,8 +75,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Career-path taxonomy, skills-gap prep and subscription unlock as '
-            'this build progresses.',
+            'Skills-gap prep and subscription unlock as this build progresses.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

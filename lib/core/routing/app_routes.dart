@@ -4,4 +4,5 @@ class AppRoutes {
   static const String onboarding = '/';
   static const String profile = '/profile';
   static const String jdMatch = '/jd-match';
+  static const String careerPaths = '/career-paths';
 }

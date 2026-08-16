@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/models/officer_profile.dart';
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
@@ -45,6 +46,12 @@ class ProfileScreen extends StatelessWidget {
               _InfoRow(
                 label: 'Work experience',
                 value: '${profile.workExperienceYears} yrs ${profile.workExperienceMonths} mos',
+              ),
+              _InfoRow(
+                label: profile.releaseStatus == ReleaseStatus.alreadyReleased
+                    ? 'Date of release'
+                    : 'Tentative release date',
+                value: formatDate(profile.releaseDate),
               ),
               _InfoRow(label: 'Mobile', value: profile.mobileNumber),
               _InfoRow(label: 'Email', value: profile.email),

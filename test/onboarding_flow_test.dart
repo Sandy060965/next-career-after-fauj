@@ -70,6 +70,14 @@ void main() {
       await tester.tap(find.text('5').last);
       await tester.pumpAndSettle();
 
+      await tester.tap(find.byKey(const Key('releaseStatus_tentative')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('releaseDateField')));
+      await tester.pumpAndSettle();
+      // Accept the picker's default initialDate (today, since none is set).
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
       await tester.enterText(find.byKey(const Key('mobileField')), '9876543210');
       await tester.enterText(find.byKey(const Key('emailField')), 'a.verma@example.com');
       await tester.tap(find.byKey(const Key('consentCheckbox')));
@@ -93,12 +101,15 @@ void main() {
 
       final now = DateTime.now();
       final expectedDob = formatDate(DateTime(now.year - 30, now.month, now.day));
+      final expectedReleaseDate = formatDate(now);
 
       expect(find.text('My Profile'), findsOneWidget);
       expect(find.text('Major'), findsOneWidget);
       expect(find.text('Maj. A Verma'), findsOneWidget);
       expect(find.text(expectedDob), findsOneWidget);
       expect(find.text('12 yrs 5 mos'), findsOneWidget);
+      expect(find.text('Tentative release date'), findsOneWidget);
+      expect(find.text(expectedReleaseDate), findsOneWidget);
       expect(find.text('Army'), findsOneWidget);
       expect(find.text(OfficerSegment.pmr.fullLabel), findsOneWidget);
       expect(find.text('9876543210'), findsOneWidget);

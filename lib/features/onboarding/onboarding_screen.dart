@@ -31,6 +31,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _releaseDateController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
 
@@ -44,6 +45,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   DateTime? _dateOfBirth;
   int? _workExperienceYears;
   int? _workExperienceMonths;
+  ReleaseStatus? _releaseStatus;
+  DateTime? _releaseDate;
   String? _uploadedFileName;
   String? _cvError;
 
@@ -59,6 +62,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _dobController.text = formatDate(existing.dateOfBirth);
       _workExperienceYears = existing.workExperienceYears;
       _workExperienceMonths = existing.workExperienceMonths;
+      _releaseStatus = existing.releaseStatus;
+      _releaseDate = existing.releaseDate;
+      _releaseDateController.text = formatDate(existing.releaseDate);
       _emailController.text = existing.email;
       _mobileController.text = existing.mobileNumber;
       _consentGiven = true;
@@ -72,6 +78,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _pageController.dispose();
     _nameController.dispose();
     _dobController.dispose();
+    _releaseDateController.dispose();
     _emailController.dispose();
     _mobileController.dispose();
     super.dispose();
@@ -136,6 +143,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
+  Future<void> _pickReleaseDate() async {
+    if (_releaseStatus == null) return;
+    final now = DateTime.now();
+    final isAlreadyReleased = _releaseStatus == ReleaseStatus.alreadyReleased;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _releaseDate ?? now,
+      firstDate: isAlreadyReleased ? DateTime(now.year - 40) : now,
+      lastDate: isAlreadyReleased ? now : DateTime(now.year + 15),
+      helpText: isAlreadyReleased ? 'Select date of release' : 'Select tentative release date',
+    );
+    if (picked != null) {
+      setState(() {
+        _releaseDate = picked;
+        _releaseDateController.text = formatDate(picked);
+      });
+    }
+  }
+
   Future<void> _pickCv() async {
     final fileName = await widget.pickFile();
     if (fileName != null) {
@@ -159,6 +185,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       dateOfBirth: _dateOfBirth!,
       workExperienceYears: _workExperienceYears!,
       workExperienceMonths: _workExperienceMonths!,
+      releaseStatus: _releaseStatus!,
+      releaseDate: _releaseDate!,
       service: _service!,
       mobileNumber: _mobileController.text.trim(),
       email: _emailController.text.trim(),
@@ -312,6 +340,45 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+            Text('Release from service', style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 4),
+            RadioGroup<ReleaseStatus>(
+              groupValue: _releaseStatus,
+              onChanged: (v) => setState(() {
+                _releaseStatus = v;
+                _releaseDate = null;
+                _releaseDateController.clear();
+              }),
+              child: Column(
+                children: ReleaseStatus.values
+                    .map(
+                      (status) => RadioListTile<ReleaseStatus>(
+                        key: ValueKey('releaseStatus_${status.name}'),
+                        value: status,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(status.label),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              key: const Key('releaseDateField'),
+              controller: _releaseDateController,
+              readOnly: true,
+              enabled: _releaseStatus != null,
+              onTap: _pickReleaseDate,
+              decoration: InputDecoration(
+                labelText: _releaseStatus == ReleaseStatus.alreadyReleased
+                    ? 'Date of release'
+                    : 'Tentative release date',
+                hintText: _releaseStatus == null ? 'Select an option above' : null,
+                suffixIcon: const Icon(Icons.calendar_today_outlined),
+              ),
+              validator: (_) => _releaseDate == null ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(

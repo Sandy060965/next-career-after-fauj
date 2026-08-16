@@ -25,6 +25,8 @@ void main() {
           dateOfBirth: DateTime(1978, 5, 10),
           workExperienceYears: 18,
           workExperienceMonths: 2,
+          releaseStatus: ReleaseStatus.tentative,
+          releaseDate: DateTime(2027, 6, 30),
           service: OfficerService.army,
           mobileNumber: '9876543210',
           email: 'a.verma@example.com',

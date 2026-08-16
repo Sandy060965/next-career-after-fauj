@@ -19,6 +19,15 @@ enum OfficerService {
   final String label;
 }
 
+enum ReleaseStatus {
+  tentative('Tentative release date from service'),
+  alreadyReleased('Already released');
+
+  const ReleaseStatus(this.label);
+
+  final String label;
+}
+
 /// Data captured during onboarding. Intake is limited to an officer-authored
 /// CV upload — never an ACR or formal service record, and never a
 /// unit-identifying field.
@@ -29,6 +38,8 @@ class OfficerProfile {
     required this.dateOfBirth,
     required this.workExperienceYears,
     required this.workExperienceMonths,
+    required this.releaseStatus,
+    required this.releaseDate,
     required this.service,
     required this.mobileNumber,
     required this.email,
@@ -41,6 +52,8 @@ class OfficerProfile {
   final DateTime dateOfBirth;
   final int workExperienceYears;
   final int workExperienceMonths;
+  final ReleaseStatus releaseStatus;
+  final DateTime releaseDate;
   final OfficerService service;
   final String mobileNumber;
   final String email;

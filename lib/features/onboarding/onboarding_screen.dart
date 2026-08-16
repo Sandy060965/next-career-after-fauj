@@ -86,6 +86,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  void _showValidationSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   void _onContinuePressed() {
     switch (_step) {
       case 0:
@@ -93,12 +99,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         final formValid = _verificationFormKey.currentState!.validate();
         if (formValid && _consentGiven) {
           _goToStep(1);
+        } else if (!formValid) {
+          _showValidationSnackBar('Please fill in all required fields correctly.');
+        } else {
+          _showValidationSnackBar('Please confirm consent to continue.');
         }
         break;
       case 1:
         setState(() => _segmentAttempted = true);
         if (_segment != null) {
           _goToStep(2);
+        } else {
+          _showValidationSnackBar('Select a segment to continue.');
         }
         break;
       case 2:
@@ -137,6 +149,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _submit() {
     if (_uploadedFileName == null) {
       setState(() => _cvError = 'Upload your CV to continue');
+      _showValidationSnackBar('Upload your CV to continue.');
       return;
     }
 

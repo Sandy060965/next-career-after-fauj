@@ -107,4 +107,23 @@ void main() {
       expect(find.text('Service number'), findsNothing);
     },
   );
+
+  testWidgets(
+    'pressing Continue with required fields empty shows a visible SnackBar, '
+    'not just an off-screen inline error',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 1400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('continueButton')));
+      await tester.pump(); // let the SnackBar animation start
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Please fill in all required fields correctly.'), findsOneWidget);
+    },
+  );
 }

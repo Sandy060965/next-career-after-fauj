@@ -65,6 +65,15 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
+            child: FilledButton(
+              key: const Key('careerReadinessButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerReadiness),
+              child: const Text('Career Readiness Score'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
             child: OutlinedButton(
               key: const Key('verticalFitButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.verticalFit),

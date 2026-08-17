@@ -3,6 +3,7 @@ class AppRoutes {
 
   static const String onboarding = '/';
   static const String profile = '/profile';
+  static const String careerReadiness = '/career-readiness';
   static const String jdMatch = '/jd-match';
   static const String verticalFit = '/vertical-fit';
   static const String careerPaths = '/career-paths';

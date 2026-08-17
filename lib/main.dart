@@ -7,6 +7,7 @@ import 'core/theme/app_theme.dart';
 import 'features/ai_readiness/ai_readiness_http_service.dart';
 import 'features/ai_readiness/ai_readiness_quiz_screen.dart';
 import 'features/career_paths/career_paths_screen.dart';
+import 'features/career_readiness/career_readiness_screen.dart';
 import 'features/compensation/compensation_http_service.dart';
 import 'features/compensation/compensation_screen.dart';
 import 'features/fitment/fitment_entry_screens.dart';
@@ -51,6 +52,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
         routes: {
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
+          AppRoutes.careerReadiness: (_) => const CareerReadinessScreen(),
           AppRoutes.jdMatch: (_) => const JdMatchScreen(analyzeFitment: httpAnalyzeFitment),
           AppRoutes.verticalFit: (_) => const VerticalFitQuizScreen(),
           AppRoutes.careerPaths: (_) => const CareerPathsScreen(),

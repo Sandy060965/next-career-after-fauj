@@ -44,6 +44,18 @@ class SkillGap {
   final AiCompetency competency;
   final GapSeverity severity;
   final String reason;
+
+  Map<String, dynamic> toJson() => {
+        'competencyId': competency.id,
+        'severity': severity.name,
+        'reason': reason,
+      };
+
+  factory SkillGap.fromJson(Map<String, dynamic> json) => SkillGap(
+        competency: kAiCompetencies.firstWhere((c) => c.id == json['competencyId']),
+        severity: GapSeverity.values.byName(json['severity'] as String),
+        reason: json['reason'] as String,
+      );
 }
 
 enum RoadmapPhase { day30, day60, day90 }
@@ -70,6 +82,20 @@ class RoadmapItem {
   final String title;
   final String description;
   final String? courseId;
+
+  Map<String, dynamic> toJson() => {
+        'phase': phase.name,
+        'title': title,
+        'description': description,
+        'courseId': courseId,
+      };
+
+  factory RoadmapItem.fromJson(Map<String, dynamic> json) => RoadmapItem(
+        phase: RoadmapPhase.values.byName(json['phase'] as String),
+        title: json['title'] as String,
+        description: json['description'] as String,
+        courseId: json['courseId'] as String?,
+      );
 }
 
 /// Result of analysing an officer's CV and self-assessment for AI readiness.
@@ -95,4 +121,28 @@ class AiReadinessResult {
   /// grounded only in what the CV actually says.
   final String cvAiBridge;
   final List<RoadmapItem> roadmap;
+
+  Map<String, dynamic> toJson() => {
+        'readinessScore': readinessScore,
+        'scoreRationale': scoreRationale,
+        'dimensionScores': dimensionScores.map((k, v) => MapEntry(k.name, v)),
+        'skillGaps': skillGaps.map((g) => g.toJson()).toList(),
+        'cvAiBridge': cvAiBridge,
+        'roadmap': roadmap.map((r) => r.toJson()).toList(),
+      };
+
+  factory AiReadinessResult.fromJson(Map<String, dynamic> json) => AiReadinessResult(
+        readinessScore: json['readinessScore'] as int,
+        scoreRationale: json['scoreRationale'] as String,
+        dimensionScores: (json['dimensionScores'] as Map<String, dynamic>).map(
+          (k, v) => MapEntry(AiDimension.values.byName(k), v as int),
+        ),
+        skillGaps: (json['skillGaps'] as List)
+            .map((e) => SkillGap.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        cvAiBridge: json['cvAiBridge'] as String,
+        roadmap: (json['roadmap'] as List)
+            .map((e) => RoadmapItem.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
 }

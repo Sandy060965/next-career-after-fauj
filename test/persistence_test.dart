@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
+import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
+import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +55,24 @@ const _fitmentResult = FitmentResult(
 
 const _verticalFit = VerticalFitAssessment(ratings: {'ops-1': 4, 'people-1': 2});
 
+final _aiReadiness = AiReadinessResult(
+  readinessScore: 60,
+  scoreRationale: 'Moderate readiness.',
+  dimensionScores: {for (final d in AiDimension.values) d: 60},
+  skillGaps: [
+    SkillGap(competency: kAiCompetencies.first, severity: GapSeverity.high, reason: 'Needs practice.'),
+  ],
+  cvAiBridge: 'Your logistics experience already involves data-driven decisions.',
+  roadmap: const [
+    RoadmapItem(
+      phase: RoadmapPhase.day30,
+      title: 'Learn LLM fundamentals',
+      description: 'Complete an introductory course on how LLMs work.',
+      courseId: 'fundamentals',
+    ),
+  ],
+);
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -95,6 +115,18 @@ void main() {
       final restored = VerticalFitAssessment.fromJson(_verticalFit.toJson());
       expect(restored.ratings, _verticalFit.ratings);
     });
+
+    test('AiReadinessResult survives a toJson/fromJson round-trip', () {
+      final restored = AiReadinessResult.fromJson(_aiReadiness.toJson());
+
+      expect(restored.readinessScore, 60);
+      expect(restored.dimensionScores[AiDimension.awareness], 60);
+      expect(restored.skillGaps.single.competency.id, kAiCompetencies.first.id);
+      expect(restored.skillGaps.single.severity, GapSeverity.high);
+      expect(restored.cvAiBridge, _aiReadiness.cvAiBridge);
+      expect(restored.roadmap.single.title, 'Learn LLM fundamentals');
+      expect(restored.roadmap.single.phase, RoadmapPhase.day30);
+    });
   });
 
   group('ProfileRepository persistence', () {
@@ -135,6 +167,18 @@ void main() {
       expect(reader.lastVerticalFitAssessment?.ratings, _verticalFit.ratings);
     });
 
+    test('a saved AI readiness result is restored', () async {
+      final writer = ProfileRepository();
+      writer.saveAiReadinessResult(_aiReadiness);
+      await Future<void>.delayed(Duration.zero);
+
+      final reader = ProfileRepository();
+      await reader.loadFromStorage();
+
+      expect(reader.lastAiReadinessResult?.readinessScore, 60);
+      expect(reader.lastAiReadinessResult?.skillGaps.single.competency.id, kAiCompetencies.first.id);
+    });
+
     test('loadFromStorage on an empty store leaves everything null', () async {
       final reader = ProfileRepository();
       await reader.loadFromStorage();
@@ -142,6 +186,7 @@ void main() {
       expect(reader.profile, isNull);
       expect(reader.lastFitmentResult, isNull);
       expect(reader.lastVerticalFitAssessment, isNull);
+      expect(reader.lastAiReadinessResult, isNull);
     });
   });
 }

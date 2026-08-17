@@ -41,6 +41,7 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
         releaseDate: profile?.releaseDate,
       );
       if (!mounted) return;
+      context.read<ProfileRepository>().saveAiReadinessResult(result);
       setState(() => _isAnalyzing = false);
       Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => AiReadinessResultScreen(result: result)),

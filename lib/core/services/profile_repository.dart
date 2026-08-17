@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/ai_readiness/ai_readiness.dart';
 import '../../features/fitment/fitment_result.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
 import '../models/officer_profile.dart';
@@ -13,6 +14,7 @@ const _profileKey = 'officer_profile_v1';
 const _fitmentResultKey = 'last_fitment_result_v1';
 const _jdTextKey = 'last_jd_text_v1';
 const _verticalFitKey = 'last_vertical_fit_v1';
+const _aiReadinessKey = 'last_ai_readiness_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -25,6 +27,7 @@ class ProfileRepository extends ChangeNotifier {
   FitmentResult? _lastFitmentResult;
   String? _lastJdText;
   VerticalFitAssessment? _lastVerticalFitAssessment;
+  AiReadinessResult? _lastAiReadinessResult;
 
   OfficerProfile? get profile => _profile;
 
@@ -35,6 +38,8 @@ class ProfileRepository extends ChangeNotifier {
   String? get lastJdText => _lastJdText;
 
   VerticalFitAssessment? get lastVerticalFitAssessment => _lastVerticalFitAssessment;
+
+  AiReadinessResult? get lastAiReadinessResult => _lastAiReadinessResult;
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -61,6 +66,12 @@ class ProfileRepository extends ChangeNotifier {
       if (verticalFitJson != null) {
         _lastVerticalFitAssessment =
             VerticalFitAssessment.fromJson(jsonDecode(verticalFitJson) as Map<String, dynamic>);
+      }
+
+      final aiReadinessJson = prefs.getString(_aiReadinessKey);
+      if (aiReadinessJson != null) {
+        _lastAiReadinessResult =
+            AiReadinessResult.fromJson(jsonDecode(aiReadinessJson) as Map<String, dynamic>);
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -107,6 +118,17 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_verticalFitKey, jsonEncode(assessment.toJson()));
     } catch (e) {
       debugPrint('ProfileRepository.saveVerticalFitAssessment persistence failed: $e');
+    }
+  }
+
+  Future<void> saveAiReadinessResult(AiReadinessResult result) async {
+    _lastAiReadinessResult = result;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_aiReadinessKey, jsonEncode(result.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveAiReadinessResult persistence failed: $e');
     }
   }
 

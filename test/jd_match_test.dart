@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
@@ -45,6 +44,7 @@ void main() {
     await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
 
     // Submitting empty shows a validation error instead of a fake result.
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
     await tester.tap(find.byKey(const Key('checkMatchButton')));
     await tester.pumpAndSettle();
     expect(find.text('Paste a job description to continue'), findsOneWidget);
@@ -53,11 +53,38 @@ void main() {
       find.byKey(const Key('jdTextField')),
       'Looking for a logistics manager with 10 years experience.',
     );
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
     await tester.tap(find.byKey(const Key('checkMatchButton')));
     await tester.pumpAndSettle();
 
     expect(find.text('Fitment Score'), findsOneWidget);
     expect(find.text('8'), findsOneWidget);
+  });
+
+  testWidgets('tapping "Paste from clipboard" fills the JD field from the clipboard',
+      (tester) async {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (MethodCall methodCall) async {
+        if (methodCall.method == 'Clipboard.getData') {
+          return {'text': 'Looking for a supply chain lead with ERP experience.'};
+        }
+        return null;
+      },
+    );
+    addTearDown(
+      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        null,
+      ),
+    );
+
+    await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+    await tester.tap(find.byKey(const Key('jdPasteButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Looking for a supply chain lead with ERP experience.'), findsOneWidget);
   });
 
   testWidgets('uploading a JD file and checking match navigates to the fitment score screen',

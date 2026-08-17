@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/file_picker_service.dart';
@@ -42,6 +43,22 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   void dispose() {
     _jdTextController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text;
+    if (text == null || text.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Clipboard is empty')));
+      return;
+    }
+    setState(() {
+      _jdTextController.text = text;
+      _error = null;
+    });
   }
 
   Future<void> _pickJdFile() async {
@@ -141,7 +158,7 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            if (_inputMethod == JdInputMethod.paste)
+            if (_inputMethod == JdInputMethod.paste) ...[
               TextFormField(
                 key: const Key('jdTextField'),
                 controller: _jdTextController,
@@ -150,8 +167,18 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
                   labelText: 'Job description',
                   alignLabelWithHint: true,
                 ),
-              )
-            else
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const Key('jdPasteButton'),
+                  onPressed: _pasteFromClipboard,
+                  icon: const Icon(Icons.content_paste_go_outlined),
+                  label: const Text('Paste from clipboard'),
+                ),
+              ),
+            ] else
               _buildUploadPanel(),
             if (_error != null)
               Padding(

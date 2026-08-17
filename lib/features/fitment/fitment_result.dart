@@ -20,15 +20,45 @@ class RequirementBreakdownItem {
   final String notes;
 }
 
-class CertificationRecommendation {
-  const CertificationRecommendation({
-    required this.name,
+enum GapDimension { experience, education, skills, certifications }
+
+extension GapDimensionLabel on GapDimension {
+  String get label => switch (this) {
+        GapDimension.experience => 'Experience',
+        GapDimension.education => 'Education & Qualifications',
+        GapDimension.skills => 'Skills',
+        GapDimension.certifications => 'Certifications',
+      };
+}
+
+/// How the CV measures up against the JD on one of the four gap
+/// dimensions (experience, education, skills, certifications).
+class DimensionAssessment {
+  const DimensionAssessment({
+    required this.dimension,
+    required this.status,
+    required this.notes,
+  });
+
+  final GapDimension dimension;
+  final RequirementStatus status;
+  final String notes;
+}
+
+/// A prioritized, concrete step to close a specific gap — spans all four
+/// dimensions, not just certifications (e.g. a certification to earn, a
+/// course to close a skill gap, or how to frame limited experience).
+class GapRoadmapItem {
+  const GapRoadmapItem({
+    required this.title,
+    required this.dimension,
     required this.closesGap,
     required this.timeToAcquire,
     required this.priority,
   });
 
-  final String name;
+  final String title;
+  final GapDimension dimension;
   final String closesGap;
   final String timeToAcquire;
   final int priority;
@@ -42,7 +72,8 @@ class FitmentResult {
     required this.requirementBreakdown,
     required this.originalCvExcerpt,
     required this.refinedCv,
-    required this.certificationGuidance,
+    required this.dimensionGaps,
+    required this.gapRoadmap,
   });
 
   final int fitmentScore;
@@ -50,5 +81,6 @@ class FitmentResult {
   final List<RequirementBreakdownItem> requirementBreakdown;
   final String originalCvExcerpt;
   final String refinedCv;
-  final List<CertificationRecommendation> certificationGuidance;
+  final List<DimensionAssessment> dimensionGaps;
+  final List<GapRoadmapItem> gapRoadmap;
 }

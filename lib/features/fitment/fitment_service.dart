@@ -62,21 +62,48 @@ Future<FitmentResult> mockAnalyzeFitment({
         'improving audit readiness. Proven track record coordinating multi-department '
         'operations under tight timelines — directly transferable to supply chain and '
         'operations management roles.',
-    certificationGuidance: [
-      CertificationRecommendation(
-        name: 'PMP (Project Management Professional)',
+    dimensionGaps: [
+      DimensionAssessment(
+        dimension: GapDimension.experience,
+        status: RequirementStatus.met,
+        notes: 'CV shows over a decade managing teams of 30+, comfortably meeting the '
+            '8+ years required.',
+      ),
+      DimensionAssessment(
+        dimension: GapDimension.education,
+        status: RequirementStatus.met,
+        notes: "Bachelor's degree listed, matching the JD's minimum requirement.",
+      ),
+      DimensionAssessment(
+        dimension: GapDimension.skills,
+        status: RequirementStatus.partiallyMet,
+        notes: 'Strong logistics and inventory skills, but no named ERP platform '
+            '(e.g. SAP) mentioned.',
+      ),
+      DimensionAssessment(
+        dimension: GapDimension.certifications,
+        status: RequirementStatus.gap,
+        notes: 'No formal project-management certification listed on the CV.',
+      ),
+    ],
+    gapRoadmap: [
+      GapRoadmapItem(
+        title: 'PMP (Project Management Professional)',
+        dimension: GapDimension.certifications,
         closesGap: 'PMP or equivalent project-management certification',
         timeToAcquire: '3-4 months',
         priority: 1,
       ),
-      CertificationRecommendation(
-        name: 'SAP Certified Associate — Supply Chain',
+      GapRoadmapItem(
+        title: 'SAP Certified Associate — Supply Chain',
+        dimension: GapDimension.skills,
         closesGap: 'Exposure to ERP / inventory software',
         timeToAcquire: '6-8 weeks',
         priority: 2,
       ),
-      CertificationRecommendation(
-        name: 'Six Sigma Green Belt',
+      GapRoadmapItem(
+        title: 'Six Sigma Green Belt',
+        dimension: GapDimension.certifications,
         closesGap: 'Process-improvement credibility for operations roles',
         timeToAcquire: '4-6 weeks',
         priority: 3,

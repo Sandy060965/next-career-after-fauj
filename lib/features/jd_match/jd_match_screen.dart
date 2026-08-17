@@ -102,6 +102,7 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
         cvPdfBytes: profile?.cvPdfBytes,
       );
       if (!mounted) return;
+      context.read<ProfileRepository>().saveFitmentResult(result, jdText: jdSource);
       setState(() => _isAnalyzing = false);
       Navigator.of(context).push(
         MaterialPageRoute(

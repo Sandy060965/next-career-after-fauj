@@ -93,10 +93,20 @@ Future<FitmentResult> httpAnalyzeFitment({
         .toList(),
     originalCvExcerpt: json['original_cv_excerpt'] as String? ?? '',
     refinedCv: json['refined_cv'] as String,
-    certificationGuidance: (json['certification_guidance'] as List)
+    dimensionGaps: (json['dimension_gaps'] as List)
         .map(
-          (e) => CertificationRecommendation(
-            name: e['name'] as String,
+          (e) => DimensionAssessment(
+            dimension: _parseDimension(e['dimension'] as String),
+            status: _parseStatus(e['status'] as String),
+            notes: e['notes'] as String,
+          ),
+        )
+        .toList(),
+    gapRoadmap: (json['gap_roadmap'] as List)
+        .map(
+          (e) => GapRoadmapItem(
+            title: e['title'] as String,
+            dimension: _parseDimension(e['dimension'] as String),
             closesGap: e['closes_gap'] as String,
             timeToAcquire: e['time_to_acquire'] as String,
             priority: e['priority'] as int,
@@ -110,4 +120,11 @@ RequirementStatus _parseStatus(String raw) => switch (raw) {
       'Met' => RequirementStatus.met,
       'Partially Met' => RequirementStatus.partiallyMet,
       _ => RequirementStatus.gap,
+    };
+
+GapDimension _parseDimension(String raw) => switch (raw) {
+      'education' => GapDimension.education,
+      'skills' => GapDimension.skills,
+      'certifications' => GapDimension.certifications,
+      _ => GapDimension.experience,
     };

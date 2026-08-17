@@ -84,6 +84,24 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('refinedCvButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.refinedCv),
+              child: const Text('Refined CV'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('gapRoadmapButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.gapRoadmap),
+              child: const Text('Gap Roadmap'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('jobMatchesButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jobMatches),
               child: const Text('Job Matches'),

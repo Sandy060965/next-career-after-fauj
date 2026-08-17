@@ -14,7 +14,8 @@ const _stubResult = FitmentResult(
   requirementBreakdown: [],
   originalCvExcerpt: 'Original excerpt',
   refinedCv: 'Refined excerpt',
-  certificationGuidance: [],
+  dimensionGaps: [],
+  gapRoadmap: [],
 );
 
 Future<FitmentResult> _stubAnalyzeFitment({

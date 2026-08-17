@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'certification_timeline_screen.dart';
 import 'fitment_result.dart';
+import 'gap_roadmap_screen.dart';
 import 'refined_cv_screen.dart';
 
 class ScoreGapScreen extends StatelessWidget {
@@ -49,11 +49,11 @@ class ScoreGapScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
-              key: const Key('viewCertificationGuidanceButton'),
+              key: const Key('viewGapRoadmapButton'),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => CertificationTimelineScreen(result: result)),
+                MaterialPageRoute(builder: (_) => GapRoadmapScreen(result: result)),
               ),
-              child: const Text('View certification guidance'),
+              child: const Text('View gap roadmap'),
             ),
           ),
         ],

@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
-import 'package:next_career_after_fauj/features/fitment/certification_timeline_screen.dart';
+import 'package:next_career_after_fauj/core/routing/app_routes.dart';
+import 'package:next_career_after_fauj/features/fitment/fitment_entry_screens.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
+import 'package:next_career_after_fauj/features/fitment/gap_roadmap_screen.dart';
 import 'package:next_career_after_fauj/features/fitment/refined_cv_screen.dart';
 import 'package:next_career_after_fauj/features/fitment/score_gap_screen.dart';
 import 'package:provider/provider.dart';
@@ -26,15 +28,39 @@ const _result = FitmentResult(
   ],
   originalCvExcerpt: 'Led logistics operations for a large unit.',
   refinedCv: 'Supply Chain & Operations Leader with proven logistics track record.',
-  certificationGuidance: [
-    CertificationRecommendation(
-      name: 'PMP',
+  dimensionGaps: [
+    DimensionAssessment(
+      dimension: GapDimension.experience,
+      status: RequirementStatus.met,
+      notes: 'Over a decade of relevant leadership experience.',
+    ),
+    DimensionAssessment(
+      dimension: GapDimension.education,
+      status: RequirementStatus.met,
+      notes: "Bachelor's degree listed.",
+    ),
+    DimensionAssessment(
+      dimension: GapDimension.skills,
+      status: RequirementStatus.partiallyMet,
+      notes: 'No named ERP platform mentioned.',
+    ),
+    DimensionAssessment(
+      dimension: GapDimension.certifications,
+      status: RequirementStatus.gap,
+      notes: 'No formal certification listed on the CV.',
+    ),
+  ],
+  gapRoadmap: [
+    GapRoadmapItem(
+      title: 'PMP',
+      dimension: GapDimension.certifications,
       closesGap: 'PMP certification',
       timeToAcquire: '3-4 months',
       priority: 2,
     ),
-    CertificationRecommendation(
-      name: 'Six Sigma Green Belt',
+    GapRoadmapItem(
+      title: 'Six Sigma Green Belt',
+      dimension: GapDimension.certifications,
       closesGap: 'Process-improvement credibility',
       timeToAcquire: '4-6 weeks',
       priority: 1,
@@ -68,7 +94,7 @@ void main() {
       expect(find.text('No formal certification listed on the CV.'), findsOneWidget);
     });
 
-    testWidgets('navigates to Refined CV and Certification Guidance screens', (tester) async {
+    testWidgets('navigates to Refined CV and Gap Roadmap screens', (tester) async {
       tester.view.physicalSize = const Size(430, 1400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -83,9 +109,9 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(const Key('viewCertificationGuidanceButton')));
+      await tester.tap(find.byKey(const Key('viewGapRoadmapButton')));
       await tester.pumpAndSettle();
-      expect(find.text('Certification Guidance'), findsOneWidget);
+      expect(find.text('Gap Roadmap'), findsOneWidget);
     });
   });
 
@@ -106,9 +132,14 @@ void main() {
     });
   });
 
-  group('CertificationTimelineScreen', () {
-    testWidgets('lists certifications in priority order and shows the release marker',
+  group('GapRoadmapScreen', () {
+    testWidgets('shows all four dimension assessments and roadmap in priority order',
         (tester) async {
+      tester.view.physicalSize = const Size(430, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final repository = ProfileRepository()
         ..saveProfile(
           OfficerProfile(
@@ -128,8 +159,13 @@ void main() {
         );
 
       await tester.pumpWidget(
-        _wrap(const CertificationTimelineScreen(result: _result), repository: repository),
+        _wrap(const GapRoadmapScreen(result: _result), repository: repository),
       );
+
+      expect(find.text('Experience'), findsOneWidget);
+      expect(find.text('Education & Qualifications'), findsOneWidget);
+      expect(find.text('Skills'), findsWidgets);
+      expect(find.text('Certifications'), findsWidgets);
 
       final sixSigmaCenter = tester.getCenter(find.text('Six Sigma Green Belt'));
       final pmpCenter = tester.getCenter(find.text('PMP'));
@@ -139,6 +175,11 @@ void main() {
     });
 
     testWidgets('shows an already-released marker when the profile says so', (tester) async {
+      tester.view.physicalSize = const Size(430, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       final repository = ProfileRepository()
         ..saveProfile(
           OfficerProfile(
@@ -158,10 +199,67 @@ void main() {
         );
 
       await tester.pumpWidget(
-        _wrap(const CertificationTimelineScreen(result: _result), repository: repository),
+        _wrap(const GapRoadmapScreen(result: _result), repository: repository),
       );
 
       expect(find.textContaining('Already released'), findsOneWidget);
+    });
+  });
+
+  group('Standalone fitment entry screens', () {
+    testWidgets('RefinedCvEntryScreen prompts to run JD Match when no result is cached yet',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const RefinedCvEntryScreen()));
+
+      expect(find.text('Refined CV'), findsOneWidget);
+      expect(find.textContaining('Run JD Match against a job description first'),
+          findsOneWidget);
+      expect(find.byKey(const Key('goToJdMatchButton')), findsOneWidget);
+    });
+
+    testWidgets('GapRoadmapEntryScreen prompts to run JD Match when no result is cached yet',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const GapRoadmapEntryScreen()));
+
+      expect(find.text('Gap Roadmap'), findsOneWidget);
+      expect(find.textContaining('Run JD Match against a job description first'),
+          findsOneWidget);
+      expect(find.byKey(const Key('goToJdMatchButton')), findsOneWidget);
+    });
+
+    testWidgets('both entry screens show the cached result once JD Match has run',
+        (tester) async {
+      final repository = ProfileRepository()..saveFitmentResult(_result, jdText: 'Some JD');
+
+      await tester.pumpWidget(_wrap(const RefinedCvEntryScreen(), repository: repository));
+      expect(find.byKey(const Key('goToJdMatchButton')), findsNothing);
+      expect(find.text('Supply Chain & Operations Leader with proven logistics track record.'),
+          findsOneWidget);
+
+      await tester.pumpWidget(_wrap(const GapRoadmapEntryScreen(), repository: repository));
+      expect(find.byKey(const Key('goToJdMatchButton')), findsNothing);
+      expect(find.text('Experience'), findsOneWidget);
+    });
+
+    testWidgets('the "Run JD Match" button navigates to the JD Match route', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ProfileRepository>(
+          create: (_) => ProfileRepository(),
+          child: MaterialApp(
+            theme: AppTheme.light,
+            initialRoute: AppRoutes.refinedCv,
+            routes: {
+              AppRoutes.refinedCv: (_) => const RefinedCvEntryScreen(),
+              AppRoutes.jdMatch: (_) => const Scaffold(body: Text('JD Match placeholder')),
+            },
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('goToJdMatchButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('JD Match placeholder'), findsOneWidget);
     });
   });
 }

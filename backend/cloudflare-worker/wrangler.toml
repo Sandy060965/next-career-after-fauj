@@ -3,12 +3,32 @@ main = "src/index.js"
 compatibility_date = "2024-09-23"
 
 # Secrets (never committed — set these with `wrangler secret put <NAME>`):
-#   ANTHROPIC_API_KEY  - your Anthropic Console API key
-#   APP_SHARED_KEY     - a random string the Flutter app also sends as the
-#                        x-app-key header, so only the app can call this
-#                        Worker (not real user auth, just an abuse gate)
-#   RAPIDAPI_KEY       - your RapidAPI key, subscribed to the JSearch API
-#                        (used by the /job-matches endpoint)
+#   ANTHROPIC_API_KEY        - your Anthropic Console API key
+#   APP_SHARED_KEY           - a random string the Flutter app also sends as
+#                              the x-app-key header, so only the app can call
+#                              this Worker (not real user auth, just an abuse
+#                              gate — see JWT_SECRET below for real auth)
+#   RAPIDAPI_KEY             - your RapidAPI key, subscribed to the JSearch
+#                              API (used by the /job-matches endpoint)
+#   TWILIO_ACCOUNT_SID       - from your Twilio Console
+#   TWILIO_AUTH_TOKEN        - from your Twilio Console
+#   TWILIO_VERIFY_SERVICE_SID - the Verify Service you create in the Twilio
+#                              Console (Verify > Services) — used for
+#                              phone-OTP login (/auth/request-otp,
+#                              /auth/verify-otp)
+#   JWT_SECRET               - a long random string used to sign officer
+#                              session tokens; generate with e.g.
+#                              `openssl rand -hex 32`
+#   ADMIN_SECRET             - a long random string for the
+#                              /admin/grant-entitlement endpoint (manual
+#                              entitlement grants until a real payment
+#                              gateway exists) — never used by the app
+
+# Officer accounts and entitlements (phone-OTP login).
+[[d1_databases]]
+binding = "DB"
+database_name = "next-career-after-fauj-officers"
+database_id = "b0cb0985-da4a-4796-8869-1ea488d02f4e"
 
 # Optional: KV namespace for caching JSearch results (~12h) to conserve
 # API quota. The Worker runs fine without this — caching is just skipped.

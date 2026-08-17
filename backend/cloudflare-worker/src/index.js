@@ -2,6 +2,7 @@ import { INDIA_CITIES } from './india_cities.js';
 import { TOP_COMPANIES } from './top_companies.js';
 import { AI_COURSES } from './ai_courses.js';
 import { AI_COMPETENCIES } from './ai_competencies.js';
+import { handleRequestOtp, handleVerifyOtp, handleMe, handleGrantEntitlement } from './auth.js';
 
 const FITMENT_SYSTEM_PROMPT = `You are a career-transition advisor for Indian Armed Forces officers moving into
 civilian roles. You will be given (a) an officer's CV text and (b) a target job
@@ -248,7 +249,7 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'content-type, x-app-key',
+  'Access-Control-Allow-Headers': 'content-type, x-app-key, authorization, x-admin-key',
 };
 
 function stripCodeFence(text) {
@@ -718,6 +719,10 @@ export default {
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);
     if (path === '/compensation') return handleCompensation(body, env);
+    if (path === '/auth/request-otp') return handleRequestOtp(body, env);
+    if (path === '/auth/verify-otp') return handleVerifyOtp(body, env);
+    if (path === '/me') return handleMe(request, env);
+    if (path === '/admin/grant-entitlement') return handleGrantEntitlement(request, body, env);
     return handleFitmentAnalysis(body, env);
   },
 };

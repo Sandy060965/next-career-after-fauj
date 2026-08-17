@@ -1,6 +1,7 @@
 class AppRoutes {
   AppRoutes._();
 
+  static const String phoneVerification = '/verify-phone';
   static const String onboarding = '/';
   static const String profile = '/profile';
   static const String careerReadiness = '/career-readiness';

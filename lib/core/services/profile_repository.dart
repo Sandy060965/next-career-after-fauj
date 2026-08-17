@@ -8,13 +8,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/ai_readiness/ai_readiness.dart';
 import '../../features/fitment/fitment_result.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
+import '../models/officer_account.dart';
 import '../models/officer_profile.dart';
+import 'session_storage.dart';
 
 const _profileKey = 'officer_profile_v1';
 const _fitmentResultKey = 'last_fitment_result_v1';
 const _jdTextKey = 'last_jd_text_v1';
 const _verticalFitKey = 'last_vertical_fit_v1';
 const _aiReadinessKey = 'last_ai_readiness_v1';
+const _accountKey = 'officer_account_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -23,13 +26,28 @@ const _cvFileName = 'officer_cv';
 /// persistence is always best-effort: a write/read failure falls back to
 /// in-memory-only behaviour rather than crashing the app.
 class ProfileRepository extends ChangeNotifier {
+  ProfileRepository({SessionStorage? sessionStorage})
+      : _sessionStorage = sessionStorage ?? SessionStorage();
+
+  final SessionStorage _sessionStorage;
+
   OfficerProfile? _profile;
   FitmentResult? _lastFitmentResult;
   String? _lastJdText;
   VerticalFitAssessment? _lastVerticalFitAssessment;
   AiReadinessResult? _lastAiReadinessResult;
+  String? _sessionToken;
+  OfficerAccount? _account;
 
   OfficerProfile? get profile => _profile;
+
+  /// Non-null once the officer has verified their phone number — gates
+  /// access to onboarding (see main.dart's initialRoute logic). Distinct
+  /// from [profile], which is the officer's own career data collected
+  /// during onboarding.
+  String? get sessionToken => _sessionToken;
+
+  OfficerAccount? get account => _account;
 
   /// The most recent JD-match result, cached so Refined CV and Gap Roadmap
   /// can be reached directly from the Profile screen instead of only via
@@ -73,10 +91,20 @@ class ProfileRepository extends ChangeNotifier {
         _lastAiReadinessResult =
             AiReadinessResult.fromJson(jsonDecode(aiReadinessJson) as Map<String, dynamic>);
       }
+
+      final accountJson = prefs.getString(_accountKey);
+      if (accountJson != null) {
+        _account = OfficerAccount.fromJson(jsonDecode(accountJson) as Map<String, dynamic>);
+      }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
       debugPrint('ProfileRepository.loadFromStorage failed: $e');
     }
+
+    // The session token lives in secure storage, not SharedPreferences —
+    // read separately so a failure here doesn't take the rest of the cached
+    // state down with it.
+    _sessionToken = await _sessionStorage.readToken();
   }
 
   Future<void> saveProfile(OfficerProfile profile) async {
@@ -129,6 +157,46 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_aiReadinessKey, jsonEncode(result.toJson()));
     } catch (e) {
       debugPrint('ProfileRepository.saveAiReadinessResult persistence failed: $e');
+    }
+  }
+
+  /// Called once, right after phone-OTP verification succeeds.
+  Future<void> saveSession(String token, OfficerAccount account) async {
+    _sessionToken = token;
+    _account = account;
+    notifyListeners();
+    await _sessionStorage.saveToken(token);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_accountKey, jsonEncode(account.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveSession persistence failed: $e');
+    }
+  }
+
+  /// Refreshes the cached entitlement from the backend — e.g. after a
+  /// payment, or just to pick up a manually-granted test entitlement.
+  Future<void> updateAccount(OfficerAccount account) async {
+    _account = account;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_accountKey, jsonEncode(account.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.updateAccount persistence failed: $e');
+    }
+  }
+
+  Future<void> clearSession() async {
+    _sessionToken = null;
+    _account = null;
+    notifyListeners();
+    await _sessionStorage.clearToken();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_accountKey);
+    } catch (e) {
+      debugPrint('ProfileRepository.clearSession persistence failed: $e');
     }
   }
 

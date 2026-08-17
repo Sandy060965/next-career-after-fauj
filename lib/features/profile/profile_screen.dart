@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/models/officer_account.dart';
 import '../../core/models/officer_profile.dart';
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
@@ -11,7 +12,8 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final profile = context.watch<ProfileRepository>().profile;
+    final repo = context.watch<ProfileRepository>();
+    final profile = repo.profile;
 
     if (profile == null) {
       return const Scaffold(body: Center(child: Text('No profile found yet.')));
@@ -31,9 +33,19 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Chip(
-            label: Text(profile.segment.fullLabel),
-            visualDensity: VisualDensity.compact,
+          Wrap(
+            spacing: 8,
+            children: [
+              Chip(
+                label: Text(profile.segment.fullLabel),
+                visualDensity: VisualDensity.compact,
+              ),
+              Chip(
+                key: const Key('entitlementChip'),
+                label: Text((repo.account?.entitlementTier ?? EntitlementTier.free).label),
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           _SectionCard(
@@ -172,11 +184,23 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Subscription unlock as this build progresses.',
+            'More of the Transition Pass experience unlocks as this build progresses.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
             textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: TextButton(
+              key: const Key('signOutButton'),
+              onPressed: () {
+                repo.clearSession();
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(AppRoutes.phoneVerification, (route) => false);
+              },
+              child: const Text('Sign out'),
+            ),
           ),
         ],
       ),

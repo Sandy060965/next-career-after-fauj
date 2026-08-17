@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/routing/app_routes.dart';
+import 'core/services/auth_service.dart';
 import 'core/services/profile_repository.dart';
 import 'core/theme/app_theme.dart';
 import 'features/ai_readiness/ai_readiness_http_service.dart';
 import 'features/ai_readiness/ai_readiness_quiz_screen.dart';
+import 'features/auth/phone_verification_screen.dart';
 import 'features/career_paths/career_paths_screen.dart';
 import 'features/career_readiness/career_readiness_screen.dart';
 import 'features/compensation/compensation_http_service.dart';
@@ -25,10 +29,30 @@ import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
 
+// Debug-only escape hatch for local testing before Twilio is configured —
+// false in every real build (App Store/Play Store builds never pass this
+// flag). Only active when explicitly launched with
+// --dart-define=SKIP_AUTH_FOR_TESTING=true.
+const _skipAuthForTesting = bool.fromEnvironment('SKIP_AUTH_FOR_TESTING');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final profileRepository = ProfileRepository();
   await profileRepository.loadFromStorage();
+
+  // Refresh the cached entitlement from the backend in the background —
+  // e.g. to pick up a payment or a manually-granted test entitlement made
+  // since the last launch. The app runs fine on the cached value if this
+  // fails or the session has expired server-side.
+  final token = profileRepository.sessionToken;
+  if (token != null) {
+    unawaited(
+      AuthService().fetchAccount(token).then((account) {
+        if (account != null) profileRepository.updateAccount(account);
+      }),
+    );
+  }
+
   runApp(NextCareerAfterFaujApp(profileRepository: profileRepository));
 }
 
@@ -45,11 +69,17 @@ class NextCareerAfterFaujApp extends StatelessWidget {
         title: 'Next Career After Fauj',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        // Skip straight to Profile if onboarding was already completed in
-        // a previous session — the profile now survives app restarts.
-        initialRoute:
-            profileRepository.profile != null ? AppRoutes.profile : AppRoutes.onboarding,
+        // Phone verification gates everything else: no session -> verify
+        // first. With a session, skip straight to Profile if onboarding was
+        // already completed in a previous session — both the session and
+        // the profile survive app restarts.
+        initialRoute: (profileRepository.sessionToken == null && !_skipAuthForTesting)
+            ? AppRoutes.phoneVerification
+            : profileRepository.profile != null
+                ? AppRoutes.profile
+                : AppRoutes.onboarding,
         routes: {
+          AppRoutes.phoneVerification: (_) => PhoneVerificationScreen(),
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
           AppRoutes.careerReadiness: (_) => const CareerReadinessScreen(),

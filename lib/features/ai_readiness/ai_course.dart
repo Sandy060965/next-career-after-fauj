@@ -69,22 +69,12 @@ const List<AiCourse> kAiCourses = [
     name: 'Gen-AI Mastermind (weekend workshop)',
     provider: 'Outskill',
     url: 'https://www.outskill.com/',
-    duration: '2-day live cohort, 5 sessions',
+    duration: 'Live cohort workshop — see website for current dates',
     cost: CourseCost.free,
     description:
         'Live weekend workshop: generative AI fundamentals, building custom GPTs/agents, '
-        'no-code AI products, and AI-generated visual content. Dated cohort, not self-paced.',
-  ),
-  AiCourse(
-    id: 'outskill-accelerator-fellowship',
-    name: 'AI Accelerator / AI Fellowship',
-    provider: 'Outskill',
-    url: 'https://www.outskill.com/',
-    duration: '40-60+ hrs (Accelerator) or 6 months (Fellowship)',
-    cost: CourseCost.paid,
-    description:
-        'Deeper paid programs beyond the free Mastermind — self-paced Accelerator or a 6-month '
-        'hybrid Fellowship. Pricing is not publicly listed; shown only via their enrollment flow.',
+        'no-code AI products, and AI-generated visual content. Runs as dated cohorts, not '
+        'self-paced — check the website for the next available date.',
   ),
   AiCourse(
     id: 'soar-skill-india',

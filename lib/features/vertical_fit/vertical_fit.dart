@@ -9,6 +9,11 @@ class VerticalFitAssessment {
 
   final Map<String, int> ratings;
 
+  Map<String, dynamic> toJson() => {'ratings': ratings};
+
+  factory VerticalFitAssessment.fromJson(Map<String, dynamic> json) =>
+      VerticalFitAssessment(ratings: Map<String, int>.from(json['ratings'] as Map));
+
   Map<AptitudeDimension, int> get dimensionScores {
     final scores = <AptitudeDimension, int>{};
     for (final dimension in AptitudeDimension.values) {

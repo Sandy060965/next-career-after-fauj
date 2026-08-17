@@ -24,22 +24,30 @@ import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
 
-void main() {
-  runApp(const NextCareerAfterFaujApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final profileRepository = ProfileRepository();
+  await profileRepository.loadFromStorage();
+  runApp(NextCareerAfterFaujApp(profileRepository: profileRepository));
 }
 
 class NextCareerAfterFaujApp extends StatelessWidget {
-  const NextCareerAfterFaujApp({super.key});
+  const NextCareerAfterFaujApp({super.key, required this.profileRepository});
+
+  final ProfileRepository profileRepository;
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ProfileRepository(),
+    return ChangeNotifierProvider.value(
+      value: profileRepository,
       child: MaterialApp(
         title: 'Next Career After Fauj',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
-        initialRoute: AppRoutes.onboarding,
+        // Skip straight to Profile if onboarding was already completed in
+        // a previous session — the profile now survives app restarts.
+        initialRoute:
+            profileRepository.profile != null ? AppRoutes.profile : AppRoutes.onboarding,
         routes: {
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),

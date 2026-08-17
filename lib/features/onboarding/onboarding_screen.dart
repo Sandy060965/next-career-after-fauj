@@ -232,6 +232,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       cvPdfBytes: _cvPdfBytes,
     );
 
+    // saveProfile updates in-memory state synchronously (before its first
+    // await) and persists to disk in the background — navigation doesn't
+    // need to wait on that disk write to complete.
     context.read<ProfileRepository>().saveProfile(profile);
     Navigator.of(context).pushReplacementNamed(AppRoutes.profile);
   }

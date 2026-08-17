@@ -73,4 +73,41 @@ class OfficerProfile {
 
   /// Raw bytes of the uploaded PDF CV, if that's what was uploaded.
   final Uint8List? cvPdfBytes;
+
+  /// Excludes [cvPdfBytes] deliberately — it's persisted separately as a
+  /// file rather than inlined into a JSON blob.
+  Map<String, dynamic> toJson() => {
+        'rank': rank,
+        'fullName': fullName,
+        'dateOfBirth': dateOfBirth.toIso8601String(),
+        'workExperienceYears': workExperienceYears,
+        'workExperienceMonths': workExperienceMonths,
+        'releaseStatus': releaseStatus.name,
+        'releaseDate': releaseDate.toIso8601String(),
+        'service': service.name,
+        'mobileNumber': mobileNumber,
+        'email': email,
+        'segment': segment.name,
+        'cvFileName': cvFileName,
+        'cvExtractedText': cvExtractedText,
+      };
+
+  factory OfficerProfile.fromJson(Map<String, dynamic> json, {Uint8List? cvPdfBytes}) {
+    return OfficerProfile(
+      rank: json['rank'] as String,
+      fullName: json['fullName'] as String,
+      dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
+      workExperienceYears: json['workExperienceYears'] as int,
+      workExperienceMonths: json['workExperienceMonths'] as int,
+      releaseStatus: ReleaseStatus.values.byName(json['releaseStatus'] as String),
+      releaseDate: DateTime.parse(json['releaseDate'] as String),
+      service: OfficerService.values.byName(json['service'] as String),
+      mobileNumber: json['mobileNumber'] as String,
+      email: json['email'] as String,
+      segment: OfficerSegment.values.byName(json['segment'] as String),
+      cvFileName: json['cvFileName'] as String,
+      cvExtractedText: json['cvExtractedText'] as String?,
+      cvPdfBytes: cvPdfBytes,
+    );
+  }
 }

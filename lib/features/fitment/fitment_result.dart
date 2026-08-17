@@ -18,6 +18,18 @@ class RequirementBreakdownItem {
   final String requirement;
   final RequirementStatus status;
   final String notes;
+
+  Map<String, dynamic> toJson() => {
+        'requirement': requirement,
+        'status': status.name,
+        'notes': notes,
+      };
+
+  factory RequirementBreakdownItem.fromJson(Map<String, dynamic> json) => RequirementBreakdownItem(
+        requirement: json['requirement'] as String,
+        status: RequirementStatus.values.byName(json['status'] as String),
+        notes: json['notes'] as String,
+      );
 }
 
 enum GapDimension { experience, education, skills, certifications }
@@ -43,6 +55,18 @@ class DimensionAssessment {
   final GapDimension dimension;
   final RequirementStatus status;
   final String notes;
+
+  Map<String, dynamic> toJson() => {
+        'dimension': dimension.name,
+        'status': status.name,
+        'notes': notes,
+      };
+
+  factory DimensionAssessment.fromJson(Map<String, dynamic> json) => DimensionAssessment(
+        dimension: GapDimension.values.byName(json['dimension'] as String),
+        status: RequirementStatus.values.byName(json['status'] as String),
+        notes: json['notes'] as String,
+      );
 }
 
 /// A prioritized, concrete step to close a specific gap — spans all four
@@ -62,6 +86,22 @@ class GapRoadmapItem {
   final String closesGap;
   final String timeToAcquire;
   final int priority;
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'dimension': dimension.name,
+        'closesGap': closesGap,
+        'timeToAcquire': timeToAcquire,
+        'priority': priority,
+      };
+
+  factory GapRoadmapItem.fromJson(Map<String, dynamic> json) => GapRoadmapItem(
+        title: json['title'] as String,
+        dimension: GapDimension.values.byName(json['dimension'] as String),
+        closesGap: json['closesGap'] as String,
+        timeToAcquire: json['timeToAcquire'] as String,
+        priority: json['priority'] as int,
+      );
 }
 
 /// Result of comparing an officer's CV against a job description.
@@ -83,4 +123,30 @@ class FitmentResult {
   final String refinedCv;
   final List<DimensionAssessment> dimensionGaps;
   final List<GapRoadmapItem> gapRoadmap;
+
+  Map<String, dynamic> toJson() => {
+        'fitmentScore': fitmentScore,
+        'scoreRationale': scoreRationale,
+        'requirementBreakdown': requirementBreakdown.map((e) => e.toJson()).toList(),
+        'originalCvExcerpt': originalCvExcerpt,
+        'refinedCv': refinedCv,
+        'dimensionGaps': dimensionGaps.map((e) => e.toJson()).toList(),
+        'gapRoadmap': gapRoadmap.map((e) => e.toJson()).toList(),
+      };
+
+  factory FitmentResult.fromJson(Map<String, dynamic> json) => FitmentResult(
+        fitmentScore: json['fitmentScore'] as int,
+        scoreRationale: json['scoreRationale'] as String,
+        requirementBreakdown: (json['requirementBreakdown'] as List)
+            .map((e) => RequirementBreakdownItem.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        originalCvExcerpt: json['originalCvExcerpt'] as String,
+        refinedCv: json['refinedCv'] as String,
+        dimensionGaps: (json['dimensionGaps'] as List)
+            .map((e) => DimensionAssessment.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        gapRoadmap: (json['gapRoadmap'] as List)
+            .map((e) => GapRoadmapItem.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
 }

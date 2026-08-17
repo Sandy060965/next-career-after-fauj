@@ -102,6 +102,11 @@ void main() {
       expect(find.text('resume.pdf'), findsOneWidget);
       await tester.tap(find.byKey(const Key('continueButton')));
       await tester.pumpAndSettle();
+      // Navigation doesn't wait on the background CV-file write (it's
+      // best-effort persistence), but its safety-net timeout Timer is
+      // still pending in this test's FakeAsync zone — pump it forward so
+      // the timer fires and the test doesn't finish with pending timers.
+      await tester.pump(const Duration(seconds: 6));
 
       final now = DateTime.now();
       final expectedDob = formatDate(DateTime(now.year - 30, now.month, now.day));

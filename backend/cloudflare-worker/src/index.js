@@ -308,7 +308,11 @@ async function searchJSearch(env, query) {
     if (cached) return cached;
   }
 
-  const url = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(query)}&num_pages=1&country=in`;
+  // /search-v2: OpenWeb Ninja retired /search in favor of this path (confirmed
+  // with their support — the old path now 404s even with a valid key).
+  // num_pages is unchanged; v2 only replaces offset-based "page" pagination
+  // with a "cursor" param, which we don't need since we only fetch page 1.
+  const url = `https://jsearch.p.rapidapi.com/search-v2?query=${encodeURIComponent(query)}&num_pages=1&country=in`;
   const response = await fetch(url, {
     headers: {
       'x-rapidapi-key': env.RAPIDAPI_KEY,
@@ -319,7 +323,9 @@ async function searchJSearch(env, query) {
     throw new Error(`JSearch API error: ${response.status} ${await response.text()}`);
   }
   const data = await response.json();
-  const listings = data.data || [];
+  // /search-v2 wraps results as data.jobs (v1 had the array directly on
+  // data) — confirmed against OpenWeb Ninja's published schema.
+  const listings = data.data?.jobs || [];
 
   if (env.JOB_CACHE) {
     // Cache for 12 hours to conserve the JSearch request quota.

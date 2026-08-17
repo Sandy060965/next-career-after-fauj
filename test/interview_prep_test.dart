@@ -7,6 +7,8 @@ import 'package:next_career_after_fauj/features/interview_prep/interview_practic
 import 'package:next_career_after_fauj/features/interview_prep/interview_prep_screen.dart';
 import 'package:next_career_after_fauj/features/interview_prep/interview_question.dart';
 import 'package:next_career_after_fauj/features/interview_prep/jd_interview_question.dart';
+import 'package:next_career_after_fauj/features/interview_prep/mock_interview_feedback.dart';
+import 'package:next_career_after_fauj/features/interview_prep/mock_interview_screen.dart';
 import 'package:next_career_after_fauj/features/interview_prep/voice_input_service.dart';
 import 'package:provider/provider.dart';
 
@@ -60,6 +62,17 @@ class _FakeVoiceInputService implements VoiceInputService {
     _listening = false;
   }
 }
+
+Future<MockInterviewFeedback> _stubAnalyzeAnswer({
+  required String question,
+  required String answer,
+  String? jdText,
+}) async =>
+    const MockInterviewFeedback(
+      strengths: ['Specific example given.'],
+      improvements: ['Tighten the structure.'],
+      overallImpression: 'Solid, could be sharper.',
+    );
 
 Widget _wrap(Widget child, {ProfileRepository? repository}) {
   return ChangeNotifierProvider<ProfileRepository>.value(
@@ -121,6 +134,100 @@ void main() {
 
       expect(find.text('Practice'), findsOneWidget);
       expect(find.text('Tell me about yourself.'), findsOneWidget);
+    });
+
+    testWidgets('Start Mock Interview uses JD-specific questions when available', (tester) async {
+      final repository = ProfileRepository()
+        ..saveFitmentResult(_stubFitmentResult, jdText: 'Looking for a COO with P&L ownership.');
+
+      await tester.pumpWidget(
+        _wrap(
+          const InterviewPrepScreen(
+            generateJdQuestions: _stubGenerateJdQuestions,
+            analyzeMockAnswer: _stubAnalyzeAnswer,
+          ),
+          repository: repository,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('startMockInterviewButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tailored question about the role.'), findsOneWidget);
+    });
+
+    testWidgets('Start Mock Interview falls back to the fixed bank when no JD is cached',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          const InterviewPrepScreen(
+            generateJdQuestions: _stubGenerateJdQuestions,
+            analyzeMockAnswer: _stubAnalyzeAnswer,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('startMockInterviewButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Tell me about yourself.'), findsOneWidget);
+    });
+  });
+
+  group('MockInterviewScreen', () {
+    testWidgets('steps through questions, shows feedback, and finishes back to the caller',
+        (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          Navigator(
+            onGenerateRoute: (settings) => MaterialPageRoute(
+              builder: (context) => Scaffold(
+                body: Center(
+                  child: TextButton(
+                    child: const Text('Home'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => MockInterviewScreen(
+                          questions: const ['Question one?', 'Question two?'],
+                          analyzeAnswer: _stubAnalyzeAnswer,
+                          voiceInputService: _FakeVoiceInputService(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Question one?'), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('mockAnswerField')), 'My first answer.');
+      await tester.tap(find.byKey(const Key('submitAnswerButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('feedbackCard')), findsOneWidget);
+      expect(find.text('Solid, could be sharper.'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('nextQuestionButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Question two?'), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('mockAnswerField')), 'My second answer.');
+      await tester.tap(find.byKey(const Key('submitAnswerButton')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('nextQuestionButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.text('Question two?'), findsNothing);
     });
   });
 

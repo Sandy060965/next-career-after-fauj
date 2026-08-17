@@ -191,6 +191,53 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
   ]
 }`;
 
+const MOCK_INTERVIEW_SYSTEM_PROMPT = `You are an interview coach giving feedback on ONE spoken/typed practice answer from an
+Indian Armed Forces officer transitioning to a civilian role. You are given the
+interview question, the officer's answer, and optionally the target job
+description (JD).
+
+STRICT RULES:
+- Evaluate ONLY what the officer actually said. Never invent facts, rewrite
+  their answer with fabricated details, or assume experience not stated in
+  the answer.
+- Do not comment on their CV or career beyond what appears in the answer text.
+- Be concrete: reference specific phrases or gaps in what they said, not
+  generic interview advice.
+- If the answer is very short or off-topic, say so plainly rather than
+  inventing strengths that aren't there.
+
+Evaluate against: STAR structure (Situation/Task/Action/Result) for
+behavioural questions, relevance to the question (and JD, if provided),
+conciseness, and use of civilian vocabulary over unexplained military
+jargon.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "strengths": ["...", "..."],
+  "improvements": ["...", "..."],
+  "overall_impression": "<1-2 sentences>"
+}`;
+
+const COMPENSATION_SYSTEM_PROMPT = `Given a job description (JD), extract exactly what is needed to look up REAL market
+salary data for it, plus directional negotiation guidance.
+
+STRICT RULES:
+- "job_title" must be a concise, standard job title matching the role as
+  described — not verbose, not invented beyond what the JD implies.
+- "location" must be a city/region if the JD states one; otherwise use the
+  broader country/region the JD implies, or "India" if nothing is stated.
+- "negotiation_guidance" must be grounded ONLY in what the JD itself states
+  (seniority signals, scope, required certifications/experience). NEVER
+  invent a specific salary figure or currency amount — actual market
+  numbers are looked up separately from real data, not from you.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "job_title": "...",
+  "location": "...",
+  "negotiation_guidance": "<2-4 sentences>"
+}`;
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -535,6 +582,93 @@ async function handleInterviewQuestions(body, env) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// /mock-interview-feedback — evaluates one practice answer, grounded only
+// in what the officer actually said.
+// ---------------------------------------------------------------------------
+async function handleMockInterviewFeedback(body, env) {
+  const { question, answer, jdText } = body;
+  if (!question || !answer) {
+    return json({ error: 'question and answer are required' }, 400);
+  }
+
+  const userContent = `Question:\n${question}\n\nOfficer's answer:\n${answer}` +
+    (jdText ? `\n\nTarget job description (for relevance only):\n${jdText}` : '');
+
+  try {
+    const parsed = await callClaude(env, {
+      system: MOCK_INTERVIEW_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 1024,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// /compensation — real market salary data (JSearch estimated-salary), never
+// an LLM-invented figure. Only the directional guidance text is generated.
+// ---------------------------------------------------------------------------
+async function fetchEstimatedSalary(env, jobTitle, location) {
+  const url = `https://jsearch.p.rapidapi.com/estimated-salary?job_title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}&location_type=ANY`;
+  const response = await fetch(url, {
+    headers: {
+      'x-rapidapi-key': env.RAPIDAPI_KEY,
+      'x-rapidapi-host': 'jsearch.p.rapidapi.com',
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`JSearch salary API error: ${response.status} ${await response.text()}`);
+  }
+  const data = await response.json();
+  return (data.data || [])[0] || null;
+}
+
+async function handleCompensation(body, env) {
+  const { jdText } = body;
+  if (!jdText) {
+    return json({ error: 'jdText is required' }, 400);
+  }
+  if (!env.RAPIDAPI_KEY) {
+    return json({ error: 'Compensation guidance is not configured (missing RAPIDAPI_KEY)' }, 500);
+  }
+
+  let derived;
+  try {
+    derived = await callClaude(env, {
+      system: COMPENSATION_SYSTEM_PROMPT,
+      userContent: `JD:\n${jdText}`,
+      maxTokens: 512,
+    });
+  } catch (e) {
+    return json({ error: 'Could not derive job title/location from the JD', detail: `${e}` }, 502);
+  }
+
+  let salary = null;
+  try {
+    salary = await fetchEstimatedSalary(env, derived.job_title, derived.location);
+  } catch (e) {
+    // Real data is best-effort — still return the (fabrication-free)
+    // negotiation guidance even if the salary lookup itself fails.
+    salary = null;
+  }
+
+  return json({
+    job_title: derived.job_title,
+    location: derived.location,
+    min_salary: salary?.min_salary ?? null,
+    max_salary: salary?.max_salary ?? null,
+    median_salary: salary?.median_salary ?? null,
+    salary_currency: salary?.salary_currency ?? null,
+    salary_period: salary?.salary_period ?? null,
+    confidence: salary?.confidence ?? null,
+    publisher_name: salary?.publisher_name ?? null,
+    negotiation_guidance: derived.negotiation_guidance,
+  });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -563,6 +697,8 @@ export default {
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
+    if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);
+    if (path === '/compensation') return handleCompensation(body, env);
     return handleFitmentAnalysis(body, env);
   },
 };

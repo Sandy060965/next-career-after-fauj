@@ -66,6 +66,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('verticalFitButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.verticalFit),
+              child: const Text('Career Vertical Fit'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('careerPathsButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerPaths),
               child: const Text('Career Paths'),
@@ -132,6 +141,24 @@ class ProfileScreen extends StatelessWidget {
               key: const Key('interviewPrepButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.interviewPrep),
               child: const Text('Interview Prep'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('compensationButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.compensation),
+              child: const Text('Compensation Guidance'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('ninetyDayRoadmapButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.ninetyDayRoadmap),
+              child: const Text('Your First 90 Days'),
             ),
           ),
           const SizedBox(height: 24),

@@ -7,13 +7,30 @@ import 'interview_practice_screen.dart';
 import 'interview_prep_service.dart';
 import 'interview_question.dart';
 import 'jd_interview_question.dart';
+import 'mock_interview_screen.dart';
+import 'mock_interview_service.dart';
+
+/// A handful of fixed-bank questions spanning categories, used to power a
+/// mock interview when no JD-specific questions are available yet.
+const _fallbackMockQuestions = [
+  'about-1',
+  'leadership-1',
+  'conflict-1',
+  'role-1',
+  'transition-1',
+];
 
 class InterviewPrepScreen extends StatefulWidget {
-  const InterviewPrepScreen({super.key, this.generateJdQuestions = mockGenerateJdInterviewQuestions});
+  const InterviewPrepScreen({
+    super.key,
+    this.generateJdQuestions = mockGenerateJdInterviewQuestions,
+    this.analyzeMockAnswer = mockAnalyzeInterviewAnswer,
+  });
 
   /// Overridable for testing; defaults to sample data until the Cloudflare
   /// Worker backend is wired in.
   final JdInterviewQuestionsAnalyzer generateJdQuestions;
+  final MockInterviewAnalyzer analyzeMockAnswer;
 
   @override
   State<InterviewPrepScreen> createState() => _InterviewPrepScreenState();
@@ -65,6 +82,15 @@ class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
             'for a specific role once you\'ve run JD Match.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              key: const Key('startMockInterviewButton'),
+              onPressed: () => _startMockInterview(context),
+              child: const Text('Start Mock Interview'),
+            ),
+          ),
           const SizedBox(height: 20),
           if (hasJdText) _buildJdSpecificSection(context) else _buildNoJdCard(context),
           const SizedBox(height: 20),
@@ -72,6 +98,26 @@ class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
           const SizedBox(height: 8),
           for (final category in InterviewCategory.values) _CategorySection(category: category),
         ],
+      ),
+    );
+  }
+
+  void _startMockInterview(BuildContext context) {
+    final jdText = context.read<ProfileRepository>().lastJdText;
+    final questions = (_jdQuestions != null && _jdQuestions!.isNotEmpty)
+        ? _jdQuestions!.map((q) => q.question).toList()
+        : [
+            for (final id in _fallbackMockQuestions)
+              kInterviewQuestions.firstWhere((q) => q.id == id).question,
+          ];
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => MockInterviewScreen(
+          questions: questions,
+          jdText: jdText,
+          analyzeAnswer: widget.analyzeMockAnswer,
+        ),
       ),
     );
   }

@@ -6,11 +6,21 @@ import '../../core/services/profile_repository.dart';
 import 'career_vertical.dart';
 
 class CareerPathsScreen extends StatelessWidget {
-  const CareerPathsScreen({super.key});
+  const CareerPathsScreen({super.key, this.recommendedVerticals = const {}});
+
+  /// Vertical names from the Career Vertical Fit assessment, if the officer
+  /// arrived here from those results — shown first, with a badge.
+  final Set<String> recommendedVerticals;
 
   @override
   Widget build(BuildContext context) {
     final segment = context.watch<ProfileRepository>().profile?.segment;
+    final verticals = [...kCareerVerticals]..sort((a, b) {
+        final aRecommended = recommendedVerticals.contains(a.name);
+        final bRecommended = recommendedVerticals.contains(b.name);
+        if (aRecommended == bRecommended) return 0;
+        return aRecommended ? -1 : 1;
+      });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Career Paths')),
@@ -30,8 +40,12 @@ class CareerPathsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          ...kCareerVerticals.map(
-            (vertical) => _VerticalTile(vertical: vertical, segment: segment),
+          ...verticals.map(
+            (vertical) => _VerticalTile(
+              vertical: vertical,
+              segment: segment,
+              isRecommended: recommendedVerticals.contains(vertical.name),
+            ),
           ),
         ],
       ),
@@ -40,10 +54,11 @@ class CareerPathsScreen extends StatelessWidget {
 }
 
 class _VerticalTile extends StatelessWidget {
-  const _VerticalTile({required this.vertical, required this.segment});
+  const _VerticalTile({required this.vertical, required this.segment, this.isRecommended = false});
 
   final CareerVertical vertical;
   final OfficerSegment? segment;
+  final bool isRecommended;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +67,19 @@ class _VerticalTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ExpansionTile(
         key: PageStorageKey(vertical.name),
-        title: Text(vertical.name, style: Theme.of(context).textTheme.titleMedium),
+        title: Row(
+          children: [
+            Expanded(child: Text(vertical.name, style: Theme.of(context).textTheme.titleMedium)),
+            if (isRecommended)
+              Chip(
+                key: const Key('recommendedVerticalBadge'),
+                label: const Text('Recommended'),
+                visualDensity: VisualDensity.compact,
+                backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onTertiaryContainer, fontSize: 12),
+              ),
+          ],
+        ),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
           for (var i = 0; i < vertical.ladder.length; i++)

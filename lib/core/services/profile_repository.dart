@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../../features/fitment/fitment_result.dart';
+import '../../features/vertical_fit/vertical_fit.dart';
 import '../models/officer_profile.dart';
 
 /// In-memory holder for the officer's profile, shared between the
@@ -9,6 +10,7 @@ class ProfileRepository extends ChangeNotifier {
   OfficerProfile? _profile;
   FitmentResult? _lastFitmentResult;
   String? _lastJdText;
+  VerticalFitAssessment? _lastVerticalFitAssessment;
 
   OfficerProfile? get profile => _profile;
 
@@ -18,6 +20,8 @@ class ProfileRepository extends ChangeNotifier {
   FitmentResult? get lastFitmentResult => _lastFitmentResult;
   String? get lastJdText => _lastJdText;
 
+  VerticalFitAssessment? get lastVerticalFitAssessment => _lastVerticalFitAssessment;
+
   void saveProfile(OfficerProfile profile) {
     _profile = profile;
     notifyListeners();
@@ -26,6 +30,11 @@ class ProfileRepository extends ChangeNotifier {
   void saveFitmentResult(FitmentResult result, {String? jdText}) {
     _lastFitmentResult = result;
     _lastJdText = jdText;
+    notifyListeners();
+  }
+
+  void saveVerticalFitAssessment(VerticalFitAssessment assessment) {
+    _lastVerticalFitAssessment = assessment;
     notifyListeners();
   }
 }

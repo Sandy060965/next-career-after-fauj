@@ -7,3 +7,13 @@ compatibility_date = "2024-09-23"
 #   APP_SHARED_KEY     - a random string the Flutter app also sends as the
 #                        x-app-key header, so only the app can call this
 #                        Worker (not real user auth, just an abuse gate)
+#   RAPIDAPI_KEY       - your RapidAPI key, subscribed to the JSearch API
+#                        (used by the /job-matches endpoint)
+
+# Optional: KV namespace for caching JSearch results (~12h) to conserve
+# API quota. The Worker runs fine without this — caching is just skipped.
+# To enable it: run `wrangler kv namespace create JOB_CACHE`, then
+# uncomment the block below and paste in the id it prints.
+# [[kv_namespaces]]
+# binding = "JOB_CACHE"
+# id = "REPLACE_WITH_KV_NAMESPACE_ID"

@@ -5,9 +5,14 @@ import 'fitment_result.dart';
 import 'refined_cv_screen.dart';
 
 class ScoreGapScreen extends StatelessWidget {
-  const ScoreGapScreen({super.key, required this.result});
+  const ScoreGapScreen({super.key, required this.result, this.originalCvText});
 
   final FitmentResult result;
+
+  /// The officer's actual, complete extracted CV text (client-side, never
+  /// touched by the LLM). Null for PDF CVs, where no local text extraction
+  /// happens — the Refined CV screen falls back to the model's excerpt.
+  final String? originalCvText;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +38,9 @@ class ScoreGapScreen extends StatelessWidget {
             child: OutlinedButton(
               key: const Key('viewRefinedCvButton'),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => RefinedCvScreen(result: result)),
+                MaterialPageRoute(
+                  builder: (_) => RefinedCvScreen(result: result, originalCvText: originalCvText),
+                ),
               ),
               child: const Text('View refined CV'),
             ),

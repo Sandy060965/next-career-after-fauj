@@ -80,9 +80,36 @@ class ProfileScreen extends StatelessWidget {
               child: const Text('JD Match'),
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('jobMatchesButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jobMatches),
+              child: const Text('Job Matches'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('linkedinWriteupButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.linkedinWriteup),
+              child: const Text('LinkedIn Write-up'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('aiReadinessButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.aiReadiness),
+              child: const Text('AI Readiness'),
+            ),
+          ),
           const SizedBox(height: 24),
           Text(
-            'Skills-gap prep and subscription unlock as this build progresses.',
+            'Subscription unlock as this build progresses.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

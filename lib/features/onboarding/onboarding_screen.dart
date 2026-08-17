@@ -1,23 +1,26 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/models/officer_profile.dart';
 import '../../core/routing/app_routes.dart';
+import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
 import 'rank_options.dart';
 import 'widgets/segment_selector.dart';
 
-Future<String?> _defaultPickCv() =>
-    pickFileName(allowedExtensions: const ['pdf', 'doc', 'docx']);
+Future<PickedFile?> _defaultPickCv() =>
+    pickFileWithBytes(allowedExtensions: const ['pdf', 'docx']);
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key, this.pickFile = _defaultPickCv});
 
   /// Overridable for testing so the native file-picker channel never needs
   /// to be invoked.
-  final FileNamePicker pickFile;
+  final Future<PickedFile?> Function() pickFile;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -48,7 +51,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ReleaseStatus? _releaseStatus;
   DateTime? _releaseDate;
   String? _uploadedFileName;
+  String? _cvExtractedText;
+  Uint8List? _cvPdfBytes;
   String? _cvError;
+  bool _isProcessingCv = false;
 
   @override
   void initState() {
@@ -70,6 +76,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _consentGiven = true;
       _segment = existing.segment;
       _uploadedFileName = existing.cvFileName;
+      _cvExtractedText = existing.cvExtractedText;
+      _cvPdfBytes = existing.cvPdfBytes;
     }
   }
 
@@ -163,12 +171,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _pickCv() async {
-    final fileName = await widget.pickFile();
-    if (fileName != null) {
-      setState(() {
-        _uploadedFileName = fileName;
-        _cvError = null;
-      });
+    final file = await widget.pickFile();
+    if (file == null) return;
+
+    final extension = file.name.split('.').last.toLowerCase();
+    setState(() {
+      _uploadedFileName = file.name;
+      _cvError = null;
+      _cvExtractedText = null;
+      _cvPdfBytes = null;
+    });
+
+    if (extension == 'pdf') {
+      // Claude reads PDFs natively — no client-side extraction needed.
+      setState(() => _cvPdfBytes = file.bytes);
+      return;
+    }
+
+    if (extension == 'docx') {
+      setState(() => _isProcessingCv = true);
+      try {
+        final text = await extractDocxText(file.bytes);
+        if (!mounted) return;
+        setState(() {
+          _cvExtractedText = text;
+          _isProcessingCv = false;
+        });
+      } on DocxExtractionException catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _isProcessingCv = false;
+          _cvError = "Couldn't read this file's text ($e). The filename is saved, "
+              'but try a different file for a full analysis.';
+        });
+      }
     }
   }
 
@@ -192,6 +228,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       email: _emailController.text.trim(),
       segment: _segment!,
       cvFileName: _uploadedFileName!,
+      cvExtractedText: _cvExtractedText,
+      cvPdfBytes: _cvPdfBytes,
     );
 
     context.read<ProfileRepository>().saveProfile(profile);
@@ -526,11 +564,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          TextButton(
-            key: const Key('browseButton'),
-            onPressed: _pickCv,
-            child: const Text('Browse'),
-          ),
+          if (_isProcessingCv)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else
+            TextButton(
+              key: const Key('browseButton'),
+              onPressed: _pickCv,
+              child: const Text('Browse'),
+            ),
         ],
       ),
     );

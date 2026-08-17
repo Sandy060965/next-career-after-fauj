@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
@@ -10,7 +12,7 @@ import 'package:next_career_after_fauj/features/onboarding/onboarding_screen.dar
 import 'package:next_career_after_fauj/features/profile/profile_screen.dart';
 import 'package:provider/provider.dart';
 
-Widget _appUnderTest({required FileNamePicker pickFile}) {
+Widget _appUnderTest({required Future<PickedFile?> Function() pickFile}) {
   return ChangeNotifierProvider(
     create: (_) => ProfileRepository(),
     child: MaterialApp(
@@ -34,7 +36,9 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
-        _appUnderTest(pickFile: () async => 'resume.pdf'),
+        _appUnderTest(
+          pickFile: () async => PickedFile(name: 'resume.pdf', bytes: Uint8List(0)),
+        ),
       );
 
       // Step 1: service verification, in the required

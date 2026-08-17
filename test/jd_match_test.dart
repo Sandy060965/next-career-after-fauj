@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
+import 'package:next_career_after_fauj/features/fitment/fitment_service.dart';
 import 'package:next_career_after_fauj/features/jd_match/jd_match_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -18,13 +21,14 @@ const _stubResult = FitmentResult(
 Future<FitmentResult> _stubAnalyzeFitment({
   required String jdText,
   required String cvFileName,
+  String? cvExtractedText,
+  Uint8List? cvPdfBytes,
 }) async =>
     _stubResult;
 
 Widget _appUnderTest({
   required Future<String?> Function() pickFile,
-  Future<FitmentResult> Function({required String jdText, required String cvFileName})
-      analyzeFitment = _stubAnalyzeFitment,
+  FitmentAnalyzer analyzeFitment = _stubAnalyzeFitment,
 }) {
   return ChangeNotifierProvider(
     create: (_) => ProfileRepository(),

@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'fitment_result.dart';
 
 typedef FitmentAnalyzer = Future<FitmentResult> Function({
   required String jdText,
   required String cvFileName,
+  String? cvExtractedText,
+  Uint8List? cvPdfBytes,
 });
 
 /// Placeholder analyzer used until the Cloudflare Worker backend is wired
@@ -11,6 +15,8 @@ typedef FitmentAnalyzer = Future<FitmentResult> Function({
 Future<FitmentResult> mockAnalyzeFitment({
   required String jdText,
   required String cvFileName,
+  String? cvExtractedText,
+  Uint8List? cvPdfBytes,
 }) async {
   await Future.delayed(const Duration(milliseconds: 700));
   return const FitmentResult(

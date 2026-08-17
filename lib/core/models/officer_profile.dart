@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 enum OfficerSegment {
   ssc('SSC', 'Short Service Commission (31–39 yrs)'),
   pmr('PMR', 'Premature Retirement (40–53 yrs)'),
@@ -45,6 +47,8 @@ class OfficerProfile {
     required this.email,
     required this.segment,
     required this.cvFileName,
+    this.cvExtractedText,
+    this.cvPdfBytes,
   });
 
   final String rank;
@@ -59,4 +63,14 @@ class OfficerProfile {
   final String email;
   final OfficerSegment segment;
   final String cvFileName;
+
+  /// Plain text extracted from the uploaded .docx CV, if that's what was
+  /// uploaded and extraction succeeded. Mutually exclusive with
+  /// [cvPdfBytes] — a CV is either a Word doc (extracted client-side) or a
+  /// PDF (sent as-is; Claude reads PDFs natively). Null if extraction
+  /// failed or hasn't happened, in which case only [cvFileName] is known.
+  final String? cvExtractedText;
+
+  /// Raw bytes of the uploaded PDF CV, if that's what was uploaded.
+  final Uint8List? cvPdfBytes;
 }

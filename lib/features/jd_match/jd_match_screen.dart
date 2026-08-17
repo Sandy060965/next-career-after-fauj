@@ -76,14 +76,28 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
       _isAnalyzing = true;
     });
 
-    final cvFileName = context.read<ProfileRepository>().profile?.cvFileName ?? 'uploaded CV';
-    final result = await widget.analyzeFitment(jdText: jdSource, cvFileName: cvFileName);
-
-    if (!mounted) return;
-    setState(() => _isAnalyzing = false);
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ScoreGapScreen(result: result)),
-    );
+    final profile = context.read<ProfileRepository>().profile;
+    try {
+      final result = await widget.analyzeFitment(
+        jdText: jdSource,
+        cvFileName: profile?.cvFileName ?? 'uploaded CV',
+        cvExtractedText: profile?.cvExtractedText,
+        cvPdfBytes: profile?.cvPdfBytes,
+      );
+      if (!mounted) return;
+      setState(() => _isAnalyzing = false);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => ScoreGapScreen(result: result, originalCvText: profile?.cvExtractedText),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isAnalyzing = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
   }
 
   @override

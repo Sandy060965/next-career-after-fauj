@@ -6,9 +6,15 @@ import 'fitment_result.dart';
 enum CvView { original, refined }
 
 class RefinedCvScreen extends StatefulWidget {
-  const RefinedCvScreen({super.key, required this.result});
+  const RefinedCvScreen({super.key, required this.result, this.originalCvText});
 
   final FitmentResult result;
+
+  /// The officer's actual, complete extracted CV text (client-side, never
+  /// touched by the LLM). Preferred over [FitmentResult.originalCvExcerpt]
+  /// (a short, model-generated excerpt) whenever available — null only for
+  /// PDF CVs, where no local text extraction happens.
+  final String? originalCvText;
 
   @override
   State<RefinedCvScreen> createState() => _RefinedCvScreenState();
@@ -19,8 +25,8 @@ class _RefinedCvScreenState extends State<RefinedCvScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final text =
-        _view == CvView.original ? widget.result.originalCvExcerpt : widget.result.refinedCv;
+    final originalText = widget.originalCvText ?? widget.result.originalCvExcerpt;
+    final text = _view == CvView.original ? originalText : widget.result.refinedCv;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Refined CV')),

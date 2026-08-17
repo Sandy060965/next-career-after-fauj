@@ -4,8 +4,15 @@ import 'package:provider/provider.dart';
 import 'core/routing/app_routes.dart';
 import 'core/services/profile_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'features/ai_readiness/ai_readiness_http_service.dart';
+import 'features/ai_readiness/ai_readiness_quiz_screen.dart';
 import 'features/career_paths/career_paths_screen.dart';
+import 'features/fitment/fitment_http_service.dart';
 import 'features/jd_match/jd_match_screen.dart';
+import 'features/job_matches/job_matches_http_service.dart';
+import 'features/job_matches/job_matches_screen.dart';
+import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
+import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
 
@@ -28,8 +35,14 @@ class NextCareerAfterFaujApp extends StatelessWidget {
         routes: {
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
           AppRoutes.profile: (_) => const ProfileScreen(),
-          AppRoutes.jdMatch: (_) => const JdMatchScreen(),
+          AppRoutes.jdMatch: (_) => const JdMatchScreen(analyzeFitment: httpAnalyzeFitment),
           AppRoutes.careerPaths: (_) => const CareerPathsScreen(),
+          AppRoutes.jobMatches: (_) =>
+              const JobMatchesScreen(analyzeJobMatches: httpAnalyzeJobMatches),
+          AppRoutes.linkedinWriteup: (_) =>
+              const LinkedInWriteupScreen(generateWriteup: httpGenerateLinkedInWriteup),
+          AppRoutes.aiReadiness: (_) =>
+              const AiReadinessQuizScreen(analyzeAiReadiness: httpAnalyzeAiReadiness),
         },
       ),
     );

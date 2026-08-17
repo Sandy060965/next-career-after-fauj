@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/models/officer_profile.dart';
 import '../../core/services/profile_repository.dart';
 import 'career_vertical.dart';
 
@@ -14,7 +13,7 @@ class CareerPathsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final segment = context.watch<ProfileRepository>().profile?.segment;
+    final workExperienceYears = context.watch<ProfileRepository>().profile?.workExperienceYears;
     final verticals = [...kCareerVerticals]..sort((a, b) {
         final aRecommended = recommendedVerticals.contains(a.name);
         final bRecommended = recommendedVerticals.contains(b.name);
@@ -30,9 +29,9 @@ class CareerPathsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 4),
             child: Text(
-              segment == null
-                  ? 'Browse how each field typically opens up over 10 years.'
-                  : 'Your entry level as ${segment.fullLabel} is highlighted in '
+              workExperienceYears == null
+                  ? 'Browse how each field typically opens up from 10 to 40+ years of experience.'
+                  : 'Your level at $workExperienceYears years of experience is highlighted in '
                       'each field below — browse freely across all of them.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -43,7 +42,7 @@ class CareerPathsScreen extends StatelessWidget {
           ...verticals.map(
             (vertical) => _VerticalTile(
               vertical: vertical,
-              segment: segment,
+              workExperienceYears: workExperienceYears,
               isRecommended: recommendedVerticals.contains(vertical.name),
             ),
           ),
@@ -54,15 +53,20 @@ class CareerPathsScreen extends StatelessWidget {
 }
 
 class _VerticalTile extends StatelessWidget {
-  const _VerticalTile({required this.vertical, required this.segment, this.isRecommended = false});
+  const _VerticalTile({
+    required this.vertical,
+    required this.workExperienceYears,
+    this.isRecommended = false,
+  });
 
   final CareerVertical vertical;
-  final OfficerSegment? segment;
+  final int? workExperienceYears;
   final bool isRecommended;
 
   @override
   Widget build(BuildContext context) {
-    final entryStep = segment == null ? null : vertical.entryIndex[segment];
+    final yourLevel =
+        workExperienceYears == null ? null : vertical.levelForExperience(workExperienceYears!);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ExpansionTile(
@@ -82,12 +86,21 @@ class _VerticalTile extends StatelessWidget {
         ),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
-          for (var i = 0; i < vertical.ladder.length; i++)
+          for (final level in vertical.levels)
             _LadderStep(
-              role: vertical.ladder[i],
-              isLast: i == vertical.ladder.length - 1,
-              isYourLevel: i == entryStep,
+              level: level,
+              isLast: level.tier == vertical.levels.length,
+              isYourLevel: level.tier == yourLevel?.tier,
             ),
+          if (vertical.bridgeCertifications.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Bridge certifications: ${vertical.bridgeCertifications.join(', ')}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
         ],
       ),
     );
@@ -96,12 +109,12 @@ class _VerticalTile extends StatelessWidget {
 
 class _LadderStep extends StatelessWidget {
   const _LadderStep({
-    required this.role,
+    required this.level,
     required this.isLast,
     required this.isYourLevel,
   });
 
-  final String role;
+  final CareerLevel level;
   final bool isLast;
   final bool isYourLevel;
 
@@ -136,12 +149,24 @@ class _LadderStep extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      role,
-                      style: TextStyle(
-                        fontWeight: isYourLevel ? FontWeight.bold : FontWeight.normal,
-                        color: isYourLevel ? colorScheme.primary : null,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          level.title,
+                          style: TextStyle(
+                            fontWeight: isYourLevel ? FontWeight.bold : FontWeight.normal,
+                            color: isYourLevel ? colorScheme.primary : null,
+                          ),
+                        ),
+                        Text(
+                          '${level.expMin}-${level.expMax == 42 ? '42+' : level.expMax} yrs',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: colorScheme.onSurfaceVariant),
+                        ),
+                      ],
                     ),
                   ),
                   if (isYourLevel)

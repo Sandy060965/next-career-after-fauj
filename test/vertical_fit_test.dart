@@ -53,15 +53,15 @@ void main() {
   group('CareerPathsScreen recommendations', () {
     testWidgets('badges and sorts recommended verticals to the top', (tester) async {
       await tester.pumpWidget(
-        _wrap(const CareerPathsScreen(recommendedVerticals: {'IT / Cybersecurity'})),
+        _wrap(const CareerPathsScreen(recommendedVerticals: {'IT Infrastructure & Cybersecurity'})),
       );
 
       expect(find.byKey(const Key('recommendedVerticalBadge')), findsOneWidget);
 
       // Recommended vertical should be sorted above a non-recommended one
       // that would otherwise come first in the fixed taxonomy order.
-      final recommendedY = tester.getTopLeft(find.text('IT / Cybersecurity')).dy;
-      final otherY = tester.getTopLeft(find.text('Security')).dy;
+      final recommendedY = tester.getTopLeft(find.text('IT Infrastructure & Cybersecurity')).dy;
+      final otherY = tester.getTopLeft(find.text('Operations & Process Excellence')).dy;
       expect(recommendedY, lessThan(otherY));
     });
 

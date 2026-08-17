@@ -16,7 +16,7 @@ Widget _appUnderTest(ProfileRepository repository) {
 
 void main() {
   testWidgets('all career verticals render, and expanding one shows the '
-      "user's segment-specific entry level", (tester) async {
+      "user's experience-based entry level", (tester) async {
     final repository = ProfileRepository()
       ..saveProfile(
         OfficerProfile(
@@ -35,9 +35,9 @@ void main() {
         ),
       );
 
-    // Tall enough that all 13 collapsed vertical tiles are laid out at once,
+    // Tall enough that all 16 collapsed vertical tiles are laid out at once,
     // without needing to scroll to find each one.
-    tester.view.physicalSize = const Size(430, 2600);
+    tester.view.physicalSize = const Size(430, 3200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -49,20 +49,21 @@ void main() {
       expect(find.text(vertical.name), findsOneWidget);
     }
 
-    // Expand the Security ladder and confirm the PMR entry rung (index 2:
-    // "Head of Security") is highlighted with the "Your level" chip.
-    await tester.tap(find.text('Security'));
+    // Expand the Security ladder and confirm the 18-year rung (tier 2,
+    // 15-20 yrs: "Regional Security Manager") is highlighted with the
+    // "Your level" chip.
+    await tester.tap(find.text('Security, Risk & Crisis Management'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('yourLevelChip')), findsOneWidget);
-    expect(find.text('Head of Security'), findsOneWidget);
+    expect(find.text('Regional Security Manager'), findsOneWidget);
 
     final chipFinder = find.ancestor(
       of: find.byKey(const Key('yourLevelChip')),
       matching: find.byType(Row),
     );
     expect(
-      find.descendant(of: chipFinder.first, matching: find.text('Head of Security')),
+      find.descendant(of: chipFinder.first, matching: find.text('Regional Security Manager')),
       findsOneWidget,
     );
   });
@@ -70,7 +71,7 @@ void main() {
   testWidgets('with no profile yet, no vertical shows a "Your level" chip', (tester) async {
     await tester.pumpWidget(_appUnderTest(ProfileRepository()));
 
-    await tester.tap(find.text('Security'));
+    await tester.tap(find.text('Security, Risk & Crisis Management'));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('yourLevelChip')), findsNothing);

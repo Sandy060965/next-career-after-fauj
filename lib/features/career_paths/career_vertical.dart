@@ -1,215 +1,247 @@
-import '../../core/models/officer_profile.dart';
+/// One rung of a vertical's career ladder, anchored to a typical years-of-
+/// service band rather than a coarse SSC/PMR/Superannuation segment — the
+/// officer's own [OfficerProfile.workExperienceYears] picks the rung
+/// directly, so entry level is precise rather than one of three buckets.
+/// Bands and titles are indicative/typical, not a promotion guarantee.
+class CareerLevel {
+  const CareerLevel({
+    required this.tier,
+    required this.expMin,
+    required this.expMax,
+    required this.title,
+  });
 
-/// A functional vertical's career ladder: an ordered list of role titles
-/// from the most junior rung to the most senior, plus which rung each
-/// segment typically enters at (SSC enters junior, PMR mid-senior,
-/// Superannuation senior/advisory — per the PRD's segment definitions).
+  final int tier;
+  final int expMin;
+  final int expMax;
+  final String title;
+}
+
+/// A functional vertical's 5-tier career ladder plus general certifications
+/// that help bridge into it. [bridgeCertifications] are broad, real,
+/// well-known professional certifications relevant to the whole vertical —
+/// distinct from Gap Roadmap's certifications, which are grounded in one
+/// specific JD.
 class CareerVertical {
   const CareerVertical({
     required this.name,
-    required this.ladder,
-    required this.entryIndex,
+    required this.category,
+    required this.levels,
+    this.bridgeCertifications = const [],
   });
 
   final String name;
-  final List<String> ladder;
-  final Map<OfficerSegment, int> entryIndex;
+  final String category;
+  final List<CareerLevel> levels;
+  final List<String> bridgeCertifications;
+
+  /// The rung matching the given years of experience — clamped to the
+  /// first tier below [CareerLevel.expMin] and the last tier above the
+  /// final [CareerLevel.expMax], rather than returning nothing.
+  CareerLevel levelForExperience(int years) {
+    for (final level in levels) {
+      if (years <= level.expMax) return level;
+    }
+    return levels.last;
+  }
 }
 
 const List<CareerVertical> kCareerVerticals = [
   CareerVertical(
-    name: 'Security',
-    ladder: [
-      'Security Manager',
-      'Senior Security Manager',
-      'Head of Security',
-      'VP / Chief Security Officer',
-      'Security Advisor (Board Level)',
+    name: 'Operations & Process Excellence',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Operations Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Operations Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Operations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Operations'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Operating Officer (COO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['Six Sigma Green/Black Belt', 'PMP'],
   ),
   CareerVertical(
-    name: 'Administration',
-    ladder: [
-      'Administration Manager',
-      'Senior Manager – Administration',
-      'Head of Administration',
-      'VP – Administration & Facilities',
-      'Chief Administrative Officer',
+    name: 'Supply Chain & Procurement',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Supply Chain Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Supply Chain'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Supply Chain'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Supply Chain & Logistics'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Supply Chain Officer (CSCO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['CSCP (APICS)', 'CPSM'],
   ),
   CareerVertical(
-    name: 'Business Development',
-    ladder: [
-      'Business Development Manager',
-      'Senior BD Manager',
-      'Head of Business Development',
-      'VP – Business Development',
-      'Chief Business Officer',
+    name: 'Security, Risk & Crisis Management',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Security Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Regional Security Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Corporate Security'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Corporate Security & Resilience'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Security Officer (CSO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['CPP (ASIS)', 'NEBOSH', 'Business Continuity Institute (BCI) certification'],
   ),
   CareerVertical(
-    name: 'Supply Chain',
-    ladder: [
-      'Supply Chain Manager',
-      'Senior Manager – Supply Chain',
-      'Head of Supply Chain',
-      'VP – Supply Chain & Logistics',
-      'Chief Supply Chain Officer',
+    name: 'Integrated Facilities Management',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Facilities Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Facilities Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Real Estate & Workplace'),
+      CareerLevel(
+        tier: 4,
+        expMin: 28,
+        expMax: 34,
+        title: 'Vice President – Real Estate, Infrastructure & Corporate Services',
+      ),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'President – Corporate Infrastructure'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['IFMA CFM', 'RICS'],
   ),
   CareerVertical(
-    name: 'Operations',
-    ladder: [
-      'Operations Manager',
-      'Senior Operations Manager',
-      'Head of Operations',
-      'VP – Operations',
-      'Chief Operating Officer',
+    name: 'Aviation, Maritime & Fleet Management',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Airport / Port Operations Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Fleet & Ground Operations'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Aviation / Maritime Operations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Aviation & Maritime Operations'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Director – Global Fleet & Logistics'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['IATA Airport Operations certification', 'Certificate in Maritime Operations'],
   ),
   CareerVertical(
-    name: 'HR',
-    ladder: [
-      'HR Manager',
-      'Senior HR Manager',
-      'Head of HR',
-      'VP – Human Resources',
-      'Chief Human Resources Officer',
+    name: 'BFSI & Financial Crime Risk',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'AML / KYC Operations Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Financial Crime Risk'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Financial Crime Operations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Enterprise Risk Management'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Risk Officer (CRO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['CAMS (Certified Anti-Money Laundering Specialist)', 'FRM (Financial Risk Manager)'],
   ),
   CareerVertical(
-    name: 'Manufacturing / Technical',
-    ladder: [
-      'Production Manager',
-      'Senior Manager – Manufacturing',
-      'Head of Manufacturing',
-      'VP – Manufacturing & Technical Operations',
-      'Chief Technical Officer',
+    name: 'Project & Program Management (PMO)',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Project Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Program Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of PMO'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Program Management'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Transformation Officer'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['PMP', 'PRINCE2', 'Certified Scrum Master'],
   ),
   CareerVertical(
-    name: 'Project Management',
-    ladder: [
-      'Project Manager',
-      'Senior Project Manager',
-      'Head of Project Management (PMO)',
-      'VP – Programs & Projects',
-      'Chief Projects Officer',
+    name: 'Strategy, Consulting & Chief of Staff',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Strategy Associate'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Strategy Manager / Chief of Staff to BU Head'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Chief of Staff to CEO / Director – Corporate Strategy'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Corporate Strategy'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Senior Partner / Independent Director'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['MBA / PGDM (Strategy)', 'Certified Management Consultant (CMC)'],
   ),
   CareerVertical(
-    name: 'Corporate Affairs & Governance',
-    ladder: [
-      'Manager – Corporate Affairs',
-      'Senior Manager – Corporate Affairs',
-      'Head of Corporate Affairs & Governance',
-      'VP – Corporate Affairs',
-      'Chief Governance Officer (Board Advisory)',
+    name: 'Business Development & Strategic Sales',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Key Account Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior BD Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Business Development'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Strategic Growth'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Commercial Officer (CCO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['Certified Sales Professional', 'Strategic Account Management (SAMA)'],
   ),
   CareerVertical(
-    name: 'L&D',
-    ladder: [
-      'L&D Manager',
-      'Senior Manager – L&D',
-      'Head of Learning & Development',
-      'VP – Talent & Capability Building',
-      'Chief Learning Officer',
+    name: 'HR, Talent Management & L&D',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'HR Business Partner (HRBP)'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior HRBP / Head of L&D'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of HR / Director – Talent Management'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Human Resources'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Human Resources Officer (CHRO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['SHRM-CP', 'CIPD'],
   ),
   CareerVertical(
-    name: 'Hospitality / Institutional Management',
-    ladder: [
-      'Facility / Hospitality Manager',
-      'Senior Manager – Institutional Services',
-      'Head of Hospitality & Institutional Management',
-      'VP – Hospitality & Guest Services',
-      'Chief Institutional Services Officer',
+    name: 'Corporate Affairs, ESG & Public Policy',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Manager – Corporate Affairs'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Corporate Affairs'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Corporate Affairs & Policy'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Corporate Affairs & ESG'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Corporate Affairs Officer'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['GRI Certified Sustainability Professional', 'Certificate in ESG (CFA Institute)'],
   ),
   CareerVertical(
-    name: 'IT / Cybersecurity',
-    ladder: [
-      'IT / Cybersecurity Manager',
-      'Senior Manager – Cybersecurity',
-      'Head of IT & Cybersecurity',
-      'VP / CISO',
-      'Chief Information Security Officer (Board Advisory)',
+    name: 'Defence PSUs, Offsets & GovTech',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Deputy Manager (PSU)'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Manager – Government Liaison & PSU Affairs'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Deputy General Manager (PSU)'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'General Manager / Director (PSU Board)'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Independent Director / Advisor (PSU Board)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['Certificate in Public Procurement', 'Defence Offset Management certification'],
   ),
   CareerVertical(
-    name: 'PSU / Government',
-    ladder: [
-      'Deputy Manager (PSU / Govt Undertaking)',
-      'Manager – Government Liaison & PSU Affairs',
-      'Deputy General Manager (PSU)',
-      'General Manager / Director (PSU Board)',
-      'Independent Director / Advisor (PSU Board)',
+    name: 'IT Infrastructure & Cybersecurity',
+    category: 'Technical & Engineering',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'IT Operations Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior InfoSec Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of IT Infrastructure / Deputy CISO'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Technology Operations'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Information Security Officer (CISO)'),
     ],
-    entryIndex: {
-      OfficerSegment.ssc: 0,
-      OfficerSegment.pmr: 2,
-      OfficerSegment.superannuation: 4,
-    },
+    bridgeCertifications: ['CISSP', 'CISM', 'ITIL'],
+  ),
+  CareerVertical(
+    name: 'Tech Product & Data Operations',
+    category: 'Technical & Engineering',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Technical Program Manager (TPM)'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Product / Data Operations Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Product & Data Operations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Product & Technology'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Product Officer (CPO)'),
+    ],
+    bridgeCertifications: ['Certified Scrum Product Owner', 'Google Data Analytics Certificate'],
+  ),
+  CareerVertical(
+    name: 'Manufacturing & Technical Systems',
+    category: 'Technical & Engineering',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Production Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Manufacturing'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Manufacturing'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Manufacturing & Technical Operations'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Technical Officer (CTO)'),
+    ],
+    bridgeCertifications: ['Six Sigma Black Belt', 'Certified Quality Engineer (ASQ)'],
+  ),
+  CareerVertical(
+    name: 'Aerospace, Drone & Defence Tech',
+    category: 'Technical & Engineering',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'UAV Operations Lead'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Technical Operations Head'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Aerospace / Drone Operations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Aerospace & Defence Programs'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Managing Director – Defence Division'),
+    ],
+    bridgeCertifications: ['DGCA Remote Pilot Certificate', 'Systems Engineering certification (INCOSE)'],
   ),
 ];

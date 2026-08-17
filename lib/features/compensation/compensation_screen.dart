@@ -109,7 +109,7 @@ class _CompensationScreenState extends State<CompensationScreen> {
       padding: const EdgeInsets.all(24),
       children: [
         Text(estimate.jobTitle, style: Theme.of(context).textTheme.headlineSmall),
-        Text(estimate.location, style: Theme.of(context).textTheme.bodyMedium),
+        Text('${estimate.location}, India', style: Theme.of(context).textTheme.bodyMedium),
         const SizedBox(height: 20),
         if (estimate.hasMarketData)
           Card(
@@ -122,13 +122,13 @@ class _CompensationScreenState extends State<CompensationScreen> {
                   Text('Estimated market range', style: Theme.of(context).textTheme.titleSmall),
                   const SizedBox(height: 8),
                   Text(
-                    '${_formatAmount(estimate.minSalary)} – ${_formatAmount(estimate.maxSalary)} '
-                    '${estimate.currency ?? ''} / ${(estimate.period ?? 'year').toLowerCase()}',
+                    '₹${_formatAmount(estimate.minSalary)} – ₹${_formatAmount(estimate.maxSalary)} '
+                    '/ ${(estimate.period ?? 'year').toLowerCase()}',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   if (estimate.medianSalary != null)
                     Text(
-                      'Median: ${_formatAmount(estimate.medianSalary)} ${estimate.currency ?? ''}',
+                      'Median: ₹${_formatAmount(estimate.medianSalary)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   const SizedBox(height: 8),
@@ -150,7 +150,7 @@ class _CompensationScreenState extends State<CompensationScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'No market salary data was found for this specific role and location.',
+                'No Indian-market salary data was found for this specific role and location.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),

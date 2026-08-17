@@ -219,13 +219,20 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
 }`;
 
 const COMPENSATION_SYSTEM_PROMPT = `Given a job description (JD), extract exactly what is needed to look up REAL market
-salary data for it, plus directional negotiation guidance.
+salary data for it, plus directional negotiation guidance. This app serves
+Indian Armed Forces officers transitioning to the INDIAN job market ONLY —
+every estimate must be for an Indian location, in Indian Rupees.
 
 STRICT RULES:
 - "job_title" must be a concise, standard job title matching the role as
   described — not verbose, not invented beyond what the JD implies.
-- "location" must be a city/region if the JD states one; otherwise use the
-  broader country/region the JD implies, or "India" if nothing is stated.
+- "location" must ALWAYS be an Indian city — pick the single best-matching
+  city from the provided list of real Indian cities based on what the JD
+  states (its stated location, or the nearest major hub for its industry/
+  region if no city is stated). If the JD describes a role outside India,
+  still pick the closest-fit Indian city for benchmarking purposes rather
+  than returning a non-Indian location — never return a city that isn't in
+  the provided list.
 - "negotiation_guidance" must be grounded ONLY in what the JD itself states
   (seniority signals, scope, required certifications/experience). NEVER
   invent a specific salary figure or currency amount — actual market
@@ -234,7 +241,7 @@ STRICT RULES:
 Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
 {
   "job_title": "...",
-  "location": "...",
+  "location": "<a city name from the provided list>",
   "negotiation_guidance": "<2-4 sentences>"
 }`;
 
@@ -612,7 +619,7 @@ async function handleMockInterviewFeedback(body, env) {
 // an LLM-invented figure. Only the directional guidance text is generated.
 // ---------------------------------------------------------------------------
 async function fetchEstimatedSalary(env, jobTitle, location) {
-  const url = `https://jsearch.p.rapidapi.com/estimated-salary?job_title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}&location_type=ANY`;
+  const url = `https://jsearch.p.rapidapi.com/estimated-salary?job_title=${encodeURIComponent(jobTitle)}&location=${encodeURIComponent(location)}&location_type=CITY`;
   const response = await fetch(url, {
     headers: {
       'x-rapidapi-key': env.RAPIDAPI_KEY,
@@ -635,29 +642,41 @@ async function handleCompensation(body, env) {
     return json({ error: 'Compensation guidance is not configured (missing RAPIDAPI_KEY)' }, 500);
   }
 
+  const indiaCityNames = INDIA_CITIES.map((c) => c.city);
+
   let derived;
   try {
     derived = await callClaude(env, {
       system: COMPENSATION_SYSTEM_PROMPT,
-      userContent: `JD:\n${jdText}`,
+      userContent: `JD:\n${jdText}\n\nReal Indian cities to choose "location" from:\n${JSON.stringify(indiaCityNames)}`,
       maxTokens: 512,
     });
   } catch (e) {
     return json({ error: 'Could not derive job title/location from the JD', detail: `${e}` }, 502);
   }
 
+  // Never trust the model's own location blindly — fall back to a major
+  // hub if it didn't pick a real city from the list we gave it.
+  const location = indiaCityNames.includes(derived.location) ? derived.location : 'Mumbai';
+
   let salary = null;
   try {
-    salary = await fetchEstimatedSalary(env, derived.job_title, derived.location);
+    salary = await fetchEstimatedSalary(env, derived.job_title, location);
   } catch (e) {
     // Real data is best-effort — still return the (fabrication-free)
     // negotiation guidance even if the salary lookup itself fails.
     salary = null;
   }
 
+  // This app only shows India-market figures in Rupees — discard anything
+  // that isn't INR rather than surfacing a foreign-currency number.
+  if (salary && salary.salary_currency !== 'INR') {
+    salary = null;
+  }
+
   return json({
     job_title: derived.job_title,
-    location: derived.location,
+    location,
     min_salary: salary?.min_salary ?? null,
     max_salary: salary?.max_salary ?? null,
     median_salary: salary?.median_salary ?? null,

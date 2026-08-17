@@ -14,7 +14,7 @@ Future<CompensationEstimate> mockEstimateCompensation({
   await Future.delayed(const Duration(milliseconds: 700));
   return const CompensationEstimate(
     jobTitle: 'Chief Operating Officer',
-    location: 'Mumbai, India',
+    location: 'Mumbai',
     minSalary: 4500000,
     maxSalary: 8200000,
     medianSalary: 6100000,

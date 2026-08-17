@@ -20,7 +20,7 @@ const _stubFitmentResult = FitmentResult(
 Future<CompensationEstimate> _stubEstimate({required String jdText, String? cvText}) async {
   return const CompensationEstimate(
     jobTitle: 'Chief Operating Officer',
-    location: 'Mumbai, India',
+    location: 'Mumbai',
     minSalary: 4500000,
     maxSalary: 8200000,
     medianSalary: 6100000,
@@ -35,7 +35,7 @@ Future<CompensationEstimate> _stubEstimate({required String jdText, String? cvTe
 Future<CompensationEstimate> _stubNoData({required String jdText, String? cvText}) async {
   return const CompensationEstimate(
     jobTitle: 'Niche Executive Role',
-    location: 'Mumbai, India',
+    location: 'Mumbai',
     negotiationGuidance: 'Guidance without market data.',
   );
 }

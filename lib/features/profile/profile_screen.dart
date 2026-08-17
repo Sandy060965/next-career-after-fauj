@@ -125,6 +125,15 @@ class ProfileScreen extends StatelessWidget {
               child: const Text('AI Readiness'),
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('interviewPrepButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.interviewPrep),
+              child: const Text('Interview Prep'),
+            ),
+          ),
           const SizedBox(height: 24),
           Text(
             'Subscription unlock as this build progresses.',

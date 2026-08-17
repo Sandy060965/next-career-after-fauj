@@ -9,6 +9,8 @@ import 'features/ai_readiness/ai_readiness_quiz_screen.dart';
 import 'features/career_paths/career_paths_screen.dart';
 import 'features/fitment/fitment_entry_screens.dart';
 import 'features/fitment/fitment_http_service.dart';
+import 'features/interview_prep/interview_prep_http_service.dart';
+import 'features/interview_prep/interview_prep_screen.dart';
 import 'features/jd_match/jd_match_screen.dart';
 import 'features/job_matches/job_matches_http_service.dart';
 import 'features/job_matches/job_matches_screen.dart';
@@ -46,6 +48,8 @@ class NextCareerAfterFaujApp extends StatelessWidget {
               const LinkedInWriteupScreen(generateWriteup: httpGenerateLinkedInWriteup),
           AppRoutes.aiReadiness: (_) =>
               const AiReadinessQuizScreen(analyzeAiReadiness: httpAnalyzeAiReadiness),
+          AppRoutes.interviewPrep: (_) =>
+              const InterviewPrepScreen(generateJdQuestions: httpGenerateJdInterviewQuestions),
         },
       ),
     );

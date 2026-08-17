@@ -10,4 +10,5 @@ class AppRoutes {
   static const String jobMatches = '/job-matches';
   static const String linkedinWriteup = '/linkedin-writeup';
   static const String aiReadiness = '/ai-readiness';
+  static const String interviewPrep = '/interview-prep';
 }

@@ -166,6 +166,31 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
   ]
 }`;
 
+const INTERVIEW_QUESTIONS_SYSTEM_PROMPT = `You are given a job description (JD) and, optionally, an officer's CV. Propose 5-8
+interview questions this specific role is likely to probe, grounded ONLY in
+what the JD actually states (its listed requirements, responsibilities, and
+emphasis) — never generic filler questions, and never invented claims about
+the hiring company beyond what the JD text itself says.
+
+STRICT RULES:
+- Every question must trace back to something specific the JD mentions
+  (a named requirement, responsibility, skill, or context clue).
+- The "reason" field must cite that specific JD detail — do not write vague
+  reasons like "this is a common interview question."
+- Do not repeat generic questions (e.g. "tell me about yourself") — those
+  are already covered by a separate fixed question bank; focus only on
+  what THIS job description specifically suggests.
+- If a CV is provided, you may use it to flag likely follow-up angles (e.g.
+  a gap the interviewer may probe), but never invent CV content that isn't
+  there.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "questions": [
+    {"question": "...", "reason": "..."}
+  ]
+}`;
+
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -473,6 +498,37 @@ async function handleAiReadiness(body, env) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// /interview-questions — likely questions for a specific JD, grounded in
+// its actual stated requirements. The fixed, generic question bank lives
+// entirely client-side and never touches this endpoint.
+// ---------------------------------------------------------------------------
+async function handleInterviewQuestions(body, env) {
+  const { jdText, cvText, cvPdfBase64 } = body;
+  if (!jdText) {
+    return json({ error: 'jdText is required' }, 400);
+  }
+
+  let userContent = `JD:\n${jdText}`;
+  if (cvText || cvPdfBase64) {
+    const cv = buildCvSection(cvText || '', cvPdfBase64);
+    userContent = cv.isDocument
+      ? [...cv.content, { type: 'text', text: `The above document is the CV.\n\nJD:\n${jdText}` }]
+      : `${cv.content}\n\nJD:\n${jdText}`;
+  }
+
+  try {
+    const parsed = await callClaude(env, {
+      system: INTERVIEW_QUESTIONS_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 2048,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -500,6 +556,7 @@ export default {
     if (path === '/job-matches') return handleJobMatches(body, env);
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
+    if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     return handleFitmentAnalysis(body, env);
   },
 };

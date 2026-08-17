@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used only when you tap the microphone to dictate a practice interview answer.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Used only to transcribe your spoken practice answer into text on this device.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

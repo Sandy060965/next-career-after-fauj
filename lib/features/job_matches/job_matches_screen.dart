@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../../core/utils/date_format.dart';
 import 'india_cities.dart';
 import 'job_match.dart';
 import 'job_matches_service.dart';
@@ -166,8 +167,11 @@ class _JobMatchCard extends StatelessWidget {
                 ),
                 if (match.location != null)
                   Chip(label: Text(match.location!), visualDensity: VisualDensity.compact),
-                if (match.postedDate != null)
-                  Chip(label: Text(match.postedDate!), visualDensity: VisualDensity.compact),
+                if (_formatPostedDate(match.postedDate) != null)
+                  Chip(
+                    label: Text(_formatPostedDate(match.postedDate)!),
+                    visualDensity: VisualDensity.compact,
+                  ),
               ],
             ),
             const SizedBox(height: 8),
@@ -191,4 +195,13 @@ class _JobMatchCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Parses the ISO 8601 timestamp JSearch returns and renders it in the
+/// app's standard date format. Falls back to the raw value if it can't be
+/// parsed, rather than hiding a real (if oddly formatted) posted date.
+String? _formatPostedDate(String? raw) {
+  if (raw == null) return null;
+  final parsed = DateTime.tryParse(raw);
+  return parsed == null ? raw : formatDate(parsed);
 }

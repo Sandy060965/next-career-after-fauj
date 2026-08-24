@@ -99,7 +99,10 @@ async function twilioVerifyStart(env, e164Number) {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      authorization: `Basic ${btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`)}`,
+      // An API Key SID/Secret pair authenticates the same way an Account
+      // SID/Auth Token pair does — Basic Auth — but can be scoped and
+      // revoked independently of the account's master credential.
+      authorization: `Basic ${btoa(`${env.TWILIO_API_KEY_SID}:${env.TWILIO_API_KEY_SECRET}`)}`,
       'content-type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({ To: e164Number, Channel: 'sms' }),
@@ -116,7 +119,10 @@ async function twilioVerifyCheck(env, e164Number, code) {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      authorization: `Basic ${btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`)}`,
+      // An API Key SID/Secret pair authenticates the same way an Account
+      // SID/Auth Token pair does — Basic Auth — but can be scoped and
+      // revoked independently of the account's master credential.
+      authorization: `Basic ${btoa(`${env.TWILIO_API_KEY_SID}:${env.TWILIO_API_KEY_SECRET}`)}`,
       'content-type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({ To: e164Number, Code: code }),
@@ -170,6 +176,7 @@ async function handleRequestOtp(body, env) {
   try {
     await twilioVerifyStart(env, toE164(mobileNumber));
   } catch (e) {
+    console.error('twilioVerifyStart failed:', e.message);
     return json({ error: 'Could not send verification code. Please try again.' }, 502);
   }
   return json({ status: 'sent' });

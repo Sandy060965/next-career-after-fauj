@@ -10,8 +10,13 @@ compatibility_date = "2024-09-23"
 #                              gate — see JWT_SECRET below for real auth)
 #   RAPIDAPI_KEY             - your RapidAPI key, subscribed to the JSearch
 #                              API (used by the /job-matches endpoint)
-#   TWILIO_ACCOUNT_SID       - from your Twilio Console
-#   TWILIO_AUTH_TOKEN        - from your Twilio Console
+#   TWILIO_API_KEY_SID       - a Standard API Key SID (starts with SK) from
+#                              Twilio Console > Account > API keys & tokens
+#                              — used instead of the Account SID/Auth Token
+#                              so it can be scoped/revoked independently
+#   TWILIO_API_KEY_SECRET    - the secret shown once when you create that
+#                              API Key — save it immediately, Twilio won't
+#                              show it again
 #   TWILIO_VERIFY_SERVICE_SID - the Verify Service you create in the Twilio
 #                              Console (Verify > Services) — used for
 #                              phone-OTP login (/auth/request-otp,

@@ -188,6 +188,33 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
   ]
 }`;
 
+const BUILD_CV_SYSTEM_PROMPT = `You are helping an Indian Armed Forces officer transitioning to civilian
+roles build a first civilian CV from scratch — this officer does not have an existing usable CV, so
+you are given only a structured intake of facts they typed in themselves, not a source document.
+
+STRICT RULES:
+- Use ONLY the facts given in the intake below. Never invent employers, dates, metrics, team sizes,
+  or achievements not present in what the officer typed.
+- Translate military terminology, rank references, and unit-scale language into civilian
+  equivalents wherever the underlying facts genuinely support it (e.g. a role description of
+  "commanded an infantry battalion of ~800 personnel" becomes "led an organisation of ~800
+  personnel" for a civilian-facing summary).
+- Never reference military rank progression, ACRs, or classified/unit-identifying details beyond
+  what the officer themselves already typed into the intake.
+- If a section of the intake is empty (e.g. no certifications given), omit that section from the
+  CV entirely rather than inventing filler content.
+- If the work experience list is entirely empty, say so plainly in "cv_text" (state that no work
+  history was provided) rather than fabricating a plausible-sounding career.
+- Organize into a clean, standard civilian CV structure: a short professional summary (only if the
+  officer provided one, or if it can be honestly composed from the work experience given),
+  Experience, Education, Certifications, and Skills sections — omit any section with nothing to put
+  in it.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "cv_text": "<full CV text, ready to display/export>"
+}`;
+
 const AI_READINESS_SYSTEM_PROMPT = `You are advising an Indian Armed Forces officer transitioning to a civilian
 career on their AI readiness, based on their CV and a self-assessment of how
 confident they feel (0-100, already computed) across five dimensions:
@@ -631,6 +658,30 @@ async function handleTargetRoleStrategy(body, env) {
 }
 
 // ---------------------------------------------------------------------------
+// /build-cv — first civilian CV built entirely from a structured officer-
+// typed intake, for officers with no usable existing CV to upload.
+// ---------------------------------------------------------------------------
+async function handleBuildCv(body, env) {
+  const { intake } = body;
+  if (!intake || typeof intake !== 'object') {
+    return json({ error: 'intake is required' }, 400);
+  }
+
+  const userContent = `Intake:\n${JSON.stringify(intake, null, 2)}`;
+
+  try {
+    const parsed = await callClaude(env, {
+      system: BUILD_CV_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 4096,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // /ai-readiness — AI readiness roadmap grounded in the fixed course/
 // competency reference lists and a client-computed readiness score.
 // ---------------------------------------------------------------------------
@@ -845,6 +896,7 @@ export default {
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/civilianize-cv') return handleCivilianizeCv(body, env);
     if (path === '/target-role-strategy') return handleTargetRoleStrategy(body, env);
+    if (path === '/build-cv') return handleBuildCv(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);

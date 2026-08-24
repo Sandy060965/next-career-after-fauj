@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/ai_readiness/ai_readiness.dart';
+import '../../features/cv_builder/built_cv.dart';
+import '../../features/cv_builder/cv_builder_intake.dart';
 import '../../features/cv_civilianizer/civilianized_cv.dart';
 import '../../features/financial_planner/financial_plan.dart';
 import '../../features/fitment/fitment_result.dart';
@@ -26,6 +28,8 @@ const _applicationsKey = 'job_applications_v1';
 const _civilianizedCvKey = 'last_civilianized_cv_v1';
 const _financialPlanKey = 'last_financial_plan_input_v1';
 const _targetRoleStrategyKey = 'last_target_role_strategy_v1';
+const _cvBuilderIntakeKey = 'last_cv_builder_intake_v1';
+const _builtCvKey = 'last_built_cv_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -50,6 +54,8 @@ class ProfileRepository extends ChangeNotifier {
   CivilianizedCv? _lastCivilianizedCv;
   FinancialPlanInput? _lastFinancialPlanInput;
   TargetRoleStrategyResult? _lastTargetRoleStrategy;
+  CvBuilderIntake? _lastCvBuilderIntake;
+  BuiltCv? _lastBuiltCv;
 
   OfficerProfile? get profile => _profile;
 
@@ -79,6 +85,10 @@ class ProfileRepository extends ChangeNotifier {
   FinancialPlanInput? get lastFinancialPlanInput => _lastFinancialPlanInput;
 
   TargetRoleStrategyResult? get lastTargetRoleStrategy => _lastTargetRoleStrategy;
+
+  CvBuilderIntake? get lastCvBuilderIntake => _lastCvBuilderIntake;
+
+  BuiltCv? get lastBuiltCv => _lastBuiltCv;
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -141,6 +151,17 @@ class ProfileRepository extends ChangeNotifier {
       if (targetRoleJson != null) {
         _lastTargetRoleStrategy =
             TargetRoleStrategyResult.fromJson(jsonDecode(targetRoleJson) as Map<String, dynamic>);
+      }
+
+      final cvBuilderIntakeJson = prefs.getString(_cvBuilderIntakeKey);
+      if (cvBuilderIntakeJson != null) {
+        _lastCvBuilderIntake =
+            CvBuilderIntake.fromJson(jsonDecode(cvBuilderIntakeJson) as Map<String, dynamic>);
+      }
+
+      final builtCvJson = prefs.getString(_builtCvKey);
+      if (builtCvJson != null) {
+        _lastBuiltCv = BuiltCv.fromJson(jsonDecode(builtCvJson) as Map<String, dynamic>);
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -276,6 +297,28 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_targetRoleStrategyKey, jsonEncode(result.toJson()));
     } catch (e) {
       debugPrint('ProfileRepository.saveTargetRoleStrategy persistence failed: $e');
+    }
+  }
+
+  Future<void> saveCvBuilderIntake(CvBuilderIntake intake) async {
+    _lastCvBuilderIntake = intake;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_cvBuilderIntakeKey, jsonEncode(intake.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveCvBuilderIntake persistence failed: $e');
+    }
+  }
+
+  Future<void> saveBuiltCv(BuiltCv result) async {
+    _lastBuiltCv = result;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_builtCvKey, jsonEncode(result.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveBuiltCv persistence failed: $e');
     }
   }
 

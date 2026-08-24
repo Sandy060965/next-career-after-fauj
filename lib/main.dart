@@ -15,6 +15,8 @@ import 'features/career_paths/career_paths_screen.dart';
 import 'features/career_readiness/career_readiness_screen.dart';
 import 'features/compensation/compensation_http_service.dart';
 import 'features/compensation/compensation_screen.dart';
+import 'features/cv_builder/cv_builder_http_service.dart';
+import 'features/cv_builder/cv_builder_screen.dart';
 import 'features/cv_civilianizer/civilianizer_http_service.dart';
 import 'features/cv_civilianizer/civilianizer_screen.dart';
 import 'features/financial_planner/financial_planner_screen.dart';
@@ -115,6 +117,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.skillEquivalency: (_) => const SkillEquivalencyScreen(),
           AppRoutes.cvCivilianizer: (_) =>
               const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
+          AppRoutes.cvBuilder: (_) => const CvBuilderScreen(buildCv: httpBuildCv),
           AppRoutes.networkDirectory: (_) => const NetworkDirectoryScreen(),
           AppRoutes.financialPlanner: (_) => const FinancialPlannerScreen(),
           AppRoutes.targetRoleStrategy: (_) =>

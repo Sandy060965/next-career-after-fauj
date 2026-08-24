@@ -13,6 +13,10 @@ import 'package:next_career_after_fauj/features/networking/network_service.dart'
     show NetworkService, NetworkServiceException;
 import 'package:provider/provider.dart';
 
+// Never actually used — every method the fake overrides makes an HTTP
+// call, so the base class's real profileRepository is never touched.
+final _unusedProfileRepository = ProfileRepository();
+
 class _FakeNetworkService extends NetworkService {
   _FakeNetworkService({
     this.listing,
@@ -21,7 +25,7 @@ class _FakeNetworkService extends NetworkService {
     this.outgoingRequests = const [],
     this.optInError,
     this.requestError,
-  }) : super(sessionToken: 'test-token');
+  }) : super(profileRepository: _unusedProfileRepository);
 
   NetworkContact? listing;
   List<NetworkContact> contacts;

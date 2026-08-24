@@ -29,8 +29,8 @@ class _NetworkMyRequestsScreenState extends State<NetworkMyRequestsScreen> {
 
   NetworkService? _service() {
     if (widget.networkService != null) return widget.networkService;
-    final token = context.read<ProfileRepository>().sessionToken;
-    return token == null ? null : NetworkService(sessionToken: token);
+    final repo = context.read<ProfileRepository>();
+    return repo.sessionToken == null ? null : NetworkService(profileRepository: repo);
   }
 
   Future<void> _load() async {

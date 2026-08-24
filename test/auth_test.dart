@@ -27,6 +27,7 @@ class _FakeAuthService extends AuthService {
     verifiedCodes.add(code);
     return const VerifyOtpResult(
       token: 'test-token',
+      refreshToken: 'test-refresh-token',
       account: OfficerAccount(
         id: 'officer-1',
         mobileNumber: '9876543210',
@@ -109,6 +110,7 @@ void main() {
 
       expect(authService.verifiedCodes, ['123456']);
       expect(repository.sessionToken, 'test-token');
+      expect(repository.refreshToken, 'test-refresh-token');
       expect(repository.account?.id, 'officer-1');
       expect(find.text('Onboarding screen'), findsOneWidget);
     });

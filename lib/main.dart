@@ -55,10 +55,9 @@ Future<void> main() async {
   // e.g. to pick up a payment or a manually-granted test entitlement made
   // since the last launch. The app runs fine on the cached value if this
   // fails or the session has expired server-side.
-  final token = profileRepository.sessionToken;
-  if (token != null) {
+  if (profileRepository.sessionToken != null) {
     unawaited(
-      AuthService().fetchAccount(token).then((account) {
+      AuthService().fetchAccount(profileRepository).then((account) {
         if (account != null) profileRepository.updateAccount(account);
       }),
     );

@@ -90,7 +90,53 @@ function bearerToken(request) {
   return match ? match[1] : null;
 }
 
-const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+// Access tokens are short-lived by design — a leaked one is worth little.
+// Refresh tokens are long-lived but single-use-then-rotated: each /auth/
+// refresh call issues a new pair and revokes the one just used, so the
+// officer's session effectively slides forward as long as they keep using
+// the app, without ever needing to re-verify by phone OTP.
+const ACCESS_TOKEN_TTL_SECONDS = 60 * 60; // 1 hour
+const REFRESH_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+
+async function sha256Hex(text) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function randomToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// Issues a fresh access+refresh token pair for [officer] and records the
+// refresh token's hash (never the raw token) in D1.
+async function issueSession(env, officer) {
+  const now = Math.floor(Date.now() / 1000);
+  const accessToken = await signJwt(
+    { sub: officer.id, mobile: officer.mobile_number, iat: now, exp: now + ACCESS_TOKEN_TTL_SECONDS },
+    env.JWT_SECRET,
+  );
+
+  const refreshToken = randomToken();
+  const refreshTokenHash = await sha256Hex(refreshToken);
+  await env.DB.prepare(
+    'INSERT INTO refresh_tokens (id, officer_id, token_hash, created_at, expires_at) VALUES (?, ?, ?, ?, ?)',
+  )
+    .bind(
+      crypto.randomUUID(),
+      officer.id,
+      refreshTokenHash,
+      new Date(now * 1000).toISOString(),
+      new Date((now + REFRESH_TOKEN_TTL_SECONDS) * 1000).toISOString(),
+    )
+    .run();
+
+  return { accessToken, refreshToken };
+}
 
 // --- Twilio Verify -----------------------------------------------------
 
@@ -237,12 +283,64 @@ async function handleVerifyOtp(body, env) {
   }
 
   const officer = await findOrCreateOfficer(env, mobileNumber);
-  const now = Math.floor(Date.now() / 1000);
-  const token = await signJwt(
-    { sub: officer.id, mobile: officer.mobile_number, iat: now, exp: now + SESSION_TTL_SECONDS },
-    env.JWT_SECRET,
-  );
-  return json({ token, officer: officerResponseBody(officer) });
+  const { accessToken, refreshToken } = await issueSession(env, officer);
+  return json({ token: accessToken, refreshToken, officer: officerResponseBody(officer) });
+}
+
+async function handleRefreshToken(body, env) {
+  const rawToken = String(body.refreshToken ?? '');
+  if (!rawToken) return json({ error: 'refreshToken is required' }, 400);
+
+  const tokenHash = await sha256Hex(rawToken);
+  const row = await env.DB.prepare('SELECT * FROM refresh_tokens WHERE token_hash = ?')
+    .bind(tokenHash)
+    .first();
+  if (!row) return json({ error: 'Unauthorized' }, 401);
+
+  if (row.revoked_at) {
+    // This exact refresh token was already rotated away once before — a
+    // legitimate client would be presenting the newer one it got back, so
+    // this is a replay of a stolen/leaked token. Revoke every other active
+    // token for this officer too, forcing a full re-login everywhere.
+    await env.DB.prepare(
+      'UPDATE refresh_tokens SET revoked_at = ? WHERE officer_id = ? AND revoked_at IS NULL',
+    )
+      .bind(new Date().toISOString(), row.officer_id)
+      .run();
+    return json({ error: 'Unauthorized' }, 401);
+  }
+
+  if (new Date(row.expires_at).getTime() < Date.now()) {
+    return json({ error: 'Unauthorized' }, 401);
+  }
+
+  const officer = await env.DB.prepare('SELECT * FROM officers WHERE id = ?').bind(row.officer_id).first();
+  if (!officer) return json({ error: 'Unauthorized' }, 401);
+
+  const { accessToken, refreshToken } = await issueSession(env, officer);
+  const newTokenHash = await sha256Hex(refreshToken);
+  await env.DB.prepare(
+    'UPDATE refresh_tokens SET revoked_at = ?, replaced_by_hash = ? WHERE token_hash = ?',
+  )
+    .bind(new Date().toISOString(), newTokenHash, tokenHash)
+    .run();
+
+  return json({ token: accessToken, refreshToken, officer: officerResponseBody(officer) });
+}
+
+// Best-effort server-side revocation on sign-out — never called mid-session,
+// only when the officer explicitly logs out.
+async function handleLogout(body, env) {
+  const rawToken = String(body.refreshToken ?? '');
+  if (rawToken) {
+    const tokenHash = await sha256Hex(rawToken);
+    await env.DB.prepare(
+      'UPDATE refresh_tokens SET revoked_at = ? WHERE token_hash = ? AND revoked_at IS NULL',
+    )
+      .bind(new Date().toISOString(), tokenHash)
+      .run();
+  }
+  return json({ status: 'logged out' });
 }
 
 async function handleMe(request, env) {
@@ -282,6 +380,8 @@ async function handleGrantEntitlement(request, body, env) {
 export {
   handleRequestOtp,
   handleVerifyOtp,
+  handleRefreshToken,
+  handleLogout,
   handleMe,
   handleGrantEntitlement,
   verifyJwt,

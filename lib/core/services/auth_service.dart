@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/officer_account.dart';
+import 'authenticated_http.dart';
+import 'profile_repository.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
 const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
@@ -17,9 +19,10 @@ class AuthException implements Exception {
 }
 
 class VerifyOtpResult {
-  const VerifyOtpResult({required this.token, required this.account});
+  const VerifyOtpResult({required this.token, required this.refreshToken, required this.account});
 
   final String token;
+  final String refreshToken;
   final OfficerAccount account;
 }
 
@@ -43,23 +46,26 @@ class AuthService {
     final json = jsonDecode(response.body) as Map<String, dynamic>;
     return VerifyOtpResult(
       token: json['token'] as String,
+      refreshToken: json['refreshToken'] as String,
       account: OfficerAccount.fromJson(json['officer'] as Map<String, dynamic>),
     );
   }
 
-  Future<OfficerAccount?> fetchAccount(String token) async {
-    final response = await _post('/me', {}, token: token);
+  /// Best-effort account refresh on launch — transparently refreshes the
+  /// access token via [authenticatedPost] if it's expired, so this keeps
+  /// working even though access tokens are now only 1 hour, not 30 days.
+  Future<OfficerAccount?> fetchAccount(ProfileRepository profileRepository) async {
+    final response = await authenticatedPost(profileRepository, '/me', {});
     if (response.statusCode != 200) return null;
     return OfficerAccount.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  Future<http.Response> _post(String path, Map<String, dynamic> body, {String? token}) {
+  Future<http.Response> _post(String path, Map<String, dynamic> body) {
     return http.post(
       Uri.parse('$_baseUrl$path'),
       headers: {
         'content-type': 'application/json',
         'x-app-key': _appSharedKey,
-        if (token != null) 'authorization': 'Bearer $token',
       },
       body: jsonEncode(body),
     );

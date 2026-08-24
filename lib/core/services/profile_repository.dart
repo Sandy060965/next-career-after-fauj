@@ -49,6 +49,7 @@ class ProfileRepository extends ChangeNotifier {
   VerticalFitAssessment? _lastVerticalFitAssessment;
   AiReadinessResult? _lastAiReadinessResult;
   String? _sessionToken;
+  String? _refreshToken;
   OfficerAccount? _account;
   List<JobApplication> _applications = [];
   CivilianizedCv? _lastCivilianizedCv;
@@ -64,6 +65,11 @@ class ProfileRepository extends ChangeNotifier {
   /// from [profile], which is the officer's own career data collected
   /// during onboarding.
   String? get sessionToken => _sessionToken;
+
+  /// Long-lived, single-use-then-rotated — presented to /auth/refresh to
+  /// silently mint a new short-lived [sessionToken] without the officer
+  /// re-verifying by phone OTP. See [saveSession].
+  String? get refreshToken => _refreshToken;
 
   OfficerAccount? get account => _account;
 
@@ -168,10 +174,11 @@ class ProfileRepository extends ChangeNotifier {
       debugPrint('ProfileRepository.loadFromStorage failed: $e');
     }
 
-    // The session token lives in secure storage, not SharedPreferences —
+    // The session tokens live in secure storage, not SharedPreferences —
     // read separately so a failure here doesn't take the rest of the cached
     // state down with it.
     _sessionToken = await _sessionStorage.readToken();
+    _refreshToken = await _sessionStorage.readRefreshToken();
   }
 
   Future<void> saveProfile(OfficerProfile profile) async {
@@ -227,12 +234,16 @@ class ProfileRepository extends ChangeNotifier {
     }
   }
 
-  /// Called once, right after phone-OTP verification succeeds.
-  Future<void> saveSession(String token, OfficerAccount account) async {
+  /// Called right after phone-OTP verification succeeds, and again on every
+  /// silent token refresh (see `authenticated_http.dart`) — [refreshToken]
+  /// is rotated on each use, so the caller always passes the latest one.
+  Future<void> saveSession(String token, OfficerAccount account, {required String refreshToken}) async {
     _sessionToken = token;
+    _refreshToken = refreshToken;
     _account = account;
     notifyListeners();
     await _sessionStorage.saveToken(token);
+    await _sessionStorage.saveRefreshToken(refreshToken);
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_accountKey, jsonEncode(account.toJson()));
@@ -256,6 +267,7 @@ class ProfileRepository extends ChangeNotifier {
 
   Future<void> clearSession() async {
     _sessionToken = null;
+    _refreshToken = null;
     _account = null;
     notifyListeners();
     await _sessionStorage.clearToken();

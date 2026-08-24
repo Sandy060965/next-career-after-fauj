@@ -2,7 +2,14 @@ import { INDIA_CITIES } from './india_cities.js';
 import { TOP_COMPANIES } from './top_companies.js';
 import { AI_COURSES } from './ai_courses.js';
 import { AI_COMPETENCIES } from './ai_competencies.js';
-import { handleRequestOtp, handleVerifyOtp, handleMe, handleGrantEntitlement } from './auth.js';
+import {
+  handleRequestOtp,
+  handleVerifyOtp,
+  handleRefreshToken,
+  handleLogout,
+  handleMe,
+  handleGrantEntitlement,
+} from './auth.js';
 import {
   handleOptIn,
   handleOptOut,
@@ -903,6 +910,8 @@ export default {
     if (path === '/compensation') return handleCompensation(body, env);
     if (path === '/auth/request-otp') return handleRequestOtp(body, env);
     if (path === '/auth/verify-otp') return handleVerifyOtp(body, env);
+    if (path === '/auth/refresh') return handleRefreshToken(body, env);
+    if (path === '/auth/logout') return handleLogout(body, env);
     if (path === '/me') return handleMe(request, env);
     if (path === '/admin/grant-entitlement') return handleGrantEntitlement(request, body, env);
     if (path === '/network/opt-in') return handleOptIn(request, body, env);

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/officer_account.dart';
 import '../../core/models/officer_profile.dart';
 import '../../core/routing/app_routes.dart';
+import '../../core/services/authenticated_http.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
 
@@ -267,6 +268,8 @@ class ProfileScreen extends StatelessWidget {
             child: TextButton(
               key: const Key('signOutButton'),
               onPressed: () {
+                final refreshToken = repo.refreshToken;
+                if (refreshToken != null) revokeRefreshToken(refreshToken);
                 repo.clearSession();
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil(AppRoutes.phoneVerification, (route) => false);

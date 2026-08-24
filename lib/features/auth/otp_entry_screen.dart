@@ -41,7 +41,7 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
       final result = await widget.authService.verifyOtp(mobileNumber: widget.mobileNumber, code: code);
       if (!mounted) return;
       final repo = context.read<ProfileRepository>();
-      repo.saveSession(result.token, result.account);
+      repo.saveSession(result.token, result.account, refreshToken: result.refreshToken);
       Navigator.of(context).pushNamedAndRemoveUntil(
         repo.profile != null ? AppRoutes.profile : AppRoutes.onboarding,
         (route) => false,

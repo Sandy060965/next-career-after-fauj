@@ -2,10 +2,9 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../../core/services/authenticated_http.dart';
+import '../../core/services/profile_repository.dart';
 import 'network_models.dart';
-
-const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
-const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
 
 class NetworkServiceException implements Exception {
   NetworkServiceException(this.message);
@@ -17,13 +16,15 @@ class NetworkServiceException implements Exception {
 }
 
 /// The officer's own view into the networking directory. Every call needs
-/// the officer's session token — unlike the other HTTP services in this
-/// app, this one always acts as (or on behalf of) a specific, authenticated
-/// officer, since it reads and writes other officers' data too.
+/// the officer's session — unlike the other HTTP services in this app, this
+/// one always acts as (or on behalf of) a specific, authenticated officer,
+/// since it reads and writes other officers' data too. Uses
+/// [authenticatedPost] rather than a fixed token so a mid-session-expired
+/// access token is silently refreshed instead of failing outright.
 class NetworkService {
-  const NetworkService({required this.sessionToken});
+  const NetworkService({required this.profileRepository});
 
-  final String sessionToken;
+  final ProfileRepository profileRepository;
 
   Future<void> optIn({
     required NetworkChannel channel,
@@ -117,15 +118,7 @@ class NetworkService {
   }
 
   Future<http.Response> _post(String path, Map<String, dynamic> body) {
-    return http.post(
-      Uri.parse('$_baseUrl$path'),
-      headers: {
-        'content-type': 'application/json',
-        'x-app-key': _appSharedKey,
-        'authorization': 'Bearer $sessionToken',
-      },
-      body: jsonEncode(body),
-    );
+    return authenticatedPost(profileRepository, path, body);
   }
 
   void _throwIfError(http.Response response, {required String fallback}) {

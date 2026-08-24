@@ -237,4 +237,11 @@ async function handleGrantEntitlement(request, body, env) {
   return json({ status: 'updated' });
 }
 
-export { handleRequestOtp, handleVerifyOtp, handleMe, handleGrantEntitlement };
+export {
+  handleRequestOtp,
+  handleVerifyOtp,
+  handleMe,
+  handleGrantEntitlement,
+  verifyJwt,
+  bearerToken,
+};

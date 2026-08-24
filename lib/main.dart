@@ -29,6 +29,7 @@ import 'features/job_matches/job_matches_http_service.dart';
 import 'features/job_matches/job_matches_screen.dart';
 import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
 import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
+import 'features/networking/network_directory_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
 import 'features/skill_equivalency/skill_equivalency_screen.dart';
@@ -111,6 +112,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.skillEquivalency: (_) => const SkillEquivalencyScreen(),
           AppRoutes.cvCivilianizer: (_) =>
               const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
+          AppRoutes.networkDirectory: (_) => const NetworkDirectoryScreen(),
         },
       ),
     );

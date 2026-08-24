@@ -177,6 +177,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('networkDirectoryButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.networkDirectory),
+              child: const Text('Networking Directory'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('linkedinWriteupButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.linkedinWriteup),
               child: const Text('LinkedIn Write-up'),

@@ -20,4 +20,5 @@ class AppRoutes {
   static const String applicationTracker = '/application-tracker';
   static const String skillEquivalency = '/skill-equivalency';
   static const String cvCivilianizer = '/civilianize-cv';
+  static const String networkDirectory = '/network-directory';
 }

@@ -9,6 +9,7 @@ import '../../features/ai_readiness/ai_readiness.dart';
 import '../../features/cv_civilianizer/civilianized_cv.dart';
 import '../../features/financial_planner/financial_plan.dart';
 import '../../features/fitment/fitment_result.dart';
+import '../../features/target_role/target_role_strategy.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
 import '../models/job_application.dart';
 import '../models/officer_account.dart';
@@ -24,6 +25,7 @@ const _accountKey = 'officer_account_v1';
 const _applicationsKey = 'job_applications_v1';
 const _civilianizedCvKey = 'last_civilianized_cv_v1';
 const _financialPlanKey = 'last_financial_plan_input_v1';
+const _targetRoleStrategyKey = 'last_target_role_strategy_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -47,6 +49,7 @@ class ProfileRepository extends ChangeNotifier {
   List<JobApplication> _applications = [];
   CivilianizedCv? _lastCivilianizedCv;
   FinancialPlanInput? _lastFinancialPlanInput;
+  TargetRoleStrategyResult? _lastTargetRoleStrategy;
 
   OfficerProfile? get profile => _profile;
 
@@ -74,6 +77,8 @@ class ProfileRepository extends ChangeNotifier {
   CivilianizedCv? get lastCivilianizedCv => _lastCivilianizedCv;
 
   FinancialPlanInput? get lastFinancialPlanInput => _lastFinancialPlanInput;
+
+  TargetRoleStrategyResult? get lastTargetRoleStrategy => _lastTargetRoleStrategy;
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -130,6 +135,12 @@ class ProfileRepository extends ChangeNotifier {
       if (financialPlanJson != null) {
         _lastFinancialPlanInput =
             FinancialPlanInput.fromJson(jsonDecode(financialPlanJson) as Map<String, dynamic>);
+      }
+
+      final targetRoleJson = prefs.getString(_targetRoleStrategyKey);
+      if (targetRoleJson != null) {
+        _lastTargetRoleStrategy =
+            TargetRoleStrategyResult.fromJson(jsonDecode(targetRoleJson) as Map<String, dynamic>);
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -254,6 +265,17 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_financialPlanKey, jsonEncode(input.toJson()));
     } catch (e) {
       debugPrint('ProfileRepository.saveFinancialPlanInput persistence failed: $e');
+    }
+  }
+
+  Future<void> saveTargetRoleStrategy(TargetRoleStrategyResult result) async {
+    _lastTargetRoleStrategy = result;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_targetRoleStrategyKey, jsonEncode(result.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveTargetRoleStrategy persistence failed: $e');
     }
   }
 

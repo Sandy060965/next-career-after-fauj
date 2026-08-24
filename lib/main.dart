@@ -24,6 +24,8 @@ import 'features/interview_prep/interview_prep_http_service.dart';
 import 'features/interview_prep/interview_prep_screen.dart';
 import 'features/interview_prep/mock_interview_http_service.dart';
 import 'features/success_roadmap/ninety_day_roadmap_screen.dart';
+import 'features/target_role/target_role_http_service.dart';
+import 'features/target_role/target_role_strategy_screen.dart';
 import 'features/vertical_fit/vertical_fit_quiz_screen.dart';
 import 'features/jd_match/jd_match_screen.dart';
 import 'features/job_matches/job_matches_http_service.dart';
@@ -115,6 +117,8 @@ class NextCareerAfterFaujApp extends StatelessWidget {
               const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
           AppRoutes.networkDirectory: (_) => const NetworkDirectoryScreen(),
           AppRoutes.financialPlanner: (_) => const FinancialPlannerScreen(),
+          AppRoutes.targetRoleStrategy: (_) =>
+              const TargetRoleStrategyScreen(generateStrategy: httpGenerateTargetRoleStrategy),
         },
       ),
     );

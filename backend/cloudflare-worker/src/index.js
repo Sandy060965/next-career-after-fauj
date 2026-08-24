@@ -159,6 +159,35 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
   "translation_notes": ["<brief note on one key translation made, if any>"]
 }`;
 
+const TARGET_ROLE_SYSTEM_PROMPT = `You are helping an Indian Armed Forces officer choose which of three
+already-selected career verticals to pursue as their primary transition target. Deterministic
+scoring (not you) has already ranked these three verticals and picked the specific target role
+title for each, based on the officer's years of experience — your only job is to explain, in a
+grounded way, why each is a strong fit for THIS officer specifically.
+
+You will be given the officer's CV text, and exactly three vertical/role targets, each already
+carrying its own fit score (0-100, from the officer's own self-rated aptitude answers) and target
+role title (from a fixed experience-based career ladder).
+
+STRICT RULES:
+- Never invent skills, employers, dates, metrics, or achievements not present in the source CV.
+- Do not change, re-rank, or second-guess the given vertical names, role titles, or fit scores —
+  treat them as fixed inputs; your job is only the "why," not re-scoring.
+- Ground every "why" explanation in specifics from the CV (a real role, responsibility, or
+  achievement) combined with the given fit score reasoning — never a generic explanation that
+  could apply to any officer.
+- Never reference military rank progression, ACRs, or classified/unit-identifying details.
+- If the CV text is unavailable (only a filename, no real content), say so plainly in each "why"
+  field rather than inventing a plausible-sounding profile, and leave "strengthen_tip" empty for
+  each target.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "targets": [
+    {"vertical": "<echo the vertical name given>", "why": "<2-3 sentences grounded in the CV>", "strengthen_tip": "<one concrete, specific step to make the case stronger for this target>"}
+  ]
+}`;
+
 const AI_READINESS_SYSTEM_PROMPT = `You are advising an Indian Armed Forces officer transitioning to a civilian
 career on their AI readiness, based on their CV and a self-assessment of how
 confident they feel (0-100, already computed) across five dimensions:
@@ -565,6 +594,43 @@ async function handleCivilianizeCv(body, env) {
 }
 
 // ---------------------------------------------------------------------------
+// /target-role-strategy — grounded "why" narratives for three already-ranked
+// (deterministic) vertical/role targets from Vertical Fit + Career Paths.
+// ---------------------------------------------------------------------------
+async function handleTargetRoleStrategy(body, env) {
+  const { cvText, cvPdfBase64, targets } = body;
+  if (!Array.isArray(targets) || targets.length === 0) {
+    return json({ error: 'targets is required' }, 400);
+  }
+  if (!cvText && !cvPdfBase64) {
+    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
+  }
+
+  const cv = buildCvSection(cvText, cvPdfBase64);
+  const targetsSummary = targets
+    .map(
+      (t, i) =>
+        `${i + 1}. Vertical: ${t.vertical} | Target role: ${t.roleTitle} | Fit score: ${t.fitScore}/100 | ` +
+        `Draws on: ${(t.topDimensions || []).join(', ')}`,
+    )
+    .join('\n');
+  const userContent = cv.isDocument
+    ? [...cv.content, { type: 'text', text: `The above document is the CV.\n\nThree targets to explain:\n${targetsSummary}` }]
+    : `${cv.content}\n\nThree targets to explain:\n${targetsSummary}`;
+
+  try {
+    const parsed = await callClaude(env, {
+      system: TARGET_ROLE_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 2048,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // /ai-readiness — AI readiness roadmap grounded in the fixed course/
 // competency reference lists and a client-computed readiness score.
 // ---------------------------------------------------------------------------
@@ -778,6 +844,7 @@ export default {
     if (path === '/job-matches') return handleJobMatches(body, env);
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/civilianize-cv') return handleCivilianizeCv(body, env);
+    if (path === '/target-role-strategy') return handleTargetRoleStrategy(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);

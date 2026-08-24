@@ -105,6 +105,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('targetRoleStrategyButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.targetRoleStrategy),
+              child: const Text('Target Role Strategy'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('careerPathsButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerPaths),
               child: const Text('Career Paths'),

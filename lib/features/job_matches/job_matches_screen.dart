@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../application_tracker/add_edit_application_screen.dart';
 import 'india_cities.dart';
 import 'job_match.dart';
 import 'job_matches_service.dart';
@@ -188,6 +189,23 @@ class _JobMatchCard extends StatelessWidget {
                 key: ValueKey('viewListing_${match.applyUrl}'),
                 onPressed: () => launchUrl(Uri.parse(match.applyUrl), mode: LaunchMode.externalApplication),
                 child: const Text('View listing'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                key: ValueKey('trackApplication_${match.applyUrl}'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => AddEditApplicationScreen(
+                      initialCompanyName: match.company,
+                      initialRoleTitle: match.title,
+                      initialSource: 'Job Matches',
+                    ),
+                  ),
+                ),
+                child: const Text('Track this application'),
               ),
             ),
           ],

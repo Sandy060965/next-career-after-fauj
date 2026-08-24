@@ -78,6 +78,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
+              key: const Key('transitionPlanButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.transitionPlan),
+              child: const Text('My Transition Plan'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('careerReadinessButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerReadiness),
               child: const Text('Career Readiness Score'),
@@ -135,6 +144,15 @@ class ProfileScreen extends StatelessWidget {
               key: const Key('jobMatchesButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jobMatches),
               child: const Text('Job Matches'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('applicationTrackerButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.applicationTracker),
+              child: const Text('Application Tracker'),
             ),
           ),
           const SizedBox(height: 12),

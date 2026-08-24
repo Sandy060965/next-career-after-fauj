@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:next_career_after_fauj/core/models/job_application.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
@@ -73,6 +74,19 @@ final _aiReadiness = AiReadinessResult(
   ],
 );
 
+final _application = JobApplication(
+  id: 'app-1',
+  companyName: 'Acme Corp',
+  roleTitle: 'Head of Operations',
+  status: ApplicationStatus.applied,
+  createdAt: DateTime(2026, 1, 1),
+  source: 'Job Matches',
+  appliedDate: DateTime(2026, 1, 5),
+  nextActionDate: DateTime(2026, 1, 12),
+  nextActionNote: 'Follow up with recruiter',
+  notes: 'Referred by a course-mate.',
+);
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -127,6 +141,19 @@ void main() {
       expect(restored.roadmap.single.title, 'Learn LLM fundamentals');
       expect(restored.roadmap.single.phase, RoadmapPhase.day30);
     });
+
+    test('JobApplication survives a toJson/fromJson round-trip', () {
+      final restored = JobApplication.fromJson(_application.toJson());
+
+      expect(restored.companyName, _application.companyName);
+      expect(restored.roleTitle, _application.roleTitle);
+      expect(restored.status, ApplicationStatus.applied);
+      expect(restored.source, _application.source);
+      expect(restored.appliedDate, _application.appliedDate);
+      expect(restored.nextActionDate, _application.nextActionDate);
+      expect(restored.nextActionNote, _application.nextActionNote);
+      expect(restored.notes, _application.notes);
+    });
   });
 
   group('ProfileRepository persistence', () {
@@ -179,6 +206,19 @@ void main() {
       expect(reader.lastAiReadinessResult?.skillGaps.single.competency.id, kAiCompetencies.first.id);
     });
 
+    test('a saved application is restored', () async {
+      final writer = ProfileRepository();
+      writer.addApplication(_application);
+      await Future<void>.delayed(Duration.zero);
+
+      final reader = ProfileRepository();
+      await reader.loadFromStorage();
+
+      expect(reader.applications, hasLength(1));
+      expect(reader.applications.single.companyName, 'Acme Corp');
+      expect(reader.applications.single.status, ApplicationStatus.applied);
+    });
+
     test('loadFromStorage on an empty store leaves everything null', () async {
       final reader = ProfileRepository();
       await reader.loadFromStorage();
@@ -187,6 +227,7 @@ void main() {
       expect(reader.lastFitmentResult, isNull);
       expect(reader.lastVerticalFitAssessment, isNull);
       expect(reader.lastAiReadinessResult, isNull);
+      expect(reader.applications, isEmpty);
     });
   });
 }

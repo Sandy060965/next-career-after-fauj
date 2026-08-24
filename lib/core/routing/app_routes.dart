@@ -16,4 +16,6 @@ class AppRoutes {
   static const String interviewPrep = '/interview-prep';
   static const String ninetyDayRoadmap = '/ninety-day-roadmap';
   static const String compensation = '/compensation';
+  static const String transitionPlan = '/transition-plan';
+  static const String applicationTracker = '/application-tracker';
 }

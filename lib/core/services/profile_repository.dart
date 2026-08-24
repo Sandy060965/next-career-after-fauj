@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/ai_readiness/ai_readiness.dart';
 import '../../features/fitment/fitment_result.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
+import '../models/job_application.dart';
 import '../models/officer_account.dart';
 import '../models/officer_profile.dart';
 import 'session_storage.dart';
@@ -18,6 +19,7 @@ const _jdTextKey = 'last_jd_text_v1';
 const _verticalFitKey = 'last_vertical_fit_v1';
 const _aiReadinessKey = 'last_ai_readiness_v1';
 const _accountKey = 'officer_account_v1';
+const _applicationsKey = 'job_applications_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -38,6 +40,7 @@ class ProfileRepository extends ChangeNotifier {
   AiReadinessResult? _lastAiReadinessResult;
   String? _sessionToken;
   OfficerAccount? _account;
+  List<JobApplication> _applications = [];
 
   OfficerProfile? get profile => _profile;
 
@@ -58,6 +61,9 @@ class ProfileRepository extends ChangeNotifier {
   VerticalFitAssessment? get lastVerticalFitAssessment => _lastVerticalFitAssessment;
 
   AiReadinessResult? get lastAiReadinessResult => _lastAiReadinessResult;
+
+  /// The officer's own application pipeline — newest first.
+  List<JobApplication> get applications => List.unmodifiable(_applications);
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -95,6 +101,13 @@ class ProfileRepository extends ChangeNotifier {
       final accountJson = prefs.getString(_accountKey);
       if (accountJson != null) {
         _account = OfficerAccount.fromJson(jsonDecode(accountJson) as Map<String, dynamic>);
+      }
+
+      final applicationsJson = prefs.getString(_applicationsKey);
+      if (applicationsJson != null) {
+        _applications = (jsonDecode(applicationsJson) as List)
+            .map((e) => JobApplication.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -198,6 +211,38 @@ class ProfileRepository extends ChangeNotifier {
     } catch (e) {
       debugPrint('ProfileRepository.clearSession persistence failed: $e');
     }
+  }
+
+  Future<void> _persistApplications() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _applicationsKey,
+        jsonEncode(_applications.map((a) => a.toJson()).toList()),
+      );
+    } catch (e) {
+      debugPrint('ProfileRepository._persistApplications failed: $e');
+    }
+  }
+
+  Future<void> addApplication(JobApplication application) async {
+    _applications = [application, ..._applications];
+    notifyListeners();
+    await _persistApplications();
+  }
+
+  Future<void> updateApplication(JobApplication application) async {
+    _applications = [
+      for (final a in _applications) a.id == application.id ? application : a,
+    ];
+    notifyListeners();
+    await _persistApplications();
+  }
+
+  Future<void> deleteApplication(String id) async {
+    _applications = _applications.where((a) => a.id != id).toList();
+    notifyListeners();
+    await _persistApplications();
   }
 
   // File I/O gets a hard timeout: on a real device this should always be

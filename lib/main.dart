@@ -9,6 +9,7 @@ import 'core/services/profile_repository.dart';
 import 'core/theme/app_theme.dart';
 import 'features/ai_readiness/ai_readiness_http_service.dart';
 import 'features/ai_readiness/ai_readiness_quiz_screen.dart';
+import 'features/application_tracker/application_tracker_screen.dart';
 import 'features/auth/phone_verification_screen.dart';
 import 'features/career_paths/career_paths_screen.dart';
 import 'features/career_readiness/career_readiness_screen.dart';
@@ -28,6 +29,7 @@ import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
 import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
+import 'features/transition_plan/transition_plan_screen.dart';
 
 // Debug-only escape hatch for local testing before Twilio is configured —
 // false in every real build (App Store/Play Store builds never pass this
@@ -101,6 +103,8 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.ninetyDayRoadmap: (_) => const NinetyDayRoadmapScreen(),
           AppRoutes.compensation: (_) =>
               const CompensationScreen(estimateCompensation: httpEstimateCompensation),
+          AppRoutes.transitionPlan: (_) => const TransitionPlanScreen(),
+          AppRoutes.applicationTracker: (_) => const ApplicationTrackerScreen(),
         },
       ),
     );

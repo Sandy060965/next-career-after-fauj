@@ -5,6 +5,7 @@ import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness.dart';
 import 'package:next_career_after_fauj/features/cv_civilianizer/civilianized_cv.dart';
+import 'package:next_career_after_fauj/features/financial_planner/financial_plan.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -243,6 +244,21 @@ void main() {
       expect(reader.lastCivilianizedCv?.civilianizedCv, _civilianizedCv.civilianizedCv);
     });
 
+    test('a saved financial plan input is restored', () async {
+      final writer = ProfileRepository();
+      writer.saveFinancialPlanInput(
+        const FinancialPlanInput(drawsPension: true, monthlyPension: 60000, annualFixedPay: 1500000),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      final reader = ProfileRepository();
+      await reader.loadFromStorage();
+
+      expect(reader.lastFinancialPlanInput?.drawsPension, isTrue);
+      expect(reader.lastFinancialPlanInput?.monthlyPension, 60000);
+      expect(reader.lastFinancialPlanInput?.annualFixedPay, 1500000);
+    });
+
     test('loadFromStorage on an empty store leaves everything null', () async {
       final reader = ProfileRepository();
       await reader.loadFromStorage();
@@ -253,6 +269,7 @@ void main() {
       expect(reader.lastAiReadinessResult, isNull);
       expect(reader.applications, isEmpty);
       expect(reader.lastCivilianizedCv, isNull);
+      expect(reader.lastFinancialPlanInput, isNull);
     });
   });
 }

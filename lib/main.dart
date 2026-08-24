@@ -17,6 +17,7 @@ import 'features/compensation/compensation_http_service.dart';
 import 'features/compensation/compensation_screen.dart';
 import 'features/cv_civilianizer/civilianizer_http_service.dart';
 import 'features/cv_civilianizer/civilianizer_screen.dart';
+import 'features/financial_planner/financial_planner_screen.dart';
 import 'features/fitment/fitment_entry_screens.dart';
 import 'features/fitment/fitment_http_service.dart';
 import 'features/interview_prep/interview_prep_http_service.dart';
@@ -113,6 +114,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.cvCivilianizer: (_) =>
               const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
           AppRoutes.networkDirectory: (_) => const NetworkDirectoryScreen(),
+          AppRoutes.financialPlanner: (_) => const FinancialPlannerScreen(),
         },
       ),
     );

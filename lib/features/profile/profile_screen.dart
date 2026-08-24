@@ -222,6 +222,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('financialPlannerButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.financialPlanner),
+              child: const Text('Financial & Cost-of-Living Calculator'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('ninetyDayRoadmapButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.ninetyDayRoadmap),
               child: const Text('Your First 90 Days'),

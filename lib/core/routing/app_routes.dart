@@ -21,4 +21,5 @@ class AppRoutes {
   static const String skillEquivalency = '/skill-equivalency';
   static const String cvCivilianizer = '/civilianize-cv';
   static const String networkDirectory = '/network-directory';
+  static const String financialPlanner = '/financial-planner';
 }

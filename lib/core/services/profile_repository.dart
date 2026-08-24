@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/ai_readiness/ai_readiness.dart';
 import '../../features/cv_civilianizer/civilianized_cv.dart';
+import '../../features/financial_planner/financial_plan.dart';
 import '../../features/fitment/fitment_result.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
 import '../models/job_application.dart';
@@ -22,6 +23,7 @@ const _aiReadinessKey = 'last_ai_readiness_v1';
 const _accountKey = 'officer_account_v1';
 const _applicationsKey = 'job_applications_v1';
 const _civilianizedCvKey = 'last_civilianized_cv_v1';
+const _financialPlanKey = 'last_financial_plan_input_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -44,6 +46,7 @@ class ProfileRepository extends ChangeNotifier {
   OfficerAccount? _account;
   List<JobApplication> _applications = [];
   CivilianizedCv? _lastCivilianizedCv;
+  FinancialPlanInput? _lastFinancialPlanInput;
 
   OfficerProfile? get profile => _profile;
 
@@ -69,6 +72,8 @@ class ProfileRepository extends ChangeNotifier {
   List<JobApplication> get applications => List.unmodifiable(_applications);
 
   CivilianizedCv? get lastCivilianizedCv => _lastCivilianizedCv;
+
+  FinancialPlanInput? get lastFinancialPlanInput => _lastFinancialPlanInput;
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -119,6 +124,12 @@ class ProfileRepository extends ChangeNotifier {
       if (civilianizedCvJson != null) {
         _lastCivilianizedCv =
             CivilianizedCv.fromJson(jsonDecode(civilianizedCvJson) as Map<String, dynamic>);
+      }
+
+      final financialPlanJson = prefs.getString(_financialPlanKey);
+      if (financialPlanJson != null) {
+        _lastFinancialPlanInput =
+            FinancialPlanInput.fromJson(jsonDecode(financialPlanJson) as Map<String, dynamic>);
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -232,6 +243,17 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_civilianizedCvKey, jsonEncode(result.toJson()));
     } catch (e) {
       debugPrint('ProfileRepository.saveCivilianizedCv persistence failed: $e');
+    }
+  }
+
+  Future<void> saveFinancialPlanInput(FinancialPlanInput input) async {
+    _lastFinancialPlanInput = input;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_financialPlanKey, jsonEncode(input.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveFinancialPlanInput persistence failed: $e');
     }
   }
 

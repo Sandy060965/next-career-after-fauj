@@ -535,6 +535,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          Text(
+            "Your CV is sent to Anthropic's Claude for AI-powered analysis — CV/JD "
+            'matching, rewriting, and the other AI features in this app. It is not '
+            'shared with any other third party.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
           const SizedBox(height: 20),
           _buildUploadPanel(),
           if (_cvError != null)

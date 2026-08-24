@@ -135,6 +135,40 @@ async function twilioVerifyCheck(env, e164Number, code) {
   return response.json();
 }
 
+// --- OTP rate limiting ---------------------------------------------------
+// Each request here costs real money (one SMS via Twilio) and can be aimed
+// at a real person's phone as harassment — so this limits by the number
+// being texted, not by caller IP, since that's the actual abuse surface.
+
+const OTP_RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const OTP_RATE_LIMIT_MAX = 3; // per number, per window
+
+async function checkAndRecordOtpRequest(env, mobileNumber) {
+  const now = Date.now();
+  const row = await env.DB.prepare(
+    'SELECT request_count, window_start FROM otp_rate_limit WHERE mobile_number = ?',
+  )
+    .bind(mobileNumber)
+    .first();
+
+  if (!row || now - new Date(row.window_start).getTime() > OTP_RATE_LIMIT_WINDOW_MS) {
+    await env.DB.prepare(
+      'INSERT INTO otp_rate_limit (mobile_number, request_count, window_start) VALUES (?, 1, ?) ' +
+        'ON CONFLICT(mobile_number) DO UPDATE SET request_count = 1, window_start = excluded.window_start',
+    )
+      .bind(mobileNumber, new Date(now).toISOString())
+      .run();
+    return true;
+  }
+
+  if (row.request_count >= OTP_RATE_LIMIT_MAX) return false;
+
+  await env.DB.prepare('UPDATE otp_rate_limit SET request_count = request_count + 1 WHERE mobile_number = ?')
+    .bind(mobileNumber)
+    .run();
+  return true;
+}
+
 // --- D1 officer records -------------------------------------------------
 
 async function findOrCreateOfficer(env, mobileNumber) {
@@ -172,6 +206,14 @@ function officerResponseBody(officer) {
 async function handleRequestOtp(body, env) {
   const mobileNumber = normalizeMobileNumber(body.mobileNumber);
   if (!mobileNumber) return json({ error: 'A valid 10-digit mobile number is required' }, 400);
+
+  const allowed = await checkAndRecordOtpRequest(env, mobileNumber);
+  if (!allowed) {
+    return json(
+      { error: 'Too many verification codes requested for this number. Please try again later.' },
+      429,
+    );
+  }
 
   try {
     await twilioVerifyStart(env, toE164(mobileNumber));

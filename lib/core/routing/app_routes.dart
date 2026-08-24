@@ -18,4 +18,6 @@ class AppRoutes {
   static const String compensation = '/compensation';
   static const String transitionPlan = '/transition-plan';
   static const String applicationTracker = '/application-tracker';
+  static const String skillEquivalency = '/skill-equivalency';
+  static const String cvCivilianizer = '/civilianize-cv';
 }

@@ -15,6 +15,8 @@ import 'features/career_paths/career_paths_screen.dart';
 import 'features/career_readiness/career_readiness_screen.dart';
 import 'features/compensation/compensation_http_service.dart';
 import 'features/compensation/compensation_screen.dart';
+import 'features/cv_civilianizer/civilianizer_http_service.dart';
+import 'features/cv_civilianizer/civilianizer_screen.dart';
 import 'features/fitment/fitment_entry_screens.dart';
 import 'features/fitment/fitment_http_service.dart';
 import 'features/interview_prep/interview_prep_http_service.dart';
@@ -29,6 +31,7 @@ import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
 import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
+import 'features/skill_equivalency/skill_equivalency_screen.dart';
 import 'features/transition_plan/transition_plan_screen.dart';
 
 // Debug-only escape hatch for local testing before Twilio is configured —
@@ -105,6 +108,9 @@ class NextCareerAfterFaujApp extends StatelessWidget {
               const CompensationScreen(estimateCompensation: httpEstimateCompensation),
           AppRoutes.transitionPlan: (_) => const TransitionPlanScreen(),
           AppRoutes.applicationTracker: (_) => const ApplicationTrackerScreen(),
+          AppRoutes.skillEquivalency: (_) => const SkillEquivalencyScreen(),
+          AppRoutes.cvCivilianizer: (_) =>
+              const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
         },
       ),
     );

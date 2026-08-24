@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/ai_readiness/ai_readiness.dart';
+import '../../features/cv_civilianizer/civilianized_cv.dart';
 import '../../features/fitment/fitment_result.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
 import '../models/job_application.dart';
@@ -20,6 +21,7 @@ const _verticalFitKey = 'last_vertical_fit_v1';
 const _aiReadinessKey = 'last_ai_readiness_v1';
 const _accountKey = 'officer_account_v1';
 const _applicationsKey = 'job_applications_v1';
+const _civilianizedCvKey = 'last_civilianized_cv_v1';
 const _cvFileName = 'officer_cv';
 
 /// Holder for the officer's profile and cross-screen state, shared via
@@ -41,6 +43,7 @@ class ProfileRepository extends ChangeNotifier {
   String? _sessionToken;
   OfficerAccount? _account;
   List<JobApplication> _applications = [];
+  CivilianizedCv? _lastCivilianizedCv;
 
   OfficerProfile? get profile => _profile;
 
@@ -64,6 +67,8 @@ class ProfileRepository extends ChangeNotifier {
 
   /// The officer's own application pipeline — newest first.
   List<JobApplication> get applications => List.unmodifiable(_applications);
+
+  CivilianizedCv? get lastCivilianizedCv => _lastCivilianizedCv;
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -108,6 +113,12 @@ class ProfileRepository extends ChangeNotifier {
         _applications = (jsonDecode(applicationsJson) as List)
             .map((e) => JobApplication.fromJson(e as Map<String, dynamic>))
             .toList();
+      }
+
+      final civilianizedCvJson = prefs.getString(_civilianizedCvKey);
+      if (civilianizedCvJson != null) {
+        _lastCivilianizedCv =
+            CivilianizedCv.fromJson(jsonDecode(civilianizedCvJson) as Map<String, dynamic>);
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -210,6 +221,17 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.remove(_accountKey);
     } catch (e) {
       debugPrint('ProfileRepository.clearSession persistence failed: $e');
+    }
+  }
+
+  Future<void> saveCivilianizedCv(CivilianizedCv result) async {
+    _lastCivilianizedCv = result;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_civilianizedCvKey, jsonEncode(result.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveCivilianizedCv persistence failed: $e');
     }
   }
 

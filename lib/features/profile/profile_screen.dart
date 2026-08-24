@@ -114,6 +114,24 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('skillEquivalencyButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.skillEquivalency),
+              child: const Text('Skill Equivalency Matrix'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('cvCivilianizerButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvCivilianizer),
+              child: const Text('Base CV, Civilianized'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('jdMatchButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jdMatch),
               child: const Text('JD Match'),

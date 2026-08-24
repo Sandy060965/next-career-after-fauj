@@ -125,6 +125,30 @@ Produce three pieces, respond with ONLY valid JSON (no markdown fences):
   "announcement_post": "<shareable feed post announcing the transition and what they're looking for>"
 }`;
 
+const CIVILIANIZE_CV_SYSTEM_PROMPT = `You are helping an Indian Armed Forces officer transitioning to civilian
+roles produce a general-purpose civilian version of their CV — this is their
+baseline CV before they have a specific target job description, not tailored
+to any one role.
+
+STRICT RULES:
+- Never invent skills, employers, dates, metrics, or achievements not present
+  in the source CV. Only reframe, reword, or reorder what is already there.
+- Translate military terminology, rank references, and unit-scale language
+  into civilian equivalents wherever the underlying experience genuinely
+  supports it (e.g. "Commanding Officer of an 800-personnel unit" becomes
+  "Operations Director leading an 800-person organisation").
+- Never reference military rank progression, ACRs, or classified/unit-
+  identifying details.
+- If the CV text is unavailable (only a filename, no real content), say so in
+  "civilianized_cv" rather than inventing a profile, and leave
+  "translation_notes" empty.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "civilianized_cv": "<full CV text, rewritten>",
+  "translation_notes": ["<brief note on one key translation made, if any>"]
+}`;
+
 const AI_READINESS_SYSTEM_PROMPT = `You are advising an Indian Armed Forces officer transitioning to a civilian
 career on their AI readiness, based on their CV and a self-assessment of how
 confident they feel (0-100, already computed) across five dimensions:
@@ -503,6 +527,34 @@ async function handleLinkedInWriteup(body, env) {
 }
 
 // ---------------------------------------------------------------------------
+// /civilianize-cv — a JD-independent baseline civilian CV, reusing the same
+// reframe-only rewriting discipline as the JD Match refined CV (Part 2 of
+// FITMENT_SYSTEM_PROMPT) but without a target JD to tailor toward.
+// ---------------------------------------------------------------------------
+async function handleCivilianizeCv(body, env) {
+  const { cvText, cvPdfBase64 } = body;
+  if (!cvText && !cvPdfBase64) {
+    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
+  }
+
+  const cv = buildCvSection(cvText, cvPdfBase64);
+  const userContent = cv.isDocument
+    ? [...cv.content, { type: 'text', text: 'The above document is the CV.' }]
+    : cv.content;
+
+  try {
+    const parsed = await callClaude(env, {
+      system: CIVILIANIZE_CV_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 4096,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // /ai-readiness — AI readiness roadmap grounded in the fixed course/
 // competency reference lists and a client-computed readiness score.
 // ---------------------------------------------------------------------------
@@ -715,6 +767,7 @@ export default {
     const path = new URL(request.url).pathname;
     if (path === '/job-matches') return handleJobMatches(body, env);
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
+    if (path === '/civilianize-cv') return handleCivilianizeCv(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);

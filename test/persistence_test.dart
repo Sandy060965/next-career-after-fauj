@@ -4,6 +4,7 @@ import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness.dart';
+import 'package:next_career_after_fauj/features/cv_civilianizer/civilianized_cv.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,6 +88,11 @@ final _application = JobApplication(
   notes: 'Referred by a course-mate.',
 );
 
+const _civilianizedCv = CivilianizedCv(
+  civilianizedCv: 'Operations Director with 14+ years leading large organisations.',
+  translationNotes: ['Rewrote command language as Operations Director.'],
+);
+
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -154,6 +160,13 @@ void main() {
       expect(restored.nextActionNote, _application.nextActionNote);
       expect(restored.notes, _application.notes);
     });
+
+    test('CivilianizedCv survives a toJson/fromJson round-trip', () {
+      final restored = CivilianizedCv.fromJson(_civilianizedCv.toJson());
+
+      expect(restored.civilianizedCv, _civilianizedCv.civilianizedCv);
+      expect(restored.translationNotes, _civilianizedCv.translationNotes);
+    });
   });
 
   group('ProfileRepository persistence', () {
@@ -219,6 +232,17 @@ void main() {
       expect(reader.applications.single.status, ApplicationStatus.applied);
     });
 
+    test('a saved civilianized CV is restored', () async {
+      final writer = ProfileRepository();
+      writer.saveCivilianizedCv(_civilianizedCv);
+      await Future<void>.delayed(Duration.zero);
+
+      final reader = ProfileRepository();
+      await reader.loadFromStorage();
+
+      expect(reader.lastCivilianizedCv?.civilianizedCv, _civilianizedCv.civilianizedCv);
+    });
+
     test('loadFromStorage on an empty store leaves everything null', () async {
       final reader = ProfileRepository();
       await reader.loadFromStorage();
@@ -228,6 +252,7 @@ void main() {
       expect(reader.lastVerticalFitAssessment, isNull);
       expect(reader.lastAiReadinessResult, isNull);
       expect(reader.applications, isEmpty);
+      expect(reader.lastCivilianizedCv, isNull);
     });
   });
 }

@@ -846,8 +846,12 @@ async function handleCompensation(body, env) {
   }
 
   // Never trust the model's own location blindly — fall back to a major
-  // hub if it didn't pick a real city from the list we gave it.
-  const location = indiaCityNames.includes(derived.location) ? derived.location : 'Mumbai';
+  // hub if it didn't pick a real city from the list we gave it. Track
+  // whether that happened so the client can say so honestly, instead of
+  // silently presenting Mumbai data as if it were for the JD's actual city.
+  const requestedLocation = derived.location;
+  const isKnownCity = indiaCityNames.includes(requestedLocation);
+  const location = isKnownCity ? requestedLocation : 'Mumbai';
 
   let salary = null;
   try {
@@ -867,6 +871,8 @@ async function handleCompensation(body, env) {
   return json({
     job_title: derived.job_title,
     location,
+    location_is_estimate: !isKnownCity,
+    requested_location: isKnownCity ? null : requestedLocation,
     min_salary: salary?.min_salary ?? null,
     max_salary: salary?.max_salary ?? null,
     median_salary: salary?.median_salary ?? null,

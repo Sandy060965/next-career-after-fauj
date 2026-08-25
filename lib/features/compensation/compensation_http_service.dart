@@ -60,6 +60,8 @@ Future<CompensationEstimate> httpEstimateCompensation({
   return CompensationEstimate(
     jobTitle: json['job_title'] as String,
     location: json['location'] as String,
+    locationIsEstimate: json['location_is_estimate'] as bool? ?? false,
+    requestedLocation: json['requested_location'] as String?,
     minSalary: json['min_salary'] as num?,
     maxSalary: json['max_salary'] as num?,
     medianSalary: json['median_salary'] as num?,

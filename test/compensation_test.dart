@@ -40,6 +40,20 @@ Future<CompensationEstimate> _stubNoData({required String jdText, String? cvText
   );
 }
 
+Future<CompensationEstimate> _stubUnknownCity({required String jdText, String? cvText}) async {
+  return const CompensationEstimate(
+    jobTitle: 'Plant Manager',
+    location: 'Mumbai',
+    locationIsEstimate: true,
+    requestedLocation: 'Rewari',
+    minSalary: 2000000,
+    maxSalary: 3500000,
+    currency: 'INR',
+    period: 'YEAR',
+    negotiationGuidance: 'Guidance for an estimated location.',
+  );
+}
+
 Widget _wrap(Widget child, {ProfileRepository? repository}) {
   return ChangeNotifierProvider<ProfileRepository>.value(
     value: repository ?? ProfileRepository(),
@@ -88,5 +102,26 @@ void main() {
 
     expect(find.byKey(const Key('noMarketDataCard')), findsOneWidget);
     expect(find.text('Guidance without market data.'), findsOneWidget);
+  });
+
+  testWidgets(
+      "shows an honest notice when the JD's city isn't in our curated list, instead of "
+      'silently presenting the fallback city as a match', (tester) async {
+    final repository = ProfileRepository()
+      ..saveFitmentResult(_stubFitmentResult, jdText: 'Plant Manager role in Rewari');
+
+    await tester.pumpWidget(
+      _wrap(
+        const CompensationScreen(estimateCompensation: _stubUnknownCity),
+        repository: repository,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('locationEstimateNotice')), findsOneWidget);
+    expect(
+      find.textContaining("We don't have reliable market data for Rewari"),
+      findsOneWidget,
+    );
   });
 }

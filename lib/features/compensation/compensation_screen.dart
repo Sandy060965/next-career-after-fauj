@@ -110,6 +110,36 @@ class _CompensationScreenState extends State<CompensationScreen> {
       children: [
         Text(estimate.jobTitle, style: Theme.of(context).textTheme.headlineSmall),
         Text('${estimate.location}, India', style: Theme.of(context).textTheme.bodyMedium),
+        if (estimate.locationIsEstimate) ...[
+          const SizedBox(height: 8),
+          Container(
+            key: const Key('locationEstimateNotice'),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    estimate.requestedLocation != null
+                        ? "We don't have reliable market data for ${estimate.requestedLocation} — "
+                            'showing ${estimate.location} as the nearest reference point instead.'
+                        : "We don't have reliable market data for this JD's location — showing "
+                            '${estimate.location} as a reference point instead.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 20),
         if (estimate.hasMarketData)
           Card(

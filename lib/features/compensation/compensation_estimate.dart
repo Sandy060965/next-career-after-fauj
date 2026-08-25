@@ -6,6 +6,8 @@ class CompensationEstimate {
   const CompensationEstimate({
     required this.jobTitle,
     required this.location,
+    this.locationIsEstimate = false,
+    this.requestedLocation,
     this.minSalary,
     this.maxSalary,
     this.medianSalary,
@@ -18,6 +20,16 @@ class CompensationEstimate {
 
   final String jobTitle;
   final String location;
+
+  /// True when the JD's actual city wasn't in our curated list, so
+  /// [location] is a stand-in (currently always Mumbai) rather than the
+  /// real target city — never silently presented as if it were a match.
+  final bool locationIsEstimate;
+
+  /// The JD's own stated city, only set when it differs from [location]
+  /// because we don't have reliable data for it.
+  final String? requestedLocation;
+
   final num? minSalary;
   final num? maxSalary;
   final num? medianSalary;

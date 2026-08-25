@@ -7,6 +7,7 @@ typedef JobMatchesAnalyzer = Future<List<JobMatch>> Function({
   required String cvText,
   CityTier? cityTier,
   Uint8List? cvPdfBytes,
+  String? corpsOrArm,
 });
 
 /// Placeholder used until the Worker's /job-matches endpoint (JSearch +
@@ -16,6 +17,7 @@ Future<List<JobMatch>> mockAnalyzeJobMatches({
   required String cvText,
   CityTier? cityTier,
   Uint8List? cvPdfBytes,
+  String? corpsOrArm,
 }) async {
   await Future.delayed(const Duration(milliseconds: 700));
   return const [

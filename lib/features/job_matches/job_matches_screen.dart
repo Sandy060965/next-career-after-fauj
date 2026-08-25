@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
 import '../application_tracker/add_edit_application_screen.dart';
+import '../career_paths/corps_affinity.dart';
 import 'india_cities.dart';
 import 'job_match.dart';
 import 'job_matches_service.dart';
@@ -25,10 +26,12 @@ class _JobMatchesScreenState extends State<JobMatchesScreen> {
   bool _isLoading = false;
   String? _error;
   List<JobMatch>? _matches;
+  String? _corpsOrArm;
 
   @override
   void initState() {
     super.initState();
+    _corpsOrArm = context.read<ProfileRepository>().profile?.corpsOrArm;
     _runSearch();
   }
 
@@ -43,6 +46,7 @@ class _JobMatchesScreenState extends State<JobMatchesScreen> {
         cvText: profile?.cvExtractedText ?? profile?.cvFileName ?? '',
         cityTier: _selectedTier,
         cvPdfBytes: profile?.cvPdfBytes,
+        corpsOrArm: _corpsOrArm,
       );
       if (!mounted) return;
       setState(() {
@@ -73,6 +77,22 @@ class _JobMatchesScreenState extends State<JobMatchesScreen> {
                   'Open roles matched against your CV, from Naukri, Indeed, and LinkedIn.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
+                if (isDomainConstrained(_corpsOrArm)) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    key: const Key('jobMatchesDomainNotice'),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Showing roles scoped to your $_corpsOrArm-relevant professional domain, '
+                      'not the general job market.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 SegmentedButton<CityTier?>(
                   key: const Key('cityTierFilter'),

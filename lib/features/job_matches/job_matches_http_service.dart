@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
+import '../career_paths/corps_affinity.dart';
 import 'india_cities.dart';
 import 'job_match.dart';
 
@@ -25,9 +26,18 @@ Future<List<JobMatch>> httpAnalyzeJobMatches({
   required String cvText,
   CityTier? cityTier,
   Uint8List? cvPdfBytes,
+  String? corpsOrArm,
 }) async {
+  // For a domain-constrained officer (AMC, JAG), the query and result
+  // filter are computed deterministically here from their Corps/Arm — see
+  // corps_affinity.dart — rather than left to the Worker's CV-derived
+  // query, which carries no domain signal at all.
+  final overrideQuery = domainConstrainedJobQuery(corpsOrArm);
+  final titleKeywords = domainConstrainedJobTitleKeywords(corpsOrArm);
   final body = <String, dynamic>{
     if (cityTier != null) 'cityTier': cityTier == CityTier.tier1 ? 'tier1' : 'tier2',
+    if (overrideQuery != null) 'overrideQuery': overrideQuery,
+    if (titleKeywords != null) 'titleKeywords': titleKeywords,
   };
   if (cvPdfBytes != null) {
     body['cvPdfBase64'] = base64Encode(cvPdfBytes);

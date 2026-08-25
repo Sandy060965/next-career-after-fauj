@@ -521,8 +521,15 @@ async function searchJSearch(env, query) {
   return listings;
 }
 
+function matchesTitleKeywords(title, titleKeywords) {
+  if (!titleKeywords || titleKeywords.length === 0) return true;
+  if (!title) return false;
+  const lower = title.toLowerCase();
+  return titleKeywords.some((k) => lower.includes(k.toLowerCase()));
+}
+
 async function handleJobMatches(body, env) {
-  const { cvText, cvPdfBase64, cityTier } = body;
+  const { cvText, cvPdfBase64, cityTier, overrideQuery, titleKeywords } = body;
   if (!cvText && !cvPdfBase64) {
     return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
   }
@@ -532,20 +539,26 @@ async function handleJobMatches(body, env) {
 
   const cv = buildCvSection(cvText, cvPdfBase64);
 
-  // Step 1: derive a search query from the CV.
-  let query;
-  try {
-    const queryUserContent = cv.isDocument
-      ? [...cv.content, { type: 'text', text: 'Propose a search query for this CV.' }]
-      : `${cv.content}\n\nPropose a search query for this CV.`;
-    const queryResult = await callClaude(env, {
-      system: QUERY_SYSTEM_PROMPT,
-      userContent: queryUserContent,
-      maxTokens: 256,
-    });
-    query = queryResult.query;
-  } catch (e) {
-    return json({ error: 'Could not derive a search query from the CV', detail: `${e}` }, 502);
+  // Step 1: derive a search query from the CV — unless the client already
+  // computed a deterministic domain-constrained query (AMC/JAG, from
+  // corps_affinity.dart), in which case that always takes priority and no
+  // AI call is made for this step at all. The professional-domain boundary
+  // must stay deterministic and auditable, not AI-inferred.
+  let query = overrideQuery || null;
+  if (!query) {
+    try {
+      const queryUserContent = cv.isDocument
+        ? [...cv.content, { type: 'text', text: 'Propose a search query for this CV.' }]
+        : `${cv.content}\n\nPropose a search query for this CV.`;
+      const queryResult = await callClaude(env, {
+        system: QUERY_SYSTEM_PROMPT,
+        userContent: queryUserContent,
+        maxTokens: 256,
+      });
+      query = queryResult.query;
+    } catch (e) {
+      return json({ error: 'Could not derive a search query from the CV', detail: `${e}` }, 502);
+    }
   }
   if (!query) {
     return json({ error: 'Could not derive a search query from the CV' }, 502);
@@ -559,9 +572,12 @@ async function handleJobMatches(body, env) {
     return json({ error: 'Job search failed', detail: `${e}` }, 502);
   }
 
-  // Step 3+4: filter by city tier, annotate CTC + top-company, keep only
-  // fields the client needs — the URL, CTC, and company flag all come
-  // straight from this real data, never touched by the LLM afterwards.
+  // Step 3+4: filter by city tier and (for a domain-constrained officer)
+  // by title keywords, annotate CTC + top-company, keep only fields the
+  // client needs — the URL, CTC, and company flag all come straight from
+  // this real data, never touched by the LLM afterwards. The title-keyword
+  // filter runs here, before ranking, so an out-of-domain listing is never
+  // a candidate the ranking step could even pick.
   const candidates = listings
     .map((listing) => ({
       title: listing.job_title,
@@ -572,7 +588,9 @@ async function handleJobMatches(body, env) {
       ctcRange: formatCtc(listing),
       isTopCompany: findTopCompany(listing.employer_name),
     }))
-    .filter((c) => c.applyUrl && matchesCityTier(c.location, cityTier));
+    .filter(
+      (c) => c.applyUrl && matchesCityTier(c.location, cityTier) && matchesTitleKeywords(c.title, titleKeywords),
+    );
 
   if (candidates.length === 0) {
     return json({ matches: [] });

@@ -82,4 +82,47 @@ void main() {
       }
     });
   });
+
+  group('domainConstrainedJobQuery', () {
+    test('null for an unconstrained or missing Corps/Arm', () {
+      expect(domainConstrainedJobQuery(null), isNull);
+      expect(domainConstrainedJobQuery('Infantry'), isNull);
+    });
+
+    test('OR-joins the medical job titles, quoted, for every AMC entry', () {
+      for (final corps in ['Army Medical Corps (AMC)', 'Medical Branch (Navy)', 'Medical Branch (Air Force)']) {
+        final query = domainConstrainedJobQuery(corps);
+        expect(query, isNotNull);
+        expect(query, contains('"Medical Officer"'));
+        expect(query, contains(' OR '));
+      }
+    });
+
+    test('OR-joins the legal job titles, quoted, for every JAG entry', () {
+      for (final corps in [
+        "Judge Advocate General's Department (JAG)",
+        "Judge Advocate General's Branch (Navy)",
+        "Judge Advocate General's Branch (Air Force)",
+      ]) {
+        final query = domainConstrainedJobQuery(corps);
+        expect(query, isNotNull);
+        expect(query, contains('"Legal Counsel"'));
+      }
+    });
+  });
+
+  group('domainConstrainedJobTitleKeywords', () {
+    test('null for an unconstrained or missing Corps/Arm', () {
+      expect(domainConstrainedJobTitleKeywords(null), isNull);
+      expect(domainConstrainedJobTitleKeywords('Infantry'), isNull);
+    });
+
+    test('medical keywords for AMC, legal keywords for JAG', () {
+      expect(domainConstrainedJobTitleKeywords('Army Medical Corps (AMC)'), contains('medical'));
+      expect(
+        domainConstrainedJobTitleKeywords("Judge Advocate General's Department (JAG)"),
+        contains('legal'),
+      );
+    });
+  });
 }

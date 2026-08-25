@@ -8,12 +8,14 @@ import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/job_matches/india_cities.dart';
 import 'package:next_career_after_fauj/features/job_matches/job_match.dart';
 import 'package:next_career_after_fauj/features/job_matches/job_matches_screen.dart';
+import 'package:next_career_after_fauj/features/job_matches/job_matches_service.dart';
 import 'package:provider/provider.dart';
 
 Future<List<JobMatch>> _stubAnalyzer({
   required String cvText,
   CityTier? cityTier,
   Uint8List? cvPdfBytes,
+  String? corpsOrArm,
 }) async {
   return const [
     JobMatch(
@@ -37,18 +39,21 @@ Future<List<JobMatch>> _stubAnalyzer({
   ];
 }
 
-Widget _appUnderTest({required OfficerProfile profile}) {
+Widget _appUnderTest({
+  required OfficerProfile profile,
+  JobMatchesAnalyzer analyzeJobMatches = _stubAnalyzer,
+}) {
   final repository = ProfileRepository()..saveProfile(profile);
   return ChangeNotifierProvider<ProfileRepository>.value(
     value: repository,
     child: MaterialApp(
       theme: AppTheme.light,
-      home: const JobMatchesScreen(analyzeJobMatches: _stubAnalyzer),
+      home: JobMatchesScreen(analyzeJobMatches: analyzeJobMatches),
     ),
   );
 }
 
-OfficerProfile _testProfile() => OfficerProfile(
+OfficerProfile _testProfile({String? corpsOrArm}) => OfficerProfile(
       rank: 'Lt Col',
       fullName: 'Lt Col A Verma',
       dateOfBirth: DateTime(1978, 5, 10),
@@ -62,6 +67,7 @@ OfficerProfile _testProfile() => OfficerProfile(
       segment: OfficerSegment.pmr,
       cvFileName: 'resume.pdf',
       cvExtractedText: 'Sample CV text',
+      corpsOrArm: corpsOrArm,
     );
 
 void main() {
@@ -88,5 +94,53 @@ void main() {
     expect(find.text('All cities'), findsOneWidget);
     expect(find.text('Tier 1'), findsOneWidget);
     expect(find.text('Tier 2'), findsOneWidget);
+  });
+
+  group('Corps/Arm domain constraint', () {
+    testWidgets('no notice and no corpsOrArm passed for an unconstrained officer', (tester) async {
+      String? capturedCorpsOrArm = 'not called';
+      Future<List<JobMatch>> spyAnalyzer({
+        required String cvText,
+        CityTier? cityTier,
+        Uint8List? cvPdfBytes,
+        String? corpsOrArm,
+      }) {
+        capturedCorpsOrArm = corpsOrArm;
+        return _stubAnalyzer(cvText: cvText, cityTier: cityTier, cvPdfBytes: cvPdfBytes);
+      }
+
+      await tester.pumpWidget(
+        _appUnderTest(profile: _testProfile(corpsOrArm: 'Corps of Signals'), analyzeJobMatches: spyAnalyzer),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('jobMatchesDomainNotice')), findsNothing);
+      expect(capturedCorpsOrArm, 'Corps of Signals');
+    });
+
+    testWidgets('AMC officer sees the domain notice and passes corpsOrArm through', (tester) async {
+      String? capturedCorpsOrArm;
+      Future<List<JobMatch>> spyAnalyzer({
+        required String cvText,
+        CityTier? cityTier,
+        Uint8List? cvPdfBytes,
+        String? corpsOrArm,
+      }) {
+        capturedCorpsOrArm = corpsOrArm;
+        return _stubAnalyzer(cvText: cvText, cityTier: cityTier, cvPdfBytes: cvPdfBytes);
+      }
+
+      await tester.pumpWidget(
+        _appUnderTest(
+          profile: _testProfile(corpsOrArm: 'Army Medical Corps (AMC)'),
+          analyzeJobMatches: spyAnalyzer,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('jobMatchesDomainNotice')), findsOneWidget);
+      expect(find.textContaining('Army Medical Corps (AMC)-relevant'), findsOneWidget);
+      expect(capturedCorpsOrArm, 'Army Medical Corps (AMC)');
+    });
   });
 }

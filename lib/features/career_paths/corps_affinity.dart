@@ -88,6 +88,70 @@ const Map<String, List<String>> kCorpsSoftAffinity = {
   'Meteorology Branch': ['Aerospace, Drone & Defence Tech', 'Aviation, Maritime & Fleet Management'],
 };
 
+/// Realistic, India-context job titles used to search JSearch directly for
+/// a domain-constrained officer (AMC, JAG) — replacing, not supplementing,
+/// the CV-derived free-text query the Worker would otherwise ask Claude to
+/// generate for Job Matches. The boundary itself must stay deterministic
+/// and auditable, not AI-inferred — see `job_matches_http_service.dart`
+/// and the Worker's `handleJobMatches`.
+const List<String> kMedicalJobSearchTitles = [
+  'Medical Officer',
+  'Occupational Health Physician',
+  'Corporate Medical Officer',
+  'Medical Advisor',
+  'Clinical Research Physician',
+  'Hospital Administrator',
+  'Public Health Physician',
+];
+
+const List<String> kLegalJobSearchTitles = [
+  'Legal Counsel',
+  'Compliance Officer',
+  'Regulatory Affairs Manager',
+  'Contract Manager',
+  'Litigation Manager',
+  'Corporate Governance Manager',
+  'Arbitrator',
+];
+
+/// Lowercase title fragments used to keep JSearch results within the
+/// officer's professional domain — a listing whose title contains none of
+/// these is dropped before ranking, never shown as a "close enough"
+/// adjacent role. Short and hand-reviewed, the same discipline as
+/// [kCorpsSoftAffinity] — not derived or guessed.
+const List<String> kMedicalJobTitleKeywords = [
+  'medical', 'physician', 'clinical', 'health', 'hospital', 'doctor',
+];
+
+const List<String> kLegalJobTitleKeywords = [
+  'legal', 'counsel', 'compliance', 'regulatory', 'litigation', 'arbitrat',
+  'governance', 'contract', 'labour', 'labor',
+];
+
+/// The JSearch query to use in place of the CV-derived one, for a
+/// domain-constrained Corps/Arm — null means the officer isn't constrained
+/// and Job Matches should keep deriving the query from the CV as before.
+String? domainConstrainedJobQuery(String? corpsOrArm) {
+  if (corpsOrArm == null) return null;
+  if (_medicalCorps.contains(corpsOrArm)) {
+    return kMedicalJobSearchTitles.map((t) => '"$t"').join(' OR ');
+  }
+  if (_jagCorps.contains(corpsOrArm)) {
+    return kLegalJobSearchTitles.map((t) => '"$t"').join(' OR ');
+  }
+  return null;
+}
+
+/// The title-keyword filter Job Matches should apply to JSearch results for
+/// a domain-constrained Corps/Arm — null means no filtering (unconstrained
+/// officers see exactly what they see today).
+List<String>? domainConstrainedJobTitleKeywords(String? corpsOrArm) {
+  if (corpsOrArm == null) return null;
+  if (_medicalCorps.contains(corpsOrArm)) return kMedicalJobTitleKeywords;
+  if (_jagCorps.contains(corpsOrArm)) return kLegalJobTitleKeywords;
+  return null;
+}
+
 /// Every browsable vertical regardless of Corps/Arm — Career Paths uses
 /// this so anyone can explore any ladder; the Corps/Arm constraint only
 /// ever applies to ranking/recommendation, never to what's browsable.

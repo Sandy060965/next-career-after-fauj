@@ -46,7 +46,7 @@ void main() {
 
     expect(find.byKey(const Key('overallReadinessScoreText')), findsOneWidget);
     expect(tester.widget<Text>(find.byKey(const Key('overallReadinessScoreText'))).data, '—');
-    expect(find.text('Complete the assessments below to see your Career Readiness Score.'),
+    expect(find.text('Complete the assessments below to see your Transition Readiness Index.'),
         findsOneWidget);
     expect(find.byKey(const Key('readinessAction_Career Fit')), findsOneWidget);
     expect(find.byKey(const Key('readinessAction_CV & JD Fit')), findsOneWidget);

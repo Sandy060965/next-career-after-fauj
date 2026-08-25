@@ -165,9 +165,9 @@ const List<TransitionPhaseContent> kTransitionPlan = [
         moduleLabel: 'Your First 90 Days',
       ),
       TransitionAction(
-        title: 'Revisit your Career Readiness Score to track ongoing growth',
+        title: 'Revisit your Transition Readiness Index to track ongoing growth',
         route: AppRoutes.careerReadiness,
-        moduleLabel: 'Career Readiness Score',
+        moduleLabel: 'Transition Readiness Index',
       ),
     ],
   ),

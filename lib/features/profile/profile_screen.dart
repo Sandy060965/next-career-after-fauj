@@ -90,7 +90,7 @@ class ProfileScreen extends StatelessWidget {
             child: OutlinedButton(
               key: const Key('careerReadinessButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerReadiness),
-              child: const Text('Career Readiness Score'),
+              child: const Text('Transition Readiness Index'),
             ),
           ),
           const SizedBox(height: 12),

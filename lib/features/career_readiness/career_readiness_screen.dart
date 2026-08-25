@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
 
-/// One dimension of the Career Readiness Score — either completed (a real
-/// score computed from that module's own result) or not yet attempted, in
-/// which case we show a call to action rather than a fabricated number.
+/// One dimension of the Transition Readiness Index — either completed (a
+/// real score computed from that module's own result) or not yet attempted,
+/// in which case we show a call to action rather than a fabricated number.
 class _ReadinessDimension {
   const _ReadinessDimension({
     required this.label,
@@ -27,9 +27,11 @@ class _ReadinessDimension {
 }
 
 /// Aggregates the scores already computed by other modules into one
-/// dashboard. Every number here is read straight from a result the officer
-/// has actually generated — nothing is invented, and any assessment not
-/// yet completed shows as an open call to action instead of a score.
+/// weighted index. Every number here is read straight from a result the
+/// officer has actually generated — nothing is invented, and any assessment
+/// not yet completed shows as an open call to action instead of a score.
+/// The weighting itself (currently equal) is stated explicitly to the
+/// officer in-screen rather than being an invisible implementation detail.
 class CareerReadinessScreen extends StatelessWidget {
   const CareerReadinessScreen({super.key});
 
@@ -80,7 +82,7 @@ class CareerReadinessScreen extends StatelessWidget {
         : (completed.fold<int>(0, (total, d) => total + d.score!) / completed.length).round();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Career Readiness Score')),
+      appBar: AppBar(title: const Text('Transition Readiness Index')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -88,7 +90,7 @@ class CareerReadinessScreen extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             overallScore == null
-                ? 'Complete the assessments below to see your Career Readiness Score.'
+                ? 'Complete the assessments below to see your Transition Readiness Index.'
                 : 'Based on ${completed.length} of ${dimensions.length} assessments completed.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -97,6 +99,30 @@ class CareerReadinessScreen extends StatelessWidget {
           Text('By dimension', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           for (final dimension in dimensions) _DimensionCard(dimension: dimension),
+          const SizedBox(height: 24),
+          Card(
+            key: const Key('methodologyCard'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('How this is calculated', style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Each completed dimension is weighted equally (one-third each) — an '
+                    'explicit, visible product choice, not a scientifically derived formula. '
+                    "We'll recalibrate these weights once real outcome data exists (interview "
+                    'rate, offer rate, time-to-offer) to show which dimension actually predicts '
+                    'a successful transition.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

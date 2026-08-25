@@ -80,6 +80,7 @@ class CareerReadinessScreen extends StatelessWidget {
     final overallScore = completed.isEmpty
         ? null
         : (completed.fold<int>(0, (total, d) => total + d.score!) / completed.length).round();
+    final allCompleted = completed.length == dimensions.length;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Transition Readiness Index')),
@@ -95,6 +96,12 @@ class CareerReadinessScreen extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          if (allCompleted && overallScore != null) ...[
+            const SizedBox(height: 16),
+            _ReadinessBandCard(score: overallScore, dimensions: completed),
+            const SizedBox(height: 16),
+            const _ReadinessBandLegend(),
+          ],
           const SizedBox(height: 24),
           Text('By dimension', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -124,6 +131,171 @@ class CareerReadinessScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A fixed, deterministic interpretation band for the overall 0-100 score —
+/// never AI-generated, so it reads the same way every time for the same
+/// score. Bands are informational context, not a verdict: the underlying
+/// per-dimension scores and the officer's own judgement always matter more
+/// than which band a rounded average happens to fall into.
+class _ReadinessBand {
+  const _ReadinessBand({required this.label, required this.range, required this.description});
+
+  final String label;
+  final String range;
+  final String description;
+}
+
+const _readinessBands = [
+  _ReadinessBand(
+    label: 'Early stage',
+    range: 'Below 40',
+    description: 'Sizeable gaps across more than one dimension — worth focusing on the '
+        'fundamentals before actively applying.',
+  ),
+  _ReadinessBand(
+    label: 'Developing',
+    range: '40–49',
+    description: 'Meaningful gaps remain in at least one dimension — worth closing before '
+        'applying in earnest.',
+  ),
+  _ReadinessBand(
+    label: 'Fair fitment',
+    range: '50–59',
+    description: 'A workable foundation, but noticeable gaps remain — expect real preparation '
+        'before you\'re competitive.',
+  ),
+  _ReadinessBand(
+    label: 'Moderate fitment',
+    range: '60–69',
+    description: 'Reasonably well positioned overall, with a few gaps worth addressing first.',
+  ),
+  _ReadinessBand(
+    label: 'Good fitment',
+    range: '70–79',
+    description: 'Strong overall positioning — a few minor gaps to address before you\'re '
+        'fully ready.',
+  ),
+  _ReadinessBand(
+    label: 'Excellent fitment',
+    range: '80 and above',
+    description: 'Very strong positioning across the board — at most 2-3 minor gaps left to '
+        'round out your profile.',
+  ),
+];
+
+_ReadinessBand _bandForScore(int score) {
+  if (score < 40) return _readinessBands[0];
+  if (score < 50) return _readinessBands[1];
+  if (score < 60) return _readinessBands[2];
+  if (score < 70) return _readinessBands[3];
+  if (score < 80) return _readinessBands[4];
+  return _readinessBands[5];
+}
+
+/// Shown only once all three assessments are complete — the officer's
+/// current band, plus the specific dimension pulling the average down the
+/// most, so the label is grounded in an actual number rather than reading
+/// like an opaque verdict.
+class _ReadinessBandCard extends StatelessWidget {
+  const _ReadinessBandCard({required this.score, required this.dimensions});
+
+  final int score;
+  final List<_ReadinessDimension> dimensions;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final band = _bandForScore(score);
+    final lowest = dimensions.reduce((a, b) => a.score! <= b.score! ? a : b);
+
+    return Card(
+      key: const Key('readinessBandCard'),
+      color: colorScheme.secondaryContainer.withValues(alpha: 0.4),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    band.label,
+                    key: const Key('readinessBandLabel'),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Text('${band.range} / 100', style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(band.description, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 10),
+            Text(
+              'Lowest-scoring dimension: ${lowest.label} (${lowest.score}/100) — this is the '
+              'single biggest lever to move your overall score up.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The full band reference table — always the same six bands, shown
+/// alongside the officer's own result so they can see exactly where the
+/// thresholds sit, not just the one label that applied to them.
+class _ReadinessBandLegend extends StatelessWidget {
+  const _ReadinessBandLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      key: const Key('readinessBandLegend'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('What your score means', style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+            for (final band in _readinessBands)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 92,
+                      child: Text(band.range, style: Theme.of(context).textTheme.bodySmall),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(band.label, style: Theme.of(context).textTheme.bodyMedium),
+                          Text(
+                            band.description,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

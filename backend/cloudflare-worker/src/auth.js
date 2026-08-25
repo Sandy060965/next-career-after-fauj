@@ -3,10 +3,18 @@
 // separate from the x-app-key gate in index.js: x-app-key just proves a
 // request came from the app itself, this proves which officer is calling.
 
+// Duplicated from index.js's CORS_HEADERS (network.js does the same) rather
+// than shared via an import, to avoid a circular import with index.js.
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'content-type, x-app-key, authorization, x-admin-key',
+};
+
 function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json', ...headers },
+    headers: { 'content-type': 'application/json', ...CORS_HEADERS, ...headers },
   });
 }
 

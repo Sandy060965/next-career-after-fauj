@@ -352,4 +352,184 @@ const List<SkillEquivalency> kSkillEquivalencies = [
         'level flying and search-and-rescue training, mapping to specialist aviation '
         'operations and safety-training leadership.',
   ),
+
+  // --- Navy: further specialisations -------------------------------------
+  SkillEquivalency(
+    militaryTerm: 'Long Navigation and Direction Course, Navigation & Direction School, INS '
+        'Venduruthy, Kochi',
+    civilianEquivalent: 'Navigation & Precision Planning Leadership',
+    description:
+        'Specialist training in ship navigation and tactical direction — maps to roles '
+        'requiring precise, data-driven route/resource planning under real-time '
+        'constraints.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Clearance Diving Course, Diving School, INS Venduruthy, Kochi',
+    civilianEquivalent: 'High-Risk Technical Operations Leadership',
+    description:
+        'Qualifies clearance/ship diving officers at Asia\'s only such institution — maps '
+        'to leading high-risk, safety-critical technical operations.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Saturation Diving Course, INS Nireekshak, Visakhapatnam',
+    civilianEquivalent: 'Extreme-Environment Technical Operations',
+    description:
+        'Trains saturation divers supporting submarine-rescue capability — comparable to '
+        'specialist technical roles in extreme, safety-critical environments such as '
+        'offshore/subsea engineering.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'National Institute of Hydrography (NIH), Goa',
+    civilianEquivalent: 'Geospatial Data & Survey Management',
+    description:
+        'A designated international hydrography training centre — maps directly to '
+        'geospatial survey, GIS, and marine-data management roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Long Communications Specialisation Course, Signal School, INS Venduruthy, '
+        'Kochi',
+    civilianEquivalent: 'Communications & Cyber Systems Leadership',
+    description:
+        'Specialist communications, cyber, and electronic-warfare officer training — maps '
+        'to leading communications/cybersecurity infrastructure teams.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Logistics Training Establishment, INS Hamla, Mumbai',
+    civilianEquivalent: 'Supply Chain & Logistics Management',
+    description:
+        'Runs a PG Diploma in Logistics & Supply Chain Management for Navy (and other '
+        'services\') logistics officers — a direct match to civilian supply chain '
+        'leadership.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Naval Construction Wing (NCW), IIT Delhi',
+    civilianEquivalent: 'Naval/Marine Architecture & Engineering Design',
+    description:
+        'A postgraduate diploma programme at IIT Delhi for the Naval Architect/Constructor '
+        'cadre — maps to ship/marine structural design and engineering roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Shipwright School, INS Vishwakarma, Visakhapatnam',
+    civilianEquivalent: 'Shipbuilding & Structural Engineering Management',
+    description:
+        'Trains Shipwright Officers in ship construction and repair — maps to '
+        'shipbuilding, structural engineering, and technical project management roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'NBCD School, INS Shivaji, Lonavala',
+    civilianEquivalent: 'Hazard Response & Business Continuity Management',
+    description:
+        'Nuclear-biological-chemical defence and damage-control training on a dedicated '
+        'simulator facility — maps to enterprise hazard response and business-continuity '
+        'planning.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'School of Naval Oceanology & Meteorology (SNOM)',
+    civilianEquivalent: 'Environmental Data Analytics & Forecasting',
+    description:
+        'Runs an Advanced Oceanography Course with India\'s ocean-information agency '
+        '(INCOIS) — maps to environmental/climate data analytics and forecasting roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Maritime Warfare Centre (MWC), Kochi and Visakhapatnam',
+    civilianEquivalent: 'Operational Wargaming & Tactical Strategy',
+    description:
+        'Tactical/operational-level maritime warfare training and exercises — maps to '
+        'scenario planning, competitive-strategy, and operational wargaming roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Anti-Submarine Warfare (ASW) School, INS Venduruthy, Kochi',
+    civilianEquivalent: 'Specialist Threat Detection & Analysis',
+    description:
+        'Anti-submarine warfare tactics and sensor-specialist training — maps to '
+        'specialist threat-detection and signals-analysis roles.',
+    verified: false,
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Observer course, Observer School, INS Garuda, Kochi',
+    civilianEquivalent: 'Airborne Intelligence & Tactical Analysis',
+    description:
+        'A 46-week course training airborne tacticians for maritime patrol/ASW aircraft — '
+        'maps to intelligence analysis and real-time tactical decision-support roles.',
+    verified: false,
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Technical Management Course (TMC), Naval War College, Goa',
+    civilianEquivalent: 'Technical Programme & Resource Management',
+    description:
+        'A mid-career technical-management staff course for Commander-rank engineering '
+        'officers — maps to senior technical programme and resource management roles.',
+    verified: false,
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Flag Officer Sea Training (FOST) work-up',
+    civilianEquivalent: 'Operational Readiness & Safety Assurance',
+    description:
+        'Certifies a ship\'s crew and officers on damage control, firefighting, CBRN, and '
+        'survival-at-sea readiness — maps to operational safety assurance and '
+        'readiness-certification roles.',
+    verified: false,
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Centre for Leadership and Behavioural Studies, INS Venduruthy, Kochi',
+    civilianEquivalent: 'Organisational Leadership & Behavioural Development',
+    description:
+        'Dedicated officer leadership and ethics training — maps closely to corporate '
+        'leadership development and organisational-behaviour roles.',
+    verified: false,
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Naval Institute of Educational and Training Technology (NIETT), INS '
+        'Venduruthy, Kochi',
+    civilianEquivalent: 'Learning & Development / Training Technology',
+    description:
+        'Develops instructional methodology for officers, partnering with a leading '
+        'Indian business school on leadership best practice — maps to L&D and '
+        'training-technology roles.',
+    verified: false,
+  ),
+
+  // --- Air Force: further specialisations ---------------------------------
+  SkillEquivalency(
+    militaryTerm: 'Basic Air Staff Course (BASCO) & Intermediate Air Staff Course (ISCO), Air '
+        'Force Administrative College, Coimbatore',
+    civilianEquivalent: 'Staff & Administrative Operations Leadership',
+    description:
+        'Junior and intermediate staff-duty training for Ground Duty branch officers — '
+        'maps to staff-function and administrative operations leadership roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Basic Air Traffic Controllers\' Course, Air Traffic Control Officers '
+        'Training Establishment (ATCOTE), Air Force Academy, Dundigal',
+    civilianEquivalent: 'Real-Time Operations Control',
+    description:
+        'ICAO-aligned air traffic control training on simulator systems, also used by '
+        'other services — maps to real-time operations/control-room leadership roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Fighter Controllers\' Course, Air Defence College (ADC), Jodhpur',
+    civilianEquivalent: 'Real-Time Tactical Coordination',
+    description:
+        'India\'s only fighter-controller training centre — maps to high-stakes, '
+        'real-time coordination and command-and-control roles.',
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Spatial Disorientation aircrew training, Institute of Aerospace Medicine '
+        '(IAM), Bengaluru',
+    civilianEquivalent: 'Human-Factors & Safety Training',
+    description:
+        'Familiarises aircrew with aviation-physiology hazards on a dedicated simulator, '
+        'refreshed every 3-5 years — maps to human-factors and operational-safety '
+        'training roles.',
+    verified: false,
+  ),
+  SkillEquivalency(
+    militaryTerm: 'Ground Liaison Officers Course (GLOC), College of Air Warfare, '
+        'Secunderabad',
+    civilianEquivalent: 'Cross-Functional Coordination',
+    description:
+        'Trains officers for air-ground coordination duties — maps to cross-functional '
+        'liaison and stakeholder-coordination roles.',
+    verified: false,
+  ),
 ];

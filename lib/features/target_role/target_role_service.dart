@@ -26,6 +26,7 @@ Future<TargetRoleStrategyResult> mockGenerateTargetRoleStrategy({
             roleTitle: d.roleTitle,
             fitScore: d.fitScore,
             topDimensionLabels: d.topDimensionLabels,
+            confidence: d.confidence,
             why: 'Sample placeholder text explaining why your background fits '
                 '${d.roleTitle}.',
             strengthenTip: 'Sample placeholder tip for strengthening this target.',

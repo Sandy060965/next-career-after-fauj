@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
+import '../vertical_fit/vertical_fit.dart';
 import 'target_role_service.dart';
 import 'target_role_strategy.dart';
 
@@ -204,6 +205,17 @@ class _TargetCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(target.roleTitle, style: Theme.of(context).textTheme.titleLarge),
             Text(target.verticalName, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            Chip(
+              key: ValueKey('confidence_${target.verticalName}'),
+              label: Text(target.confidence.label),
+              visualDensity: VisualDensity.compact,
+              backgroundColor: switch (target.confidence) {
+                FitConfidence.high => Theme.of(context).colorScheme.primaryContainer,
+                FitConfidence.medium => Theme.of(context).colorScheme.tertiaryContainer,
+                FitConfidence.low => Theme.of(context).colorScheme.surfaceContainerHighest,
+              },
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,

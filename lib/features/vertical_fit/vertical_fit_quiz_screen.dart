@@ -44,17 +44,22 @@ class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            for (final dimension in AptitudeDimension.values) ...[
-              Text(dimension.label, style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              for (final question in kAptitudeQuestions.where((q) => q.dimension == dimension))
-                _StatementRating(
-                  key: ValueKey(question.id),
-                  question: question,
-                  value: _ratings[question.id]!,
-                  onChanged: (v) => setState(() => _ratings[question.id] = v),
-                ),
+            for (final group in DimensionGroup.values) ...[
+              Text(group.label, style: Theme.of(context).textTheme.headlineSmall),
+              Text(group.description, style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 12),
+              for (final dimension in AptitudeDimension.values.where((d) => d.group == group)) ...[
+                Text(dimension.label, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                for (final question in kAptitudeQuestions.where((q) => q.dimension == dimension))
+                  _StatementRating(
+                    key: ValueKey(question.id),
+                    question: question,
+                    value: _ratings[question.id]!,
+                    onChanged: (v) => setState(() => _ratings[question.id] = v),
+                  ),
+                const SizedBox(height: 12),
+              ],
             ],
             SizedBox(
               width: double.infinity,

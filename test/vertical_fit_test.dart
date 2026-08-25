@@ -4,6 +4,7 @@ import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/career_paths/career_paths_screen.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/aptitude_question.dart';
+import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit_quiz_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -16,10 +17,12 @@ Widget _wrap(Widget child, {ProfileRepository? repository}) {
 
 void main() {
   group('VerticalFitQuizScreen', () {
-    testWidgets('shows all six dimensions and all 24 questions, defaulting to rating 3',
+    testWidgets('shows all eleven dimensions and all 33 questions, defaulting to rating 3',
         (tester) async {
       await tester.pumpWidget(_wrap(const VerticalFitQuizScreen()));
 
+      expect(find.text('Interests'), findsOneWidget);
+      expect(find.text('Work Style'), findsOneWidget);
       for (final dimension in AptitudeDimension.values) {
         expect(find.text(dimension.label), findsWidgets);
       }
@@ -47,6 +50,44 @@ void main() {
           (w.key as ValueKey<String>).value.toString().startsWith('verticalFit_'));
       await tester.scrollUntilVisible(cardFinder.last, 300);
       expect(cardFinder, findsNWidgets(3));
+    });
+  });
+
+  group('VerticalFit.confidence', () {
+    test('high confidence when contributing dimension scores agree closely', () {
+      final scores = {for (final d in AptitudeDimension.values) d: 50}
+        ..addAll({
+          AptitudeDimension.investigative: 80,
+          AptitudeDimension.openness: 85,
+          AptitudeDimension.conventional: 75,
+        });
+      final fit =
+          rankVerticalFit(scores).firstWhere((f) => f.vertical.name == 'Tech Product & Data Operations');
+      expect(fit.confidence(scores), FitConfidence.high);
+    });
+
+    test('medium confidence for a moderate spread', () {
+      final scores = {for (final d in AptitudeDimension.values) d: 50}
+        ..addAll({
+          AptitudeDimension.investigative: 80,
+          AptitudeDimension.openness: 60,
+          AptitudeDimension.conventional: 55,
+        });
+      final fit =
+          rankVerticalFit(scores).firstWhere((f) => f.vertical.name == 'Tech Product & Data Operations');
+      expect(fit.confidence(scores), FitConfidence.medium);
+    });
+
+    test('low confidence when contributing dimension scores disagree sharply', () {
+      final scores = {for (final d in AptitudeDimension.values) d: 50}
+        ..addAll({
+          AptitudeDimension.investigative: 100,
+          AptitudeDimension.openness: 20,
+          AptitudeDimension.conventional: 60,
+        });
+      final fit =
+          rankVerticalFit(scores).firstWhere((f) => f.vertical.name == 'Tech Product & Data Operations');
+      expect(fit.confidence(scores), FitConfidence.low);
     });
   });
 

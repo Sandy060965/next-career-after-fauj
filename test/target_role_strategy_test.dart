@@ -11,14 +11,15 @@ import 'package:next_career_after_fauj/features/vertical_fit/aptitude_question.d
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:provider/provider.dart';
 
-/// Ratings that push technicalAnalytical and strategyGovernance to a
+/// Ratings that push investigative, openness, and conventional to a
 /// dimension score of 100 and everything else to 20 — 'Tech Product & Data
-/// Operations' is the only vertical drawing on exactly those two dimensions,
-/// so it comes out uniquely top-ranked.
+/// Operations' is the only vertical drawing on exactly those three
+/// dimensions, so it comes out uniquely top-ranked.
 final _skewedRatings = {
   for (final q in kAptitudeQuestions)
-    q.id: (q.dimension == AptitudeDimension.technicalAnalytical ||
-            q.dimension == AptitudeDimension.strategyGovernance)
+    q.id: (q.dimension == AptitudeDimension.investigative ||
+            q.dimension == AptitudeDimension.openness ||
+            q.dimension == AptitudeDimension.conventional)
         ? 5
         : 1,
 };
@@ -99,7 +100,8 @@ void main() {
             category: 'Technical & Engineering',
             roleTitle: 'Head of Product & Data Operations',
             fitScore: 100,
-            topDimensionLabels: ['Technical & Analytical', 'Strategy & Governance'],
+            topDimensionLabels: ['Investigative', 'Openness'],
+            confidence: FitConfidence.high,
             why: 'Grounded explanation.',
             strengthenTip: 'Concrete tip.',
           ),
@@ -162,6 +164,7 @@ void main() {
                   roleTitle: d.roleTitle,
                   fitScore: d.fitScore,
                   topDimensionLabels: d.topDimensionLabels,
+                  confidence: d.confidence,
                   why: 'Cached why.',
                   strengthenTip: 'Cached tip.',
                 ),

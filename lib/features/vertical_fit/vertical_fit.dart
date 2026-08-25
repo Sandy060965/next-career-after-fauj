@@ -25,6 +25,29 @@ class VerticalFitAssessment {
   }
 }
 
+/// How much the officer's own scores across a vertical's contributing
+/// dimensions agree with each other — a fit score built from consistent
+/// signals is more trustworthy than one where the inputs pull in different
+/// directions, even if the average happens to be the same. Deliberately a
+/// simple, explainable heuristic (score spread), not a statistical claim.
+enum FitConfidence { high, medium, low }
+
+extension FitConfidenceLabel on FitConfidence {
+  String get label => switch (this) {
+        FitConfidence.high => 'High confidence',
+        FitConfidence.medium => 'Medium confidence',
+        FitConfidence.low => 'Low confidence',
+      };
+
+  String get description => switch (this) {
+        FitConfidence.high => "Your scores across this vertical's dimensions agree closely.",
+        FitConfidence.medium => "Your scores across this vertical's dimensions vary somewhat.",
+        FitConfidence.low =>
+          "Your scores across this vertical's dimensions pull in different directions — "
+              'treat the fit score as a rough signal, not a strong one.',
+      };
+}
+
 class VerticalFit {
   const VerticalFit({required this.vertical, required this.fitScore});
 
@@ -38,6 +61,18 @@ class VerticalFit {
     final dims = List<AptitudeDimension>.from(kVerticalDimensions[vertical.name] ?? const []);
     dims.sort((a, b) => (dimensionScores[b] ?? 0).compareTo(dimensionScores[a] ?? 0));
     return dims;
+  }
+
+  /// See [FitConfidence] — computed from how tightly the officer's scores
+  /// on this vertical's contributing dimensions cluster together.
+  FitConfidence confidence(Map<AptitudeDimension, int> dimensionScores) {
+    final dims = kVerticalDimensions[vertical.name] ?? const [];
+    if (dims.length < 2) return FitConfidence.low;
+    final scores = dims.map((d) => dimensionScores[d] ?? 0).toList();
+    final spread = scores.reduce((a, b) => a > b ? a : b) - scores.reduce((a, b) => a < b ? a : b);
+    if (spread <= 15) return FitConfidence.high;
+    if (spread <= 35) return FitConfidence.medium;
+    return FitConfidence.low;
   }
 }
 

@@ -92,6 +92,7 @@ Future<TargetRoleStrategyResult> httpGenerateTargetRoleStrategy({
       roleTitle: draft.roleTitle,
       fitScore: draft.fitScore,
       topDimensionLabels: draft.topDimensionLabels,
+      confidence: draft.confidence,
       why: raw?['why'] as String? ?? 'Could not generate an explanation for this target.',
       strengthenTip: raw?['strengthen_tip'] as String? ?? '',
     );

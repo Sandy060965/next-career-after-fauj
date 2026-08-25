@@ -14,6 +14,7 @@ class TargetRoleDraft {
     required this.roleTitle,
     required this.fitScore,
     required this.topDimensionLabels,
+    required this.confidence,
   });
 
   final String verticalName;
@@ -21,6 +22,10 @@ class TargetRoleDraft {
   final String roleTitle;
   final int fitScore;
   final List<String> topDimensionLabels;
+
+  /// See [FitConfidence] — how consistently the officer's own scores
+  /// support this specific target, not just the average.
+  final FitConfidence confidence;
 }
 
 /// Builds the top 3 [TargetRoleDraft]s (primary + 2 secondary), highest fit
@@ -41,6 +46,7 @@ List<TargetRoleDraft> buildTargetRoleDrafts({
               .topContributingDimensions(dimensionScores)
               .map((d) => d.label)
               .toList(),
+          confidence: fit.confidence(dimensionScores),
         ),
       )
       .toList();
@@ -57,6 +63,7 @@ class TargetRoleNarrative {
     required this.roleTitle,
     required this.fitScore,
     required this.topDimensionLabels,
+    required this.confidence,
     required this.why,
     required this.strengthenTip,
   });
@@ -66,6 +73,7 @@ class TargetRoleNarrative {
   final String roleTitle;
   final int fitScore;
   final List<String> topDimensionLabels;
+  final FitConfidence confidence;
   final String why;
   final String strengthenTip;
 
@@ -75,6 +83,7 @@ class TargetRoleNarrative {
         'roleTitle': roleTitle,
         'fitScore': fitScore,
         'topDimensionLabels': topDimensionLabels,
+        'confidence': confidence.name,
         'why': why,
         'strengthenTip': strengthenTip,
       };
@@ -85,6 +94,7 @@ class TargetRoleNarrative {
         roleTitle: json['roleTitle'] as String,
         fitScore: json['fitScore'] as int,
         topDimensionLabels: List<String>.from(json['topDimensionLabels'] as List),
+        confidence: FitConfidence.values.byName(json['confidence'] as String),
         why: json['why'] as String,
         strengthenTip: json['strengthenTip'] as String,
       );

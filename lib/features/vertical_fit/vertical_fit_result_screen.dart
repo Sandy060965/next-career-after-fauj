@@ -22,8 +22,13 @@ class VerticalFitResultScreen extends StatelessWidget {
         children: [
           Text('Your profile', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          for (final dimension in AptitudeDimension.values)
-            _DimensionBar(dimension: dimension, score: dimensionScores[dimension] ?? 0),
+          for (final group in DimensionGroup.values) ...[
+            Text(group.label, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 4),
+            for (final dimension in AptitudeDimension.values.where((d) => d.group == group))
+              _DimensionBar(dimension: dimension, score: dimensionScores[dimension] ?? 0),
+            const SizedBox(height: 8),
+          ],
           const SizedBox(height: 20),
           Text('Your top 3 verticals', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -98,6 +103,13 @@ class _VerticalFitCard extends StatelessWidget {
         ? 'Broadly aligned with your overall profile.'
         : 'Driven mainly by your strengths in '
             '${topDimensions.map((d) => '${d.label} (${dimensionScores[d]}/100)').join(' and ')}.';
+    final confidence = fit.confidence(dimensionScores);
+    final colorScheme = Theme.of(context).colorScheme;
+    final confidenceColor = switch (confidence) {
+      FitConfidence.high => colorScheme.primaryContainer,
+      FitConfidence.medium => colorScheme.tertiaryContainer,
+      FitConfidence.low => colorScheme.surfaceContainerHighest,
+    };
 
     return Card(
       key: ValueKey('verticalFit_${fit.vertical.name}'),
@@ -116,6 +128,13 @@ class _VerticalFitCard extends StatelessWidget {
                 ),
                 Text('${fit.fitScore}/100', style: Theme.of(context).textTheme.titleSmall),
               ],
+            ),
+            const SizedBox(height: 8),
+            Chip(
+              key: ValueKey('confidence_${fit.vertical.name}'),
+              label: Text(confidence.label),
+              visualDensity: VisualDensity.compact,
+              backgroundColor: confidenceColor,
             ),
             const SizedBox(height: 8),
             Text(why, style: Theme.of(context).textTheme.bodySmall),

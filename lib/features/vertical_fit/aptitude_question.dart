@@ -154,4 +154,26 @@ const Map<String, List<AptitudeDimension>> kVerticalDimensions = {
   'Intelligence & Vigilance': [AptitudeDimension.investigative, AptitudeDimension.conventional, AptitudeDimension.emotionalStability],
   'Corporate Investigations': [AptitudeDimension.investigative, AptitudeDimension.realistic, AptitudeDimension.emotionalStability],
   'Brand Protection & IPR': [AptitudeDimension.investigative, AptitudeDimension.enterprising, AptitudeDimension.conventional],
+
+  // Medical & Healthcare (kMedicalCareerVerticals) — self-rating is a
+  // secondary lens here; CV evidence of specialty/track record is the
+  // primary differentiator for domain-constrained corps. See
+  // corps_affinity.dart.
+  'Clinical Practice & Hospital Administration': [AptitudeDimension.social, AptitudeDimension.conscientiousness, AptitudeDimension.conventional],
+  'Occupational & Industrial Health': [AptitudeDimension.investigative, AptitudeDimension.conscientiousness, AptitudeDimension.realistic],
+  'Corporate & Employee Health': [AptitudeDimension.social, AptitudeDimension.agreeableness, AptitudeDimension.conscientiousness],
+  'Pharmaceutical & Life Sciences Medicine': [AptitudeDimension.investigative, AptitudeDimension.conventional, AptitudeDimension.openness],
+  'Health Insurance & Managed Care': [AptitudeDimension.conventional, AptitudeDimension.investigative, AptitudeDimension.conscientiousness],
+  'Digital Health / HealthTech': [AptitudeDimension.investigative, AptitudeDimension.openness, AptitudeDimension.conventional],
+  'Public Health, Research & Medical Education': [AptitudeDimension.investigative, AptitudeDimension.social, AptitudeDimension.openness],
+  'Specialized Environment Medicine': [AptitudeDimension.realistic, AptitudeDimension.emotionalStability, AptitudeDimension.conscientiousness],
+  'Government / PSU / Institutional Healthcare': [AptitudeDimension.conventional, AptitudeDimension.social, AptitudeDimension.conscientiousness],
+
+  // Legal & Governance (kLegalCareerVerticals) — same secondary-lens rule
+  // applies for JAG's domain-constrained universe.
+  'Corporate Legal & In-House Counsel': [AptitudeDimension.conventional, AptitudeDimension.investigative, AptitudeDimension.conscientiousness],
+  'Litigation & Dispute Management': [AptitudeDimension.enterprising, AptitudeDimension.emotionalStability, AptitudeDimension.investigative],
+  'Arbitration & Alternative Dispute Resolution': [AptitudeDimension.agreeableness, AptitudeDimension.investigative, AptitudeDimension.emotionalStability],
+  'Regulatory & Compliance Affairs': [AptitudeDimension.conventional, AptitudeDimension.investigative, AptitudeDimension.conscientiousness],
+  'Labour & Employee Relations Law': [AptitudeDimension.social, AptitudeDimension.agreeableness, AptitudeDimension.conventional],
 };

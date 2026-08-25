@@ -76,10 +76,15 @@ class VerticalFit {
   }
 }
 
-/// Ranks every Career Paths vertical by how well it matches the officer's
-/// dimension scores, highest first.
-List<VerticalFit> rankVerticalFit(Map<AptitudeDimension, int> dimensionScores) {
-  final fits = kCareerVerticals.map((vertical) {
+/// Ranks every vertical in [universe] (defaults to the general 20) by how
+/// well it matches the officer's dimension scores, highest first. Callers
+/// pass a Corps/Arm-constrained universe (see `corps_affinity.dart`) for
+/// domain-constrained officers instead of accepting the default.
+List<VerticalFit> rankVerticalFit(
+  Map<AptitudeDimension, int> dimensionScores, {
+  List<CareerVertical> universe = kCareerVerticals,
+}) {
+  final fits = universe.map((vertical) {
     final dims = kVerticalDimensions[vertical.name] ?? const [];
     final score = dims.isEmpty
         ? 0

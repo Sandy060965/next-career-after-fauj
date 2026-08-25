@@ -20,9 +20,15 @@ class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
 
   void _submit() {
     final assessment = VerticalFitAssessment(ratings: Map.of(_ratings));
-    context.read<ProfileRepository>().saveVerticalFitAssessment(assessment);
+    final repo = context.read<ProfileRepository>();
+    repo.saveVerticalFitAssessment(assessment);
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => VerticalFitResultScreen(assessment: assessment)),
+      MaterialPageRoute(
+        builder: (_) => VerticalFitResultScreen(
+          assessment: assessment,
+          corpsOrArm: repo.profile?.corpsOrArm,
+        ),
+      ),
     );
   }
 

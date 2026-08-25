@@ -49,6 +49,7 @@ class OfficerProfile {
     required this.cvFileName,
     this.cvExtractedText,
     this.cvPdfBytes,
+    this.corpsOrArm,
   });
 
   final String rank;
@@ -74,6 +75,12 @@ class OfficerProfile {
   /// Raw bytes of the uploaded PDF CV, if that's what was uploaded.
   final Uint8List? cvPdfBytes;
 
+  /// Optional — a real, unclassified organisational affiliation (e.g.
+  /// "Corps of Signals"), not an ACR/service-record field. Null means the
+  /// officer skipped it; Vertical Fit and Career Paths fall back to the
+  /// general vertical universe with no Corps/Arm-based signal.
+  final String? corpsOrArm;
+
   /// Excludes [cvPdfBytes] deliberately — it's persisted separately as a
   /// file rather than inlined into a JSON blob.
   Map<String, dynamic> toJson() => {
@@ -90,6 +97,7 @@ class OfficerProfile {
         'segment': segment.name,
         'cvFileName': cvFileName,
         'cvExtractedText': cvExtractedText,
+        'corpsOrArm': corpsOrArm,
       };
 
   factory OfficerProfile.fromJson(Map<String, dynamic> json, {Uint8List? cvPdfBytes}) {
@@ -108,6 +116,7 @@ class OfficerProfile {
       cvFileName: json['cvFileName'] as String,
       cvExtractedText: json['cvExtractedText'] as String?,
       cvPdfBytes: cvPdfBytes,
+      corpsOrArm: json['corpsOrArm'] as String?,
     );
   }
 }

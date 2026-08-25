@@ -29,12 +29,15 @@ class TargetRoleDraft {
 }
 
 /// Builds the top 3 [TargetRoleDraft]s (primary + 2 secondary), highest fit
-/// first — entirely deterministic, no AI involved at this stage.
+/// first — entirely deterministic, no AI involved at this stage. Pass
+/// [universe] for a Corps/Arm-constrained officer (see
+/// `corps_affinity.dart`); defaults to the general 20 verticals.
 List<TargetRoleDraft> buildTargetRoleDrafts({
   required Map<AptitudeDimension, int> dimensionScores,
   required int workExperienceYears,
+  List<CareerVertical> universe = kCareerVerticals,
 }) {
-  final ranked = rankVerticalFit(dimensionScores).take(3);
+  final ranked = rankVerticalFit(dimensionScores, universe: universe).take(3);
   return ranked
       .map(
         (fit) => TargetRoleDraft(

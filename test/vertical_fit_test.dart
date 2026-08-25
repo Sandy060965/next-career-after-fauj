@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/career_paths/career_paths_screen.dart';
+import 'package:next_career_after_fauj/features/career_paths/career_vertical.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/aptitude_question.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit_quiz_screen.dart';
+import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit_result_screen.dart';
 import 'package:provider/provider.dart';
 
 Widget _wrap(Widget child, {ProfileRepository? repository}) {
@@ -53,6 +55,63 @@ void main() {
     });
   });
 
+  group('VerticalFitResultScreen Corps/Arm behaviour', () {
+    testWidgets('AMC officer sees the domain-constrained notice and only medical verticals',
+        (tester) async {
+      tester.view.physicalSize = const Size(430, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      const assessment = VerticalFitAssessment(ratings: {});
+      await tester.pumpWidget(
+        _wrap(
+          const VerticalFitResultScreen(assessment: assessment, corpsOrArm: 'Army Medical Corps (AMC)'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('domainConstrainedNotice')), findsOneWidget);
+      expect(find.textContaining('Army Medical Corps (AMC)-relevant'), findsOneWidget);
+      // With no ratings given, every medical dimension ties, so the top 3
+      // are simply the first 3 in kMedicalCareerVerticals — assert one of
+      // them appears, and that no general-20 vertical leaked in.
+      expect(find.byKey(ValueKey('verticalFit_${kMedicalCareerVerticals.first.name}')), findsOneWidget);
+      expect(find.byKey(const Key('verticalFit_Operations & Process Excellence')), findsNothing);
+    });
+
+    testWidgets('a non-constrained Corps/Arm gets a soft affinity badge, not a domain notice',
+        (tester) async {
+      tester.view.physicalSize = const Size(430, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final ratings = {
+        for (final q in kAptitudeQuestions)
+          q.id: (q.dimension == AptitudeDimension.investigative ||
+                  q.dimension == AptitudeDimension.conventional ||
+                  q.dimension == AptitudeDimension.realistic)
+              ? 5
+              : 1,
+      };
+      final assessment = VerticalFitAssessment(ratings: ratings);
+
+      await tester.pumpWidget(
+        _wrap(
+          VerticalFitResultScreen(assessment: assessment, corpsOrArm: 'Corps of Signals'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('domainConstrainedNotice')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('corpsAffinity_IT Infrastructure & Cybersecurity')),
+        findsOneWidget,
+      );
+    });
+  });
+
   group('VerticalFit.confidence', () {
     test('high confidence when contributing dimension scores agree closely', () {
       final scores = {for (final d in AptitudeDimension.values) d: 50}
@@ -93,6 +152,11 @@ void main() {
 
   group('CareerPathsScreen recommendations', () {
     testWidgets('badges and sorts recommended verticals to the top', (tester) async {
+      tester.view.physicalSize = const Size(430, 6000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(
         _wrap(const CareerPathsScreen(recommendedVerticals: {'IT Infrastructure & Cybersecurity'})),
       );

@@ -4,6 +4,8 @@ import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/routing/app_routes.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
+import 'package:next_career_after_fauj/features/career_paths/career_vertical.dart';
+import 'package:next_career_after_fauj/features/career_paths/corps_affinity.dart';
 import 'package:next_career_after_fauj/features/target_role/target_role_service.dart';
 import 'package:next_career_after_fauj/features/target_role/target_role_strategy.dart';
 import 'package:next_career_after_fauj/features/target_role/target_role_strategy_screen.dart';
@@ -88,6 +90,20 @@ void main() {
 
       // 22 years falls in the tier-3 band (21-27) for this vertical.
       expect(drafts.first.roleTitle, 'Head of Product & Data Operations');
+    });
+
+    test('respects a Corps/Arm-constrained universe instead of the general 20', () {
+      final dimensionScores = VerticalFitAssessment(ratings: _skewedRatings).dimensionScores;
+      final drafts = buildTargetRoleDrafts(
+        dimensionScores: dimensionScores,
+        workExperienceYears: 22,
+        universe: effectiveVerticalUniverse('Army Medical Corps (AMC)'),
+      );
+
+      expect(drafts, hasLength(3));
+      for (final draft in drafts) {
+        expect(kMedicalCareerVerticals.map((v) => v.name), contains(draft.verticalName));
+      }
     });
   });
 

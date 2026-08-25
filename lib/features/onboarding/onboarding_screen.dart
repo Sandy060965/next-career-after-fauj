@@ -10,6 +10,7 @@ import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import 'corps_options.dart';
 import 'cv_redaction_review_sheet.dart';
 import 'rank_options.dart';
 import 'widgets/segment_selector.dart';
@@ -47,6 +48,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   OfficerSegment? _segment;
   OfficerService? _service;
   String? _rank;
+  String? _corpsOrArm;
   DateTime? _dateOfBirth;
   int? _workExperienceYears;
   int? _workExperienceMonths;
@@ -65,6 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (existing != null) {
       _service = existing.service;
       _rank = existing.rank;
+      _corpsOrArm = existing.corpsOrArm;
       _nameController.text = existing.fullName;
       _dateOfBirth = existing.dateOfBirth;
       _dobController.text = formatDate(existing.dateOfBirth);
@@ -255,6 +258,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       cvFileName: _uploadedFileName!,
       cvExtractedText: _cvExtractedText,
       cvPdfBytes: _cvPdfBytes,
+      corpsOrArm: _corpsOrArm,
     );
 
     // saveProfile updates in-memory state synchronously (before its first
@@ -336,6 +340,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 if (_rank != null && (v == null || !kRanksByService[v]!.contains(_rank))) {
                   _rank = null;
                 }
+                if (_corpsOrArm != null && (v == null || !kCorpsByService[v]!.contains(_corpsOrArm))) {
+                  _corpsOrArm = null;
+                }
               }),
               validator: (v) => v == null ? 'Select a service' : null,
             ),
@@ -353,6 +360,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   .toList(),
               onChanged: _service == null ? null : (v) => setState(() => _rank = v),
               validator: (v) => v == null ? 'Required' : null,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              key: const Key('corpsOrArmDropdown'),
+              initialValue: _corpsOrArm,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: 'Corps / Arm / Branch (optional)',
+                hintText: _service == null ? 'Select service first' : null,
+                helperText: 'Helps tailor your career vertical recommendations — never shared, '
+                    'never a service-record field.',
+              ),
+              items: (_service == null ? const <String>[] : kCorpsByService[_service]!)
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: _service == null ? null : (v) => setState(() => _corpsOrArm = v),
             ),
             const SizedBox(height: 16),
             TextFormField(

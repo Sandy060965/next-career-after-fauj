@@ -47,7 +47,7 @@ Uint8List _buildDocxBytes(String bodyText) {
 /// Drives every onboarding step up to (but not including) picking a CV file
 /// — factored out so the redaction-review tests below don't repeat the
 /// full ~15-step sequence the happy-path test above already covers in full.
-Future<void> _completeStepsUpToCvUpload(WidgetTester tester) async {
+Future<void> _completeStepsUpToCvUpload(WidgetTester tester, {String? corpsOrArm}) async {
   await tester.tap(find.byKey(const Key('serviceDropdown')));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Army').last);
@@ -57,6 +57,13 @@ Future<void> _completeStepsUpToCvUpload(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.text('Major').last);
   await tester.pumpAndSettle();
+
+  if (corpsOrArm != null) {
+    await tester.tap(find.byKey(const Key('corpsOrArmDropdown')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(corpsOrArm).last);
+    await tester.pumpAndSettle();
+  }
 
   await tester.enterText(find.byKey(const Key('nameField')), 'Maj. A Verma');
 
@@ -315,5 +322,54 @@ void main() {
 
     expect(find.text('Review before continuing'), findsNothing);
     expect(find.text('resume.docx'), findsOneWidget);
+  });
+
+  testWidgets('an optional Corps/Arm selection is captured and persisted to the profile',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = ProfileRepository();
+    await tester.pumpWidget(
+      _appUnderTest(
+        repository: repository,
+        pickFile: () async => PickedFile(name: 'resume.pdf', bytes: Uint8List(0)),
+      ),
+    );
+    await _completeStepsUpToCvUpload(tester, corpsOrArm: 'Corps of Signals');
+
+    await tester.tap(find.byKey(const Key('browseButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('continueButton')));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 6));
+
+    expect(repository.profile?.corpsOrArm, 'Corps of Signals');
+  });
+
+  testWidgets('leaving Corps/Arm unselected leaves the profile field null', (tester) async {
+    tester.view.physicalSize = const Size(430, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = ProfileRepository();
+    await tester.pumpWidget(
+      _appUnderTest(
+        repository: repository,
+        pickFile: () async => PickedFile(name: 'resume.pdf', bytes: Uint8List(0)),
+      ),
+    );
+    await _completeStepsUpToCvUpload(tester);
+
+    await tester.tap(find.byKey(const Key('browseButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('continueButton')));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 6));
+
+    expect(repository.profile?.corpsOrArm, isNull);
   });
 }

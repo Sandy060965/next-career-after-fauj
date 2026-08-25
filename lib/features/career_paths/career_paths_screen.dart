@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
 import 'career_vertical.dart';
+import 'corps_affinity.dart';
 
 class CareerPathsScreen extends StatelessWidget {
   const CareerPathsScreen({super.key, this.recommendedVerticals = const {}});
@@ -14,7 +15,7 @@ class CareerPathsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final workExperienceYears = context.watch<ProfileRepository>().profile?.workExperienceYears;
-    final verticals = [...kCareerVerticals]..sort((a, b) {
+    final verticals = [...kAllBrowsableVerticals]..sort((a, b) {
         final aRecommended = recommendedVerticals.contains(a.name);
         final bRecommended = recommendedVerticals.contains(b.name);
         if (aRecommended == bRecommended) return 0;

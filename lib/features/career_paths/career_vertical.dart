@@ -293,3 +293,192 @@ const List<CareerVertical> kCareerVerticals = [
     bridgeCertifications: ['Certified Fraud Examiner (CFE)', 'IP/Brand Protection fundamentals certificate'],
   ),
 ];
+
+/// A dedicated career universe for medically-licensed officers (Army
+/// Medical Corps and the Navy/Air Force medical branches) — not merged
+/// into [kCareerVerticals]. A physician's civilian employability is
+/// fundamentally different from a generalist officer's: it stays within
+/// medicine, healthcare, occupational health, and clinical/scientific
+/// services, never "translated" into generic corporate roles. See
+/// `corps_affinity.dart` for how a Corps/Arm is wired to this list instead
+/// of the general one.
+const List<CareerVertical> kMedicalCareerVerticals = [
+  CareerVertical(
+    name: 'Clinical Practice & Hospital Administration',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Medical Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Consultant / Senior Medical Officer'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Deputy Medical Superintendent'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Medical Superintendent'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Medical Officer / Hospital Director'),
+    ],
+    bridgeCertifications: ['Fellowship in Hospital Administration', 'NABH-aligned healthcare quality certification'],
+  ),
+  CareerVertical(
+    name: 'Occupational & Industrial Health',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Factory / Plant Medical Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Occupational Health Physician'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Occupational Health Manager'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Regional Occupational Health Lead'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Medical Officer (Occupational Health)'),
+    ],
+    bridgeCertifications: ['Diploma in Industrial Health (DIH)'],
+  ),
+  CareerVertical(
+    name: 'Corporate & Employee Health',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Corporate Medical Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Corporate Physician'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Employee Health Manager'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Head of Employee Health & Wellness'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Medical Officer (Corporate)'),
+    ],
+    bridgeCertifications: ['Diploma in Industrial Health (DIH)', 'Certificate in Occupational Medicine'],
+  ),
+  CareerVertical(
+    name: 'Pharmaceutical & Life Sciences Medicine',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Medical Advisor'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Medical Advisor / Clinical Research Physician'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Medical Affairs Manager / Drug Safety Lead'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Medical Affairs Lead / Therapy Area Lead'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Medical Director'),
+    ],
+    bridgeCertifications: ['PG Diploma in Clinical Research'],
+  ),
+  CareerVertical(
+    name: 'Health Insurance & Managed Care',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Medical Claims Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Medical Reviewer'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Medical Underwriting / Utilization Review Manager'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Head of Medical Claims & Underwriting'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Medical Officer (Insurance)'),
+    ],
+    bridgeCertifications: ['Diploma in Healthcare Management'],
+  ),
+  CareerVertical(
+    name: 'Digital Health / HealthTech',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Clinical Product Specialist'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Medical Advisor (Digital Health)'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Clinical Product Manager'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Head of Clinical / Medical Product'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Medical Officer (HealthTech)'),
+    ],
+    bridgeCertifications: ['Certificate in Digital Health / Health Informatics'],
+  ),
+  CareerVertical(
+    name: 'Public Health, Research & Medical Education',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Programme Medical Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Public Health Physician / Clinical Researcher'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Senior Epidemiologist / Research Lead'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Head of Public Health Programme'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Director, Public Health / Research'),
+    ],
+    bridgeCertifications: ['Master of Public Health (MPH)'],
+  ),
+  CareerVertical(
+    name: 'Specialized Environment Medicine',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Site / Ship / Aviation Medical Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Medical Officer (Specialized Environment)'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Regional Medical Lead'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Head of Emergency & Specialized Medicine'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Medical Officer (Operations)'),
+    ],
+    bridgeCertifications: ['Diploma in Aviation Medicine (DAvMed)'],
+  ),
+  CareerVertical(
+    name: 'Government / PSU / Institutional Healthcare',
+    category: 'Medical & Healthcare',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Medical Officer (Institutional)'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Medical Officer'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Chief Medical Officer (Unit)'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Regional Medical Director'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Director, Medical Services'),
+    ],
+    bridgeCertifications: ['Diploma in Hospital Administration'],
+  ),
+];
+
+/// A small set of dedicated legal-practice verticals for JAG officers (all
+/// three services) — unlike medicine, legal training bridges naturally into
+/// several of the general 20 verticals too (Corporate Governance, Corporate
+/// Affairs & Public Policy, Corporate Investigations, Defence PSUs &
+/// GovTech), so JAG's constrained universe is this list *plus* those four,
+/// not a full replacement the way [kMedicalCareerVerticals] is. See
+/// `corps_affinity.dart`.
+const List<CareerVertical> kLegalCareerVerticals = [
+  CareerVertical(
+    name: 'Corporate Legal & In-House Counsel',
+    category: 'Legal & Governance',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Legal Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Legal Counsel'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Associate General Counsel'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Deputy General Counsel'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'General Counsel / Chief Legal Officer'),
+    ],
+    bridgeCertifications: ['PG Diploma in Corporate Law'],
+  ),
+  CareerVertical(
+    name: 'Litigation & Dispute Management',
+    category: 'Legal & Governance',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Litigation Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Litigation Counsel'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Litigation'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Legal (Disputes)'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'General Counsel (Disputes)'),
+    ],
+    bridgeCertifications: ['LLM (Dispute Resolution)'],
+  ),
+  CareerVertical(
+    name: 'Arbitration & Alternative Dispute Resolution',
+    category: 'Legal & Governance',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Arbitration Associate'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Empanelled Arbitrator / Mediator'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Senior Arbitrator'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Head of ADR Practice'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Arbitrator / Institutional Head'),
+    ],
+    bridgeCertifications: ['Chartered Institute of Arbitrators (CIArb) certification'],
+  ),
+  CareerVertical(
+    name: 'Regulatory & Compliance Affairs',
+    category: 'Legal & Governance',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Compliance Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Compliance Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Regulatory Affairs'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Compliance'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Compliance Officer'),
+    ],
+    bridgeCertifications: ['Certified Compliance Professional'],
+  ),
+  CareerVertical(
+    name: 'Labour & Employee Relations Law',
+    category: 'Legal & Governance',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Employee Relations Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior ER / IR Manager'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Employee Relations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – HR (ER & Compliance)'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief HR Officer (ER track)'),
+    ],
+    bridgeCertifications: ['PG Diploma in Labour Law'],
+  ),
+];

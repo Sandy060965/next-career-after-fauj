@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../fitment/fitment_service.dart';
@@ -9,8 +12,13 @@ import '../fitment/score_gap_screen.dart';
 
 enum JdInputMethod { paste, upload }
 
-Future<String?> _defaultPickJd() =>
-    pickFileName(allowedExtensions: const ['pdf', 'doc', 'docx', 'txt']);
+// PDF is deliberately not offered here: unlike the CV upload (where Claude
+// reads PDF bytes natively), every backend endpoint that consumes a JD
+// expects plain text, and there's no client-side PDF text extraction in
+// this app. Offering PDF upload without either would silently send just a
+// filename as if it were the JD — exactly the bug this fixed. A PDF-sourced
+// JD should go through Paste instead.
+Future<PickedFile?> _defaultPickJd() => pickFileWithBytes(allowedExtensions: const ['docx', 'txt']);
 
 class JdMatchScreen extends StatefulWidget {
   const JdMatchScreen({
@@ -21,7 +29,7 @@ class JdMatchScreen extends StatefulWidget {
 
   /// Overridable for testing so the native file-picker channel never needs
   /// to be invoked.
-  final FileNamePicker pickFile;
+  final Future<PickedFile?> Function() pickFile;
 
   /// Overridable for testing; defaults to sample data until the Cloudflare
   /// Worker backend is wired in.
@@ -36,6 +44,8 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
 
   JdInputMethod _inputMethod = JdInputMethod.paste;
   String? _uploadedFileName;
+  String? _uploadedJdText;
+  bool _isProcessingUpload = false;
   String? _error;
   bool _isAnalyzing = false;
 
@@ -62,11 +72,34 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   }
 
   Future<void> _pickJdFile() async {
-    final fileName = await widget.pickFile();
-    if (fileName != null) {
+    final file = await widget.pickFile();
+    if (file == null) return;
+
+    setState(() {
+      _uploadedFileName = file.name;
+      _uploadedJdText = null;
+      _error = null;
+    });
+
+    final extension = file.name.split('.').last.toLowerCase();
+    if (extension == 'txt') {
+      setState(() => _uploadedJdText = utf8.decode(file.bytes, allowMalformed: true));
+      return;
+    }
+
+    setState(() => _isProcessingUpload = true);
+    try {
+      final text = await extractDocxText(file.bytes);
+      if (!mounted) return;
       setState(() {
-        _uploadedFileName = fileName;
-        _error = null;
+        _uploadedJdText = text;
+        _isProcessingUpload = false;
+      });
+    } on DocxExtractionException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isProcessingUpload = false;
+        _error = "Couldn't read this file's text ($e). Try a different file, or use Paste instead.";
       });
     }
   }
@@ -81,11 +114,15 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
       }
       jdSource = text;
     } else {
-      if (_uploadedFileName == null) {
-        setState(() => _error = 'Upload a job description to continue');
+      if (_uploadedJdText == null) {
+        setState(
+          () => _error = _uploadedFileName == null
+              ? 'Upload a job description to continue'
+              : "This file's text couldn't be read — try a different file, or use Paste instead.",
+        );
         return;
       }
-      jdSource = _uploadedFileName!;
+      jdSource = _uploadedJdText!;
     }
 
     setState(() {
@@ -211,29 +248,44 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   }
 
   Widget _buildUploadPanel() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.description_outlined),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              _uploadedFileName ?? 'No file selected',
-              overflow: TextOverflow.ellipsis,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(12),
           ),
-          TextButton(
-            key: const Key('jdBrowseButton'),
-            onPressed: _pickJdFile,
-            child: const Text('Browse'),
+          child: Row(
+            children: [
+              const Icon(Icons.description_outlined),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _uploadedFileName ?? 'No file selected (DOCX or TXT)',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (_isProcessingUpload)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+              TextButton(
+                key: const Key('jdBrowseButton'),
+                onPressed: _isProcessingUpload ? null : _pickJdFile,
+                child: const Text('Browse'),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Have a PDF job posting? Copy its text and use Paste instead.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
     );
   }
 }

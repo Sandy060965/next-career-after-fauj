@@ -5,10 +5,12 @@ import 'package:provider/provider.dart';
 
 import '../../core/models/officer_profile.dart';
 import '../../core/routing/app_routes.dart';
+import '../../core/services/cv_redaction_scanner.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import 'cv_redaction_review_sheet.dart';
 import 'rank_options.dart';
 import 'widgets/segment_selector.dart';
 
@@ -193,8 +195,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       try {
         final text = await extractDocxText(file.bytes);
         if (!mounted) return;
+
+        final matches = scanForRedactions(text);
+        var finalText = text;
+        if (matches.isNotEmpty) {
+          final reviewed = await showCvRedactionReview(
+            context,
+            extractedText: text,
+            matches: matches,
+          );
+          if (!mounted) return;
+          if (reviewed == null) {
+            // Officer chose to pick a different file rather than review —
+            // discard this upload entirely instead of keeping unreviewed text.
+            setState(() {
+              _isProcessingCv = false;
+              _uploadedFileName = null;
+              _cvExtractedText = null;
+            });
+            return;
+          }
+          finalText = reviewed;
+        }
+
         setState(() {
-          _cvExtractedText = text;
+          _cvExtractedText = finalText;
           _isProcessingCv = false;
         });
       } on DocxExtractionException catch (e) {

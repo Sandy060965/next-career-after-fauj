@@ -35,9 +35,9 @@ void main() {
         ),
       );
 
-    // Tall enough that all 16 collapsed vertical tiles are laid out at once,
+    // Tall enough that all 20 collapsed vertical tiles are laid out at once,
     // without needing to scroll to find each one.
-    tester.view.physicalSize = const Size(430, 3200);
+    tester.view.physicalSize = const Size(430, 4000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);

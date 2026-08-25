@@ -150,4 +150,8 @@ const Map<String, List<AptitudeDimension>> kVerticalDimensions = {
   'Tech Product & Data Operations': [AptitudeDimension.investigative, AptitudeDimension.openness, AptitudeDimension.conventional],
   'Manufacturing & Technical Systems': [AptitudeDimension.realistic, AptitudeDimension.investigative, AptitudeDimension.conscientiousness],
   'Aerospace, Drone & Defence Tech': [AptitudeDimension.realistic, AptitudeDimension.investigative, AptitudeDimension.openness],
+  'Corporate Governance': [AptitudeDimension.conventional, AptitudeDimension.investigative, AptitudeDimension.agreeableness],
+  'Intelligence & Vigilance': [AptitudeDimension.investigative, AptitudeDimension.conventional, AptitudeDimension.emotionalStability],
+  'Corporate Investigations': [AptitudeDimension.investigative, AptitudeDimension.realistic, AptitudeDimension.emotionalStability],
+  'Brand Protection & IPR': [AptitudeDimension.investigative, AptitudeDimension.enterprising, AptitudeDimension.conventional],
 };

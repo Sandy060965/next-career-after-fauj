@@ -244,4 +244,52 @@ const List<CareerVertical> kCareerVerticals = [
     ],
     bridgeCertifications: ['DGCA Remote Pilot Certificate', 'Systems Engineering certification (INCOSE)'],
   ),
+  CareerVertical(
+    name: 'Corporate Governance',
+    category: 'Strategy, Commercial & People',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Manager – Corporate Governance'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Governance & Compliance'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Corporate Governance'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Governance, Risk & Compliance'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Governance Officer'),
+    ],
+    bridgeCertifications: ['Company Secretary (ICSI)', 'Certified Governance Professional'],
+  ),
+  CareerVertical(
+    name: 'Intelligence & Vigilance',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Vigilance Officer'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – Corporate Vigilance'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Vigilance & Internal Intelligence'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Corporate Security & Vigilance'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Vigilance Officer (CVO)'),
+    ],
+    bridgeCertifications: ['Certified Fraud Examiner (CFE)', 'Certificate in Corporate Vigilance'],
+  ),
+  CareerVertical(
+    name: 'Corporate Investigations',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Corporate Investigator'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Investigator'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Corporate Investigations'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Investigations & Forensic Services'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief Investigations Officer'),
+    ],
+    bridgeCertifications: ['Certified Fraud Examiner (CFE)', 'Certified Forensic Investigation Professional'],
+  ),
+  CareerVertical(
+    name: 'Brand Protection & IPR',
+    category: 'Operational & Risk',
+    levels: [
+      CareerLevel(tier: 1, expMin: 10, expMax: 14, title: 'Brand Protection Manager'),
+      CareerLevel(tier: 2, expMin: 15, expMax: 20, title: 'Senior Manager – IPR & Anti-Counterfeiting'),
+      CareerLevel(tier: 3, expMin: 21, expMax: 27, title: 'Head of Brand Protection & IPR Enforcement'),
+      CareerLevel(tier: 4, expMin: 28, expMax: 34, title: 'Vice President – Brand Protection & Intellectual Property'),
+      CareerLevel(tier: 5, expMin: 35, expMax: 42, title: 'Chief IP & Brand Protection Officer'),
+    ],
+    bridgeCertifications: ['Certified Fraud Examiner (CFE)', 'IP/Brand Protection fundamentals certificate'],
+  ),
 ];

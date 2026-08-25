@@ -4,6 +4,7 @@ import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness.dart';
+import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness_scenario.dart';
 import 'package:next_career_after_fauj/features/cv_civilianizer/civilianized_cv.dart';
 import 'package:next_career_after_fauj/features/financial_planner/financial_plan.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
@@ -61,7 +62,7 @@ const _verticalFit = VerticalFitAssessment(ratings: {'ops-1': 4, 'people-1': 2})
 final _aiReadiness = AiReadinessResult(
   readinessScore: 60,
   scoreRationale: 'Moderate readiness.',
-  dimensionScores: {for (final d in AiDimension.values) d: 60},
+  tierScores: {for (final t in AiReadinessTier.values) t: 60},
   skillGaps: [
     SkillGap(competency: kAiCompetencies.first, severity: GapSeverity.high, reason: 'Needs practice.'),
   ],
@@ -141,7 +142,7 @@ void main() {
       final restored = AiReadinessResult.fromJson(_aiReadiness.toJson());
 
       expect(restored.readinessScore, 60);
-      expect(restored.dimensionScores[AiDimension.awareness], 60);
+      expect(restored.tierScores[AiReadinessTier.knowledge], 60);
       expect(restored.skillGaps.single.competency.id, kAiCompetencies.first.id);
       expect(restored.skillGaps.single.severity, GapSeverity.high);
       expect(restored.cvAiBridge, _aiReadiness.cvAiBridge);

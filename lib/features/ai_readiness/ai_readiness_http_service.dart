@@ -41,7 +41,7 @@ RoadmapPhase _parsePhase(String value) => switch (value) {
     };
 
 Future<AiReadinessResult> httpAnalyzeAiReadiness({
-  required AiSelfAssessment assessment,
+  required AiScenarioAssessment assessment,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,
@@ -49,8 +49,8 @@ Future<AiReadinessResult> httpAnalyzeAiReadiness({
 }) async {
   final body = <String, dynamic>{
     'readinessScore': assessment.readinessScore,
-    'dimensionScores': assessment.dimensionScores.map(
-      (dimension, score) => MapEntry(dimension.name, score),
+    'dimensionScores': assessment.tierScores.map(
+      (tier, score) => MapEntry(tier.name, score),
     ),
     if (releaseDate != null) 'releaseDate': releaseDate.toIso8601String(),
   };
@@ -121,7 +121,7 @@ Future<AiReadinessResult> httpAnalyzeAiReadiness({
   return AiReadinessResult(
     readinessScore: (json['readiness_score'] as num?)?.toInt() ?? assessment.readinessScore,
     scoreRationale: json['score_rationale'] as String,
-    dimensionScores: assessment.dimensionScores,
+    tierScores: assessment.tierScores,
     skillGaps: skillGaps,
     cvAiBridge: json['cv_ai_bridge'] as String,
     roadmap: roadmap,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'ai_competency.dart';
 import 'ai_course.dart';
 import 'ai_readiness.dart';
+import 'ai_readiness_scenario.dart';
 
 class AiReadinessResultScreen extends StatelessWidget {
   const AiReadinessResultScreen({super.key, required this.result});
@@ -24,10 +24,10 @@ class AiReadinessResultScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
-          Text('By dimension', style: Theme.of(context).textTheme.titleMedium),
+          Text('By tier', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          for (final dimension in AiDimension.values)
-            _DimensionBar(dimension: dimension, score: result.dimensionScores[dimension] ?? 0),
+          for (final tier in AiReadinessTier.values)
+            _TierBar(tier: tier, score: result.tierScores[tier] ?? 0),
           const SizedBox(height: 24),
           Text('Priority gaps', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -110,10 +110,10 @@ class _ScoreDial extends StatelessWidget {
   }
 }
 
-class _DimensionBar extends StatelessWidget {
-  const _DimensionBar({required this.dimension, required this.score});
+class _TierBar extends StatelessWidget {
+  const _TierBar({required this.tier, required this.score});
 
-  final AiDimension dimension;
+  final AiReadinessTier tier;
   final int score;
 
   @override
@@ -125,7 +125,7 @@ class _DimensionBar extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text(dimension.label, style: Theme.of(context).textTheme.bodyMedium)),
+              Expanded(child: Text(tier.label, style: Theme.of(context).textTheme.bodyMedium)),
               Text('$score', style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
@@ -133,7 +133,7 @@ class _DimensionBar extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              key: ValueKey('dimensionBar_${dimension.name}'),
+              key: ValueKey('tierBar_${tier.name}'),
               value: score / 100,
               minHeight: 6,
             ),

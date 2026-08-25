@@ -4,6 +4,7 @@ import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness.dart';
+import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness_scenario.dart';
 import 'package:next_career_after_fauj/features/career_readiness/career_readiness_screen.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
@@ -29,7 +30,7 @@ const _fitmentResult = FitmentResult(
 final _aiReadinessResult = AiReadinessResult(
   readinessScore: 60,
   scoreRationale: 'Moderate readiness.',
-  dimensionScores: {for (final d in AiDimension.values) d: 60},
+  tierScores: {for (final t in AiReadinessTier.values) t: 60},
   skillGaps: [
     SkillGap(competency: kAiCompetencies.first, severity: GapSeverity.high, reason: 'Needs practice.'),
   ],

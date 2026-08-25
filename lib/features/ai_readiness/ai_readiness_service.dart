@@ -4,7 +4,7 @@ import 'ai_competency.dart';
 import 'ai_readiness.dart';
 
 typedef AiReadinessAnalyzer = Future<AiReadinessResult> Function({
-  required AiSelfAssessment assessment,
+  required AiScenarioAssessment assessment,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,
@@ -15,7 +15,7 @@ typedef AiReadinessAnalyzer = Future<AiReadinessResult> Function({
 /// in. Returns fixed sample data regardless of input so the results screens
 /// can be built and tested independently of the backend.
 Future<AiReadinessResult> mockAnalyzeAiReadiness({
-  required AiSelfAssessment assessment,
+  required AiScenarioAssessment assessment,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,
@@ -27,7 +27,7 @@ Future<AiReadinessResult> mockAnalyzeAiReadiness({
     scoreRationale:
         'Comfortable with everyday AI assistants and productivity use, but has not yet '
         'used AI for structured decision support or led an AI-enabled initiative.',
-    dimensionScores: assessment.dimensionScores,
+    tierScores: assessment.tierScores,
     skillGaps: const [
       SkillGap(
         competency: AiCompetency(

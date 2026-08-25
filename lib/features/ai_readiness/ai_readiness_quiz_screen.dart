@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
-import 'ai_competency.dart';
 import 'ai_readiness.dart';
 import 'ai_readiness_result_screen.dart';
+import 'ai_readiness_scenario.dart';
 import 'ai_readiness_service.dart';
 
 class AiReadinessQuizScreen extends StatefulWidget {
@@ -22,15 +22,19 @@ class AiReadinessQuizScreen extends StatefulWidget {
 }
 
 class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
-  final Map<AiDimension, int> _ratings = {
-    for (final dimension in AiDimension.values) dimension: 3,
-  };
-
+  final Map<String, int> _answers = {};
   bool _isAnalyzing = false;
 
   Future<void> _submit() async {
+    if (_answers.length < kAiReadinessQuestions.length) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Answer every question to see your results')));
+      return;
+    }
+
     setState(() => _isAnalyzing = true);
-    final assessment = AiSelfAssessment(ratings: Map.of(_ratings));
+    final assessment = AiScenarioAssessment(answers: Map.of(_answers));
     final profile = context.read<ProfileRepository>().profile;
     try {
       final result = await widget.analyzeAiReadiness(
@@ -64,20 +68,27 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Rate your comfort with AI', style: Theme.of(context).textTheme.headlineSmall),
+            Text('How ready are you to work with AI?', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 4),
             Text(
-              'Rate yourself 1 (not familiar) to 5 (very confident) on each area. '
-              'Your score is calculated directly from these ratings.',
+              'Short scenario questions, not a self-rating — your score reflects what you '
+              'actually know and how you\'d judge an AI\'s output, not just your confidence.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            for (final dimension in AiDimension.values) _DimensionRating(
-              dimension: dimension,
-              value: _ratings[dimension]!,
-              onChanged: (v) => setState(() => _ratings[dimension] = v),
-            ),
-            const SizedBox(height: 12),
+            for (final tier in AiReadinessTier.values) ...[
+              Text(tier.label, style: Theme.of(context).textTheme.titleMedium),
+              Text(tier.description, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 8),
+              for (final question in kAiReadinessQuestions.where((q) => q.tier == tier))
+                _QuestionCard(
+                  key: ValueKey(question.id),
+                  question: question,
+                  selected: _answers[question.id],
+                  onChanged: (i) => setState(() => _answers[question.id] = i),
+                ),
+              const SizedBox(height: 12),
+            ],
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -99,40 +110,43 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
   }
 }
 
-class _DimensionRating extends StatelessWidget {
-  const _DimensionRating({
-    required this.dimension,
-    required this.value,
-    required this.onChanged,
-  });
+class _QuestionCard extends StatelessWidget {
+  const _QuestionCard({super.key, required this.question, required this.selected, required this.onChanged});
 
-  final AiDimension dimension;
-  final int value;
+  final ScenarioQuestion question;
+  final int? selected;
   final ValueChanged<int> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(dimension.label, style: Theme.of(context).textTheme.titleMedium),
-          Text(dimension.description, style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 8),
-          SegmentedButton<int>(
-            key: ValueKey('rating_${dimension.name}'),
-            segments: const [
-              ButtonSegment(value: 1, label: Text('1')),
-              ButtonSegment(value: 2, label: Text('2')),
-              ButtonSegment(value: 3, label: Text('3')),
-              ButtonSegment(value: 4, label: Text('4')),
-              ButtonSegment(value: 5, label: Text('5')),
-            ],
-            selected: {value},
-            onSelectionChanged: (selection) => onChanged(selection.first),
-          ),
-        ],
+    return Card(
+      key: ValueKey('question_${question.id}'),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(question.prompt, style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 4),
+            RadioGroup<int>(
+              groupValue: selected,
+              onChanged: (v) => onChanged(v!),
+              child: Column(
+                children: [
+                  for (var i = 0; i < question.options.length; i++)
+                    RadioListTile<int>(
+                      key: ValueKey('option_${question.id}_$i'),
+                      value: i,
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      title: Text(question.options[i]),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -37,6 +37,7 @@ import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/networking/network_directory_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/profile/profile_screen.dart';
+import 'features/skill_equivalency/course_civilianization_http_service.dart';
 import 'features/skill_equivalency/skill_equivalency_screen.dart';
 import 'features/transition_plan/transition_plan_screen.dart';
 
@@ -113,7 +114,8 @@ class NextCareerAfterFaujApp extends StatelessWidget {
               const CompensationScreen(estimateCompensation: httpEstimateCompensation),
           AppRoutes.transitionPlan: (_) => const TransitionPlanScreen(),
           AppRoutes.applicationTracker: (_) => const ApplicationTrackerScreen(),
-          AppRoutes.skillEquivalency: (_) => const SkillEquivalencyScreen(),
+          AppRoutes.skillEquivalency: (_) =>
+              const SkillEquivalencyScreen(civilianizeCourse: httpCivilianizeCourse),
           AppRoutes.cvCivilianizer: (_) =>
               const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
           AppRoutes.cvBuilder: (_) => const CvBuilderScreen(buildCv: httpBuildCv),

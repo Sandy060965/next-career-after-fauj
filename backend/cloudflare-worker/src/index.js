@@ -657,6 +657,130 @@ async function handleLinkedInWriteup(body, env) {
 // reframe-only rewriting discipline as the JD Match refined CV (Part 2 of
 // FITMENT_SYSTEM_PROMPT) but without a target JD to tailor toward.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// /civilianize-course — an officer-named course/institution not in the app's
+// curated Skill Equivalency list. Uses web_search to ground the translation
+// in a real, verifiable source rather than the model's own guess — see
+// CIVILIANIZE_COURSE_SYSTEM_PROMPT. Every submission (verified or not) is
+// logged to course_submissions so real usage can grow the curated list over
+// time via human review — never auto-merged.
+// ---------------------------------------------------------------------------
+const CIVILIANIZE_COURSE_SYSTEM_PROMPT = `An Indian Armed Forces officer has named a training course, programme, or
+military institution that isn't in this app's curated reference list. Your
+job is to identify what it really is and translate it into a civilian-career
+equivalent — grounded in real, verifiable facts, never a plausible-sounding
+guess.
+
+You have a web_search tool. Use it to check whether this is a real, named
+Indian Army/Navy/Air Force course or institution, and if so, what it
+actually covers.
+
+STRICT RULES:
+- If web search confirms a real course/institution, base "description" on
+  what you actually found — name what you found (in one sentence, no links)
+  in "sourceNote", and set "verified" to true.
+- If web search finds nothing credible, or the officer's own description is
+  all you have to go on, still produce a best-effort civilian translation
+  from their description alone — but set "verified" to false, and say so
+  plainly in "sourceNote" (e.g. "No independent source found; based only on
+  the officer's own description").
+- Never invent an institution name, duration, eligibility criterion, or
+  syllabus detail that you did not find via search or that the officer did
+  not state themselves.
+- Never reference military rank progression, ACRs, or classified/unit-
+  identifying details.
+- If the course name given is too vague to identify or translate at all
+  (e.g. a single ambiguous word), say so plainly in "description" rather
+  than guessing, and set "verified" to false.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "civilianEquivalent": "<short civilian-career-equivalent title, e.g. 'Strategic Management & Cross-Functional Leadership'>",
+  "description": "<1-3 sentences explaining the civilian translation>",
+  "verified": true|false,
+  "sourceNote": "<one sentence on what was found via search, or why not verified>"
+}`;
+
+// Separate from callClaude() deliberately — this is the only call in the
+// Worker that needs the web_search tool, and giving every other prompt a
+// search tool it doesn't need isn't worth the shared-helper complexity.
+// web_search_20250305 (the basic variant) is used rather than the newer
+// dynamic-filtering variant since it's broadly compatible regardless of
+// exactly which Sonnet generation the hardcoded model string below maps to.
+async function callClaudeWithWebSearch(env, { system, userContent, maxTokens = 1024 }) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: 'user', content: userContent }],
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
+    }),
+  });
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Upstream error: ${detail}`);
+  }
+  const data = await response.json();
+  // With web_search enabled, content may include web_search_tool_result
+  // blocks before the final text block — the answer is the LAST text
+  // block, not content[0].
+  const textBlock = [...(data.content || [])].reverse().find((b) => b.type === 'text');
+  return JSON.parse(stripCodeFence(textBlock?.text ?? ''));
+}
+
+async function handleCivilianizeCourse(body, env) {
+  const { courseName, courseDescription, mobileNumber } = body;
+  const name = String(courseName ?? '').trim();
+  if (!name) {
+    return json({ error: 'courseName is required' }, 400);
+  }
+
+  const userContent =
+    `Course/training name as given by the officer: ${name}` +
+    (courseDescription ? `\n\nOfficer's own brief description of what it covered:\n${courseDescription}` : '');
+
+  let parsed;
+  try {
+    parsed = await callClaudeWithWebSearch(env, { system: CIVILIANIZE_COURSE_SYSTEM_PROMPT, userContent });
+  } catch (e) {
+    return json({ error: 'Could not process this course', detail: `${e}` }, 502);
+  }
+
+  if (env.DB) {
+    try {
+      await env.DB.prepare(
+        'INSERT INTO course_submissions (id, mobile_number, course_name, course_description, ' +
+          'civilian_equivalent, civilian_description, verified, source_note, submitted_at) ' +
+          'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      )
+        .bind(
+          crypto.randomUUID(),
+          mobileNumber ?? null,
+          name,
+          courseDescription ?? null,
+          parsed.civilianEquivalent ?? null,
+          parsed.description ?? null,
+          parsed.verified ? 1 : 0,
+          parsed.sourceNote ?? null,
+          new Date().toISOString(),
+        )
+        .run();
+    } catch (e) {
+      // Logging is best-effort — never fail the officer's request over it.
+      console.error('course_submissions insert failed:', e.message);
+    }
+  }
+
+  return json(parsed);
+}
+
 async function handleCivilianizeCv(body, env) {
   const { cvText, cvPdfBase64 } = body;
   if (!cvText && !cvPdfBase64) {
@@ -997,6 +1121,7 @@ export default {
     if (path === '/job-matches') return handleJobMatches(body, env);
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/civilianize-cv') return handleCivilianizeCv(body, env);
+    if (path === '/civilianize-course') return handleCivilianizeCourse(body, env);
     if (path === '/target-role-strategy') return handleTargetRoleStrategy(body, env);
     if (path === '/cv-evidence') return handleCvEvidence(body, env);
     if (path === '/build-cv') return handleBuildCv(body, env);

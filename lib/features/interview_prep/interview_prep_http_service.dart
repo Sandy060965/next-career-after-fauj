@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
@@ -21,9 +22,12 @@ class InterviewQuestionsException implements Exception {
 
 Future<List<JdInterviewQuestion>> httpGenerateJdInterviewQuestions({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 }) async {
-  final body = <String, dynamic>{'jdText': jdText};
+  final body = <String, dynamic>{
+    if (jdPdfBytes != null) 'jdPdfBase64': base64Encode(jdPdfBytes) else 'jdText': jdText,
+  };
   if (cvText != null) body['cvText'] = cvText;
   final encodedBody = jsonEncode(body);
 

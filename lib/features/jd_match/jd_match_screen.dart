@@ -12,13 +12,11 @@ import '../fitment/score_gap_screen.dart';
 
 enum JdInputMethod { paste, upload }
 
-// PDF is deliberately not offered here: unlike the CV upload (where Claude
-// reads PDF bytes natively), every backend endpoint that consumes a JD
-// expects plain text, and there's no client-side PDF text extraction in
-// this app. Offering PDF upload without either would silently send just a
-// filename as if it were the JD — exactly the bug this fixed. A PDF-sourced
-// JD should go through Paste instead.
-Future<PickedFile?> _defaultPickJd() => pickFileWithBytes(allowedExtensions: const ['docx', 'txt']);
+// PDF is included alongside DOCX/TXT: Claude reads PDF bytes natively (same
+// as the CV upload), so no client-side extraction is needed for it — see
+// _pickJdFile.
+Future<PickedFile?> _defaultPickJd() =>
+    pickFileWithBytes(allowedExtensions: const ['pdf', 'docx', 'txt']);
 
 class JdMatchScreen extends StatefulWidget {
   const JdMatchScreen({
@@ -45,6 +43,7 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   JdInputMethod _inputMethod = JdInputMethod.paste;
   String? _uploadedFileName;
   String? _uploadedJdText;
+  Uint8List? _uploadedJdPdfBytes;
   bool _isProcessingUpload = false;
   String? _error;
   bool _isAnalyzing = false;
@@ -78,10 +77,16 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
     setState(() {
       _uploadedFileName = file.name;
       _uploadedJdText = null;
+      _uploadedJdPdfBytes = null;
       _error = null;
     });
 
     final extension = file.name.split('.').last.toLowerCase();
+    if (extension == 'pdf') {
+      // Claude reads PDFs natively — no client-side extraction needed.
+      setState(() => _uploadedJdPdfBytes = file.bytes);
+      return;
+    }
     if (extension == 'txt') {
       setState(() => _uploadedJdText = utf8.decode(file.bytes, allowMalformed: true));
       return;
@@ -106,6 +111,7 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
 
   Future<void> _checkMatch() async {
     final String jdSource;
+    Uint8List? jdPdfBytes;
     if (_inputMethod == JdInputMethod.paste) {
       final text = _jdTextController.text.trim();
       if (text.isEmpty) {
@@ -113,6 +119,12 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
         return;
       }
       jdSource = text;
+    } else if (_uploadedJdPdfBytes != null) {
+      // Claude reads the PDF natively — jdSource is just the filename,
+      // sent alongside so the backend has something to fall back to if
+      // the bytes were somehow dropped, mirroring how a CV PDF works.
+      jdSource = _uploadedFileName!;
+      jdPdfBytes = _uploadedJdPdfBytes;
     } else {
       if (_uploadedJdText == null) {
         setState(
@@ -134,12 +146,16 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
     try {
       final result = await widget.analyzeFitment(
         jdText: jdSource,
+        jdPdfBytes: jdPdfBytes,
         cvFileName: profile?.cvFileName ?? 'uploaded CV',
         cvExtractedText: profile?.cvExtractedText,
         cvPdfBytes: profile?.cvPdfBytes,
       );
       if (!mounted) return;
-      context.read<ProfileRepository>().saveFitmentResult(result, jdText: jdSource);
+      await context
+          .read<ProfileRepository>()
+          .saveFitmentResult(result, jdText: jdPdfBytes == null ? jdSource : null, jdPdfBytes: jdPdfBytes);
+      if (!mounted) return;
       setState(() => _isAnalyzing = false);
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -263,7 +279,7 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  _uploadedFileName ?? 'No file selected (DOCX or TXT)',
+                  _uploadedFileName ?? 'No file selected (PDF, DOCX, or TXT)',
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -279,11 +295,6 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Have a PDF job posting? Copy its text and use Paste instead.',
-          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );

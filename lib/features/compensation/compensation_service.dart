@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'compensation_estimate.dart';
 
 typedef CompensationAnalyzer = Future<CompensationEstimate> Function({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 });
 
@@ -9,6 +12,7 @@ typedef CompensationAnalyzer = Future<CompensationEstimate> Function({
 /// in. Returns fixed sample data regardless of input.
 Future<CompensationEstimate> mockEstimateCompensation({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 }) async {
   await Future.delayed(const Duration(milliseconds: 700));

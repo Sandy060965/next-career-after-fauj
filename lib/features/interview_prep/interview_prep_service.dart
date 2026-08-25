@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'jd_interview_question.dart';
 
 typedef JdInterviewQuestionsAnalyzer = Future<List<JdInterviewQuestion>> Function({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 });
 
@@ -10,6 +13,7 @@ typedef JdInterviewQuestionsAnalyzer = Future<List<JdInterviewQuestion>> Functio
 /// built and tested independently of the backend.
 Future<List<JdInterviewQuestion>> mockGenerateJdInterviewQuestions({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 }) async {
   await Future.delayed(const Duration(milliseconds: 700));

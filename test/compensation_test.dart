@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
@@ -17,7 +19,7 @@ const _stubFitmentResult = FitmentResult(
   gapRoadmap: [],
 );
 
-Future<CompensationEstimate> _stubEstimate({required String jdText, String? cvText}) async {
+Future<CompensationEstimate> _stubEstimate({required String jdText, Uint8List? jdPdfBytes, String? cvText}) async {
   return const CompensationEstimate(
     jobTitle: 'Chief Operating Officer',
     location: 'Mumbai',
@@ -32,7 +34,7 @@ Future<CompensationEstimate> _stubEstimate({required String jdText, String? cvTe
   );
 }
 
-Future<CompensationEstimate> _stubNoData({required String jdText, String? cvText}) async {
+Future<CompensationEstimate> _stubNoData({required String jdText, Uint8List? jdPdfBytes, String? cvText}) async {
   return const CompensationEstimate(
     jobTitle: 'Niche Executive Role',
     location: 'Mumbai',
@@ -40,7 +42,7 @@ Future<CompensationEstimate> _stubNoData({required String jdText, String? cvText
   );
 }
 
-Future<CompensationEstimate> _stubUnknownCity({required String jdText, String? cvText}) async {
+Future<CompensationEstimate> _stubUnknownCity({required String jdText, Uint8List? jdPdfBytes, String? cvText}) async {
   return const CompensationEstimate(
     jobTitle: 'Plant Manager',
     location: 'Mumbai',

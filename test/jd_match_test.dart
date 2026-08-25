@@ -39,6 +39,7 @@ const _stubResult = FitmentResult(
 
 Future<FitmentResult> _stubAnalyzeFitment({
   required String jdText,
+  Uint8List? jdPdfBytes,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,
@@ -112,6 +113,7 @@ void main() {
     String? capturedJdText;
     Future<FitmentResult> capturingAnalyzeFitment({
       required String jdText,
+      Uint8List? jdPdfBytes,
       required String cvFileName,
       String? cvExtractedText,
       Uint8List? cvPdfBytes,
@@ -147,6 +149,62 @@ void main() {
     // The regression this guards: the analyzer must receive the real
     // extracted text, not the bare filename it used to get.
     expect(capturedJdText, 'Looking for a logistics manager with 10 years experience.');
+  });
+
+  testWidgets('uploading a JD PDF sends the raw bytes and caches them for reuse', (tester) async {
+    String? capturedJdText;
+    Uint8List? capturedJdPdfBytes;
+    Future<FitmentResult> capturingAnalyzeFitment({
+      required String jdText,
+      Uint8List? jdPdfBytes,
+      required String cvFileName,
+      String? cvExtractedText,
+      Uint8List? cvPdfBytes,
+    }) async {
+      capturedJdText = jdText;
+      capturedJdPdfBytes = jdPdfBytes;
+      return _stubResult;
+    }
+
+    final pdfBytes = Uint8List.fromList([0x25, 0x50, 0x44, 0x46]); // "%PDF" — content is opaque to the app.
+    final repository = ProfileRepository();
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ProfileRepository>.value(
+        value: repository,
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: JdMatchScreen(
+            pickFile: () async => PickedFile(name: 'job-description.pdf', bytes: pdfBytes),
+            analyzeFitment: capturingAnalyzeFitment,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('jdInput_upload')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('jdBrowseButton')));
+    await tester.pumpAndSettle();
+    expect(find.text('job-description.pdf'), findsWidgets);
+    // No client-side extraction for PDF — no "reading" spinner/error state.
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    await tester.tap(find.byKey(const Key('checkMatchButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fitment Score'), findsOneWidget);
+    expect(capturedJdPdfBytes, pdfBytes);
+    // jdText is just the filename fallback when bytes are sent — the
+    // backend ignores it once jdPdfBase64 is present.
+    expect(capturedJdText, 'job-description.pdf');
+
+    // Cached for downstream reuse (Interview Prep, Compensation) the same
+    // way a PDF CV's bytes are cached — not as a bare, useless filename
+    // string under lastJdText.
+    expect(repository.lastJdPdfBytes, pdfBytes);
+    expect(repository.lastJdText, isNull);
   });
 
   testWidgets('a .docx that fails to extract shows an error instead of silently using the filename',

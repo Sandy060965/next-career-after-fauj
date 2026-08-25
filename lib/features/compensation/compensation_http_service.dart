@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
@@ -21,9 +22,12 @@ class CompensationException implements Exception {
 
 Future<CompensationEstimate> httpEstimateCompensation({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 }) async {
-  final encodedBody = jsonEncode({'jdText': jdText});
+  final encodedBody = jsonEncode({
+    if (jdPdfBytes != null) 'jdPdfBase64': base64Encode(jdPdfBytes) else 'jdText': jdText,
+  });
 
   http.Response? response;
   Object? lastError;

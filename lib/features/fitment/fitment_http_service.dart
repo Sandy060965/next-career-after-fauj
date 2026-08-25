@@ -30,6 +30,7 @@ const _retryableStatusCodes = {502, 503, 504, 522, 523, 524};
 
 Future<FitmentResult> httpAnalyzeFitment({
   required String jdText,
+  Uint8List? jdPdfBytes,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,
@@ -38,7 +39,12 @@ Future<FitmentResult> httpAnalyzeFitment({
   // PDFs natively, so no client-side extraction needed there). Only fall
   // back to sending the bare filename if neither is available — the Worker
   // treats that case as "no CV content" rather than fabricating from it.
-  final body = <String, dynamic>{'jdText': jdText};
+  final body = <String, dynamic>{};
+  if (jdPdfBytes != null) {
+    body['jdPdfBase64'] = base64Encode(jdPdfBytes);
+  } else {
+    body['jdText'] = jdText;
+  }
   if (cvPdfBytes != null) {
     body['cvPdfBase64'] = base64Encode(cvPdfBytes);
   } else {

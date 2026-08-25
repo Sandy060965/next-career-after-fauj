@@ -49,12 +49,14 @@ class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
   Future<void> _loadJdQuestions() async {
     final repository = context.read<ProfileRepository>();
     final jdText = repository.lastJdText;
-    if (jdText == null) return;
+    final jdPdfBytes = repository.lastJdPdfBytes;
+    if (jdText == null && jdPdfBytes == null) return;
 
     setState(() => _isLoadingJdQuestions = true);
     try {
       final questions = await widget.generateJdQuestions(
-        jdText: jdText,
+        jdText: jdText ?? '',
+        jdPdfBytes: jdPdfBytes,
         cvText: repository.profile?.cvExtractedText,
       );
       if (!mounted) return;
@@ -70,7 +72,8 @@ class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasJdText = context.watch<ProfileRepository>().lastJdText != null;
+    final repo = context.watch<ProfileRepository>();
+    final hasJdText = repo.lastJdText != null || repo.lastJdPdfBytes != null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Interview Prep')),

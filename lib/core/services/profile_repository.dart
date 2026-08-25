@@ -33,6 +33,7 @@ const _cvEvidenceKey = 'last_cv_evidence_v1';
 const _cvBuilderIntakeKey = 'last_cv_builder_intake_v1';
 const _builtCvKey = 'last_built_cv_v1';
 const _cvFileName = 'officer_cv';
+const _jdFileName = 'last_jd';
 
 /// Holder for the officer's profile and cross-screen state, shared via
 /// Provider. Persists to disk (SharedPreferences for structured data, a
@@ -48,6 +49,7 @@ class ProfileRepository extends ChangeNotifier {
   OfficerProfile? _profile;
   FitmentResult? _lastFitmentResult;
   String? _lastJdText;
+  Uint8List? _lastJdPdfBytes;
   VerticalFitAssessment? _lastVerticalFitAssessment;
   AiReadinessResult? _lastAiReadinessResult;
   String? _sessionToken;
@@ -81,6 +83,12 @@ class ProfileRepository extends ChangeNotifier {
   /// the JD Match flow.
   FitmentResult? get lastFitmentResult => _lastFitmentResult;
   String? get lastJdText => _lastJdText;
+
+  /// Raw bytes of the last JD uploaded as a PDF, if that's how it was
+  /// supplied — mutually exclusive with [lastJdText] the same way a CV's
+  /// [OfficerProfile.cvPdfBytes] is mutually exclusive with
+  /// [OfficerProfile.cvExtractedText].
+  Uint8List? get lastJdPdfBytes => _lastJdPdfBytes;
 
   VerticalFitAssessment? get lastVerticalFitAssessment => _lastVerticalFitAssessment;
 
@@ -121,6 +129,7 @@ class ProfileRepository extends ChangeNotifier {
         _lastFitmentResult = FitmentResult.fromJson(jsonDecode(fitmentJson) as Map<String, dynamic>);
       }
       _lastJdText = prefs.getString(_jdTextKey);
+      _lastJdPdfBytes = await _readJdFile();
 
       final verticalFitJson = prefs.getString(_verticalFitKey);
       if (verticalFitJson != null) {
@@ -208,15 +217,25 @@ class ProfileRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> saveFitmentResult(FitmentResult result, {String? jdText}) async {
+  Future<void> saveFitmentResult(FitmentResult result, {String? jdText, Uint8List? jdPdfBytes}) async {
     _lastFitmentResult = result;
     _lastJdText = jdText;
+    _lastJdPdfBytes = jdPdfBytes;
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_fitmentResultKey, jsonEncode(result.toJson()));
       if (jdText != null) {
         await prefs.setString(_jdTextKey, jdText);
+      } else {
+        await prefs.remove(_jdTextKey);
+      }
+      // Only ever written, never explicitly deleted — same tolerance the
+      // CV file already has (saveProfile never deletes a stale CV file
+      // either). A fire-and-forget caller (several exist, including in
+      // tests) must never be blocked on a file-delete's timeout.
+      if (jdPdfBytes != null) {
+        await _writeJdFile(jdPdfBytes);
       }
     } catch (e) {
       debugPrint('ProfileRepository.saveFitmentResult persistence failed: $e');
@@ -411,6 +430,27 @@ class ProfileRepository extends ChangeNotifier {
 
   Future<void> _writeCvFile(Uint8List bytes) async {
     final file = await _cvFile();
+    await file.writeAsBytes(bytes).timeout(_ioTimeout);
+  }
+
+  Future<File> _jdFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/$_jdFileName');
+  }
+
+  Future<Uint8List?> _readJdFile() async {
+    try {
+      final file = await _jdFile();
+      if (!await file.exists().timeout(_ioTimeout)) return null;
+      return await file.readAsBytes().timeout(_ioTimeout);
+    } catch (e) {
+      debugPrint('ProfileRepository._readJdFile failed: $e');
+      return null;
+    }
+  }
+
+  Future<void> _writeJdFile(Uint8List bytes) async {
+    final file = await _jdFile();
     await file.writeAsBytes(bytes).timeout(_ioTimeout);
   }
 }

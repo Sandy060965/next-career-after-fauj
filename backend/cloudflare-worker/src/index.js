@@ -439,19 +439,63 @@ function buildCvSection(cvText, cvPdfBase64) {
   return { isDocument: false, content: text };
 }
 
+// Mirrors buildCvSection exactly (same filename-only guard, same document-
+// vs-text shape) — kept as a separate function rather than a shared/generic
+// one so the fallback wording stays correctly JD-flavoured.
+function buildJdSection(jdText, jdPdfBase64) {
+  if (jdPdfBase64) {
+    return {
+      isDocument: true,
+      content: [
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: jdPdfBase64 } },
+      ],
+    };
+  }
+  const text = jdText || '';
+  const isFilenameOnly =
+    /\.(pdf|docx?|txt)$/i.test(text.trim()) && text.trim().split(/\s+/).length <= 3;
+  const content = isFilenameOnly
+    ? `JD: [No JD text was extracted — only the filename "${text.trim()}" is available. ` +
+      'There is no real job description content to analyze.]'
+    : `JD:\n${text}`;
+  return { isDocument: false, content };
+}
+
+// Combines a CV section and a JD section (either may be plain text or a
+// PDF document) into the single `userContent` shape callClaude expects —
+// a plain string when both are text, an array of content blocks the moment
+// either one is a document (Claude's content field can't mix a bare string
+// with a document block).
+function combineCvAndJd(cv, jd) {
+  if (!cv.isDocument && !jd.isDocument) {
+    return `${cv.content}\n\n${jd.content}`;
+  }
+  const blocks = [];
+  if (cv.isDocument) {
+    blocks.push(...cv.content, { type: 'text', text: 'The above document is the CV.' });
+  } else {
+    blocks.push({ type: 'text', text: cv.content });
+  }
+  if (jd.isDocument) {
+    blocks.push(...jd.content, { type: 'text', text: 'The above document is the JD.' });
+  } else {
+    blocks.push({ type: 'text', text: jd.content });
+  }
+  return blocks;
+}
+
 // ---------------------------------------------------------------------------
 // /  (default) — CV/JD fitment analysis
 // ---------------------------------------------------------------------------
 async function handleFitmentAnalysis(body, env) {
-  const { cvText, cvPdfBase64, jdText } = body;
-  if (!jdText || (!cvText && !cvPdfBase64)) {
-    return json({ error: 'jdText and one of cvText/cvPdfBase64 are required' }, 400);
+  const { cvText, cvPdfBase64, jdText, jdPdfBase64 } = body;
+  if ((!jdText && !jdPdfBase64) || (!cvText && !cvPdfBase64)) {
+    return json({ error: 'jdText/jdPdfBase64 and cvText/cvPdfBase64 are required' }, 400);
   }
 
   const cv = buildCvSection(cvText, cvPdfBase64);
-  const userContent = cv.isDocument
-    ? [...cv.content, { type: 'text', text: `The above document is the CV.\n\nJD:\n${jdText}` }]
-    : `${cv.content}\n\nJD:\n${jdText}`;
+  const jd = buildJdSection(jdText, jdPdfBase64);
+  const userContent = combineCvAndJd(cv, jd);
 
   try {
     const parsed = await callClaude(env, { system: FITMENT_SYSTEM_PROMPT, userContent });
@@ -964,17 +1008,18 @@ async function handleAiReadiness(body, env) {
 // entirely client-side and never touches this endpoint.
 // ---------------------------------------------------------------------------
 async function handleInterviewQuestions(body, env) {
-  const { jdText, cvText, cvPdfBase64 } = body;
-  if (!jdText) {
-    return json({ error: 'jdText is required' }, 400);
+  const { jdText, jdPdfBase64, cvText, cvPdfBase64 } = body;
+  if (!jdText && !jdPdfBase64) {
+    return json({ error: 'jdText or jdPdfBase64 is required' }, 400);
   }
 
-  let userContent = `JD:\n${jdText}`;
+  const jd = buildJdSection(jdText, jdPdfBase64);
+  let userContent = jd.isDocument
+    ? [...jd.content, { type: 'text', text: 'The above document is the JD.' }]
+    : jd.content;
   if (cvText || cvPdfBase64) {
     const cv = buildCvSection(cvText || '', cvPdfBase64);
-    userContent = cv.isDocument
-      ? [...cv.content, { type: 'text', text: `The above document is the CV.\n\nJD:\n${jdText}` }]
-      : `${cv.content}\n\nJD:\n${jdText}`;
+    userContent = combineCvAndJd(cv, jd);
   }
 
   try {
@@ -1034,21 +1079,26 @@ async function fetchEstimatedSalary(env, jobTitle, location) {
 }
 
 async function handleCompensation(body, env) {
-  const { jdText } = body;
-  if (!jdText) {
-    return json({ error: 'jdText is required' }, 400);
+  const { jdText, jdPdfBase64 } = body;
+  if (!jdText && !jdPdfBase64) {
+    return json({ error: 'jdText or jdPdfBase64 is required' }, 400);
   }
   if (!env.RAPIDAPI_KEY) {
     return json({ error: 'Compensation guidance is not configured (missing RAPIDAPI_KEY)' }, 500);
   }
 
   const indiaCityNames = INDIA_CITIES.map((c) => c.city);
+  const jd = buildJdSection(jdText, jdPdfBase64);
+  const citiesText = `Real Indian cities to choose "location" from:\n${JSON.stringify(indiaCityNames)}`;
+  const userContent = jd.isDocument
+    ? [...jd.content, { type: 'text', text: `The above document is the JD.\n\n${citiesText}` }]
+    : `${jd.content}\n\n${citiesText}`;
 
   let derived;
   try {
     derived = await callClaude(env, {
       system: COMPENSATION_SYSTEM_PROMPT,
-      userContent: `JD:\n${jdText}\n\nReal Indian cities to choose "location" from:\n${JSON.stringify(indiaCityNames)}`,
+      userContent,
       maxTokens: 512,
     });
   } catch (e) {

@@ -4,6 +4,7 @@ import 'fitment_result.dart';
 
 typedef FitmentAnalyzer = Future<FitmentResult> Function({
   required String jdText,
+  Uint8List? jdPdfBytes,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,
@@ -14,6 +15,7 @@ typedef FitmentAnalyzer = Future<FitmentResult> Function({
 /// can be built and tested independently of the backend.
 Future<FitmentResult> mockAnalyzeFitment({
   required String jdText,
+  Uint8List? jdPdfBytes,
   required String cvFileName,
   String? cvExtractedText,
   Uint8List? cvPdfBytes,

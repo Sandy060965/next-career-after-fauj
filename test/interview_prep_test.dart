@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
@@ -24,6 +26,7 @@ const _stubFitmentResult = FitmentResult(
 
 Future<List<JdInterviewQuestion>> _stubGenerateJdQuestions({
   required String jdText,
+  Uint8List? jdPdfBytes,
   String? cvText,
 }) async =>
     const [

@@ -31,7 +31,8 @@ class _CompensationScreenState extends State<CompensationScreen> {
   Future<void> _load() async {
     final repository = context.read<ProfileRepository>();
     final jdText = repository.lastJdText;
-    if (jdText == null) return;
+    final jdPdfBytes = repository.lastJdPdfBytes;
+    if (jdText == null && jdPdfBytes == null) return;
 
     setState(() {
       _isLoading = true;
@@ -39,7 +40,8 @@ class _CompensationScreenState extends State<CompensationScreen> {
     });
     try {
       final estimate = await widget.estimateCompensation(
-        jdText: jdText,
+        jdText: jdText ?? '',
+        jdPdfBytes: jdPdfBytes,
         cvText: repository.profile?.cvExtractedText,
       );
       if (!mounted) return;
@@ -58,7 +60,8 @@ class _CompensationScreenState extends State<CompensationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasJdText = context.watch<ProfileRepository>().lastJdText != null;
+    final repo = context.watch<ProfileRepository>();
+    final hasJdText = repo.lastJdText != null || repo.lastJdPdfBytes != null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Compensation Guidance')),

@@ -151,6 +151,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('cvWritingGuideButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvWritingGuide),
+              child: const Text('CV Writing Guide & Templates'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('jdMatchButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jdMatch),
               child: const Text('JD Match'),

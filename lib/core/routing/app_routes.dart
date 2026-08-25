@@ -24,4 +24,5 @@ class AppRoutes {
   static const String financialPlanner = '/financial-planner';
   static const String targetRoleStrategy = '/target-role-strategy';
   static const String cvBuilder = '/cv-builder';
+  static const String cvWritingGuide = '/cv-writing-guide';
 }

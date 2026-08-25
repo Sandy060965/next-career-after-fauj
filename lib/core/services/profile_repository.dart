@@ -12,6 +12,7 @@ import '../../features/cv_civilianizer/civilianized_cv.dart';
 import '../../features/financial_planner/financial_plan.dart';
 import '../../features/fitment/fitment_result.dart';
 import '../../features/target_role/target_role_strategy.dart';
+import '../../features/vertical_fit/cv_evidence.dart';
 import '../../features/vertical_fit/vertical_fit.dart';
 import '../models/job_application.dart';
 import '../models/officer_account.dart';
@@ -28,6 +29,7 @@ const _applicationsKey = 'job_applications_v1';
 const _civilianizedCvKey = 'last_civilianized_cv_v1';
 const _financialPlanKey = 'last_financial_plan_input_v1';
 const _targetRoleStrategyKey = 'last_target_role_strategy_v1';
+const _cvEvidenceKey = 'last_cv_evidence_v1';
 const _cvBuilderIntakeKey = 'last_cv_builder_intake_v1';
 const _builtCvKey = 'last_built_cv_v1';
 const _cvFileName = 'officer_cv';
@@ -55,6 +57,7 @@ class ProfileRepository extends ChangeNotifier {
   CivilianizedCv? _lastCivilianizedCv;
   FinancialPlanInput? _lastFinancialPlanInput;
   TargetRoleStrategyResult? _lastTargetRoleStrategy;
+  CvEvidenceResult? _lastCvEvidenceResult;
   CvBuilderIntake? _lastCvBuilderIntake;
   BuiltCv? _lastBuiltCv;
 
@@ -91,6 +94,8 @@ class ProfileRepository extends ChangeNotifier {
   FinancialPlanInput? get lastFinancialPlanInput => _lastFinancialPlanInput;
 
   TargetRoleStrategyResult? get lastTargetRoleStrategy => _lastTargetRoleStrategy;
+
+  CvEvidenceResult? get lastCvEvidenceResult => _lastCvEvidenceResult;
 
   CvBuilderIntake? get lastCvBuilderIntake => _lastCvBuilderIntake;
 
@@ -157,6 +162,12 @@ class ProfileRepository extends ChangeNotifier {
       if (targetRoleJson != null) {
         _lastTargetRoleStrategy =
             TargetRoleStrategyResult.fromJson(jsonDecode(targetRoleJson) as Map<String, dynamic>);
+      }
+
+      final cvEvidenceJson = prefs.getString(_cvEvidenceKey);
+      if (cvEvidenceJson != null) {
+        _lastCvEvidenceResult =
+            CvEvidenceResult.fromJson(jsonDecode(cvEvidenceJson) as Map<String, dynamic>);
       }
 
       final cvBuilderIntakeJson = prefs.getString(_cvBuilderIntakeKey);
@@ -309,6 +320,17 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_targetRoleStrategyKey, jsonEncode(result.toJson()));
     } catch (e) {
       debugPrint('ProfileRepository.saveTargetRoleStrategy persistence failed: $e');
+    }
+  }
+
+  Future<void> saveCvEvidenceResult(CvEvidenceResult result) async {
+    _lastCvEvidenceResult = result;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_cvEvidenceKey, jsonEncode(result.toJson()));
+    } catch (e) {
+      debugPrint('ProfileRepository.saveCvEvidenceResult persistence failed: $e');
     }
   }
 

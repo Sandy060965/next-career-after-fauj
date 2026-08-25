@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
 import 'aptitude_question.dart';
+import 'cv_evidence_http_service.dart';
 import 'vertical_fit.dart';
 import 'vertical_fit_result_screen.dart';
 
@@ -14,9 +15,19 @@ class VerticalFitQuizScreen extends StatefulWidget {
 }
 
 class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
-  final Map<String, int> _ratings = {
-    for (final q in kAptitudeQuestions) q.id: 3,
-  };
+  late final Map<String, int> _ratings;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill from any existing assessment (e.g. when retaking after a
+    // disconnect notice) so the officer adjusts specific answers rather
+    // than starting over from a blank, neutral slate.
+    final existing = context.read<ProfileRepository>().lastVerticalFitAssessment?.ratings;
+    _ratings = {
+      for (final q in kAptitudeQuestions) q.id: existing?[q.id] ?? 3,
+    };
+  }
 
   void _submit() {
     final assessment = VerticalFitAssessment(ratings: Map.of(_ratings));
@@ -27,6 +38,7 @@ class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
         builder: (_) => VerticalFitResultScreen(
           assessment: assessment,
           corpsOrArm: repo.profile?.corpsOrArm,
+          groundCvEvidence: httpGroundCvEvidence,
         ),
       ),
     );

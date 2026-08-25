@@ -41,10 +41,19 @@ class _TargetRoleStrategyScreenState extends State<TargetRoleStrategyScreen> {
       return;
     }
 
+    final universe = effectiveVerticalUniverse(profile.corpsOrArm);
+    final rankedNames =
+        rankVerticalFit(assessment.dimensionScores, universe: universe).take(3).map((f) => f.vertical.name).toSet();
+    final cachedEvidence = repo.lastCvEvidenceResult;
+    final cachedEvidenceNames = cachedEvidence?.verticals.map((v) => v.verticalName).toSet();
+    final evidenceForDrafts =
+        (cachedEvidence != null && setEquals(cachedEvidenceNames, rankedNames)) ? cachedEvidence : null;
+
     final drafts = buildTargetRoleDrafts(
       dimensionScores: assessment.dimensionScores,
       workExperienceYears: profile.workExperienceYears,
-      universe: effectiveVerticalUniverse(profile.corpsOrArm),
+      universe: universe,
+      cvEvidence: evidenceForDrafts,
     );
     _drafts = drafts;
 
@@ -216,6 +225,7 @@ class _TargetCard extends StatelessWidget {
                 FitConfidence.high => Theme.of(context).colorScheme.primaryContainer,
                 FitConfidence.medium => Theme.of(context).colorScheme.tertiaryContainer,
                 FitConfidence.low => Theme.of(context).colorScheme.surfaceContainerHighest,
+                FitConfidence.disconnected => Theme.of(context).colorScheme.errorContainer,
               },
             ),
             const SizedBox(height: 8),

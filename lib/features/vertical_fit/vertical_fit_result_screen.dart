@@ -1,12 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../core/services/profile_repository.dart';
 import '../career_paths/career_paths_screen.dart';
+import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
 import 'aptitude_question.dart';
+import 'cv_evidence.dart';
+import 'cv_evidence_service.dart';
 import 'vertical_fit.dart';
+import 'vertical_fit_quiz_screen.dart';
 
-class VerticalFitResultScreen extends StatelessWidget {
-  const VerticalFitResultScreen({super.key, required this.assessment, this.corpsOrArm});
+class VerticalFitResultScreen extends StatefulWidget {
+  const VerticalFitResultScreen({
+    super.key,
+    required this.assessment,
+    this.corpsOrArm,
+    this.groundCvEvidence = mockGroundCvEvidence,
+  });
 
   final VerticalFitAssessment assessment;
 
@@ -16,21 +28,92 @@ class VerticalFitResultScreen extends StatelessWidget {
   /// `corps_affinity.dart`.
   final String? corpsOrArm;
 
+  /// Overridable for testing; defaults to sample data until the Worker's
+  /// /cv-evidence endpoint is wired in. Opt-in — never called automatically.
+  final CvEvidenceGrounder groundCvEvidence;
+
+  @override
+  State<VerticalFitResultScreen> createState() => _VerticalFitResultScreenState();
+}
+
+class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
+  late final Map<AptitudeDimension, int> _dimensionScores;
+  late final List<CareerVertical> _universe;
+  late final bool _constrained;
+  late final List<VerticalFit> _top3;
+  late final List<String> _softAffinity;
+
+  bool _isGroundingEvidence = false;
+  String? _evidenceError;
+  CvEvidenceResult? _evidence;
+  final Set<String> _dismissedDisconnects = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _dimensionScores = widget.assessment.dimensionScores;
+    _universe = effectiveVerticalUniverse(widget.corpsOrArm);
+    _constrained = isDomainConstrained(widget.corpsOrArm);
+    _top3 = rankVerticalFit(_dimensionScores, universe: _universe).take(3).toList();
+    _softAffinity = _constrained ? const [] : (kCorpsSoftAffinity[widget.corpsOrArm] ?? const []);
+
+    final cached = context.read<ProfileRepository>().lastCvEvidenceResult;
+    final cachedNames = cached?.verticals.map((v) => v.verticalName).toSet();
+    final top3Names = _top3.map((f) => f.vertical.name).toSet();
+    if (cached != null && setEquals(cachedNames, top3Names)) {
+      _evidence = cached;
+    }
+  }
+
+  Future<void> _groundInCv() async {
+    setState(() {
+      _isGroundingEvidence = true;
+      _evidenceError = null;
+    });
+    final profile = context.read<ProfileRepository>().profile;
+    final requests = _top3
+        .map(
+          (fit) => VerticalEvidenceRequest(
+            verticalName: fit.vertical.name,
+            dimensions: fit.topContributingDimensions(_dimensionScores),
+          ),
+        )
+        .toList();
+    try {
+      final result = await widget.groundCvEvidence(
+        cvText: profile?.cvExtractedText ?? profile?.cvFileName ?? '',
+        cvPdfBytes: profile?.cvPdfBytes,
+        requests: requests,
+      );
+      if (!mounted) return;
+      context.read<ProfileRepository>().saveCvEvidenceResult(result);
+      setState(() {
+        _evidence = result;
+        _dismissedDisconnects.clear();
+        _isGroundingEvidence = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _evidenceError = '$e';
+        _isGroundingEvidence = false;
+      });
+    }
+  }
+
+  void _retake() {
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => const VerticalFitQuizScreen()));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final dimensionScores = assessment.dimensionScores;
-    final universe = effectiveVerticalUniverse(corpsOrArm);
-    final constrained = isDomainConstrained(corpsOrArm);
-    final ranked = rankVerticalFit(dimensionScores, universe: universe);
-    final top3 = ranked.take(3).toList();
-    final softAffinity = constrained ? const <String>[] : (kCorpsSoftAffinity[corpsOrArm] ?? const []);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Your Career Vertical Fit')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          if (constrained) ...[
+          if (_constrained) ...[
             Container(
               key: const Key('domainConstrainedNotice'),
               padding: const EdgeInsets.all(12),
@@ -39,8 +122,9 @@ class VerticalFitResultScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'Your results are scoped to $corpsOrArm-relevant career paths, not the general '
-                'corporate verticals — your own professional domain carries the most weight here.',
+                'Your results are scoped to ${widget.corpsOrArm}-relevant career paths, not the '
+                'general corporate verticals — your own professional domain carries the most '
+                'weight here.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -52,19 +136,39 @@ class VerticalFitResultScreen extends StatelessWidget {
             Text(group.label, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 4),
             for (final dimension in AptitudeDimension.values.where((d) => d.group == group))
-              _DimensionBar(dimension: dimension, score: dimensionScores[dimension] ?? 0),
+              _DimensionBar(dimension: dimension, score: _dimensionScores[dimension] ?? 0),
             const SizedBox(height: 8),
           ],
           const SizedBox(height: 20),
           Text('Your top 3 verticals', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          for (var i = 0; i < top3.length; i++)
+          for (var i = 0; i < _top3.length; i++)
             _VerticalFitCard(
               rank: i + 1,
-              fit: top3[i],
-              dimensionScores: dimensionScores,
-              corpsAffinity: softAffinity.contains(top3[i].vertical.name),
+              fit: _top3[i],
+              dimensionScores: _dimensionScores,
+              corpsAffinity: _softAffinity.contains(_top3[i].vertical.name),
+              evidence: _evidence,
+              isDismissed: _dismissedDisconnects.contains(_top3[i].vertical.name),
+              onRetake: _retake,
+              onDismiss: () =>
+                  setState(() => _dismissedDisconnects.add(_top3[i].vertical.name)),
             ),
+          const SizedBox(height: 8),
+          if (_evidenceError != null) ...[
+            Text(_evidenceError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            const SizedBox(height: 8),
+          ],
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: Key(_evidence == null ? 'groundInCvButton' : 'regenerateCvEvidenceButton'),
+              onPressed: _isGroundingEvidence ? null : _groundInCv,
+              child: _isGroundingEvidence
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text(_evidence == null ? 'Ground my results in my CV' : 'Regenerate CV evidence'),
+            ),
+          ),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -73,7 +177,7 @@ class VerticalFitResultScreen extends StatelessWidget {
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => CareerPathsScreen(
-                    recommendedVerticals: top3.map((f) => f.vertical.name).toSet(),
+                    recommendedVerticals: _top3.map((f) => f.vertical.name).toSet(),
                   ),
                 ),
               ),
@@ -125,16 +229,32 @@ class _VerticalFitCard extends StatelessWidget {
     required this.rank,
     required this.fit,
     required this.dimensionScores,
+    required this.onRetake,
+    required this.onDismiss,
     this.corpsAffinity = false,
+    this.evidence,
+    this.isDismissed = false,
   });
 
   final int rank;
   final VerticalFit fit;
   final Map<AptitudeDimension, int> dimensionScores;
+  final VoidCallback onRetake;
+  final VoidCallback onDismiss;
 
   /// True when this vertical also matches the officer's Corps/Arm — a
   /// corroborating badge only, never a factor in [fit.fitScore] itself.
   final bool corpsAffinity;
+
+  /// CV-evidence grounding result, if the officer opted in — null means
+  /// they haven't (yet), in which case confidence falls back to
+  /// self-rating-only, exactly as before this feature existed.
+  final CvEvidenceResult? evidence;
+
+  /// True once the officer has dismissed this card's disconnect notice for
+  /// this viewing — session-local only, never persisted, so the notice
+  /// returns on a later visit if the disconnect is still real.
+  final bool isDismissed;
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +263,13 @@ class _VerticalFitCard extends StatelessWidget {
         ? 'Broadly aligned with your overall profile.'
         : 'Driven mainly by your strengths in '
             '${topDimensions.map((d) => '${d.label} (${dimensionScores[d]}/100)').join(' and ')}.';
-    final confidence = fit.confidence(dimensionScores);
+    final confidence = fit.confidence(dimensionScores, cvEvidence: evidence, corpsAffinity: corpsAffinity);
     final colorScheme = Theme.of(context).colorScheme;
     final confidenceColor = switch (confidence) {
       FitConfidence.high => colorScheme.primaryContainer,
       FitConfidence.medium => colorScheme.tertiaryContainer,
       FitConfidence.low => colorScheme.surfaceContainerHighest,
+      FitConfidence.disconnected => colorScheme.errorContainer,
     };
 
     return Card(
@@ -191,8 +312,86 @@ class _VerticalFitCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(why, style: Theme.of(context).textTheme.bodySmall),
+            if (evidence != null) ...[
+              const SizedBox(height: 12),
+              Text('From your CV', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 4),
+              for (final dim in topDimensions)
+                _EvidenceLine(
+                  key: ValueKey('evidence_${fit.vertical.name}_${dim.name}'),
+                  dimension: dim,
+                  evidence: evidence!.evidenceFor(fit.vertical.name, dim),
+                ),
+            ],
+            if (confidence == FitConfidence.disconnected && !isDismissed) ...[
+              const SizedBox(height: 12),
+              Container(
+                key: ValueKey('disconnectNotice_${fit.vertical.name}'),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorScheme.errorContainer.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Your self-rating and CV don't fully agree here — want to revisit your "
+                      'answers?',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            key: ValueKey('keepRatingButton_${fit.vertical.name}'),
+                            onPressed: onDismiss,
+                            child: const Text('Keep my rating as-is'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            key: ValueKey('retakeAssessmentButton_${fit.vertical.name}'),
+                            onPressed: onRetake,
+                            child: const Text('Retake the assessment'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _EvidenceLine extends StatelessWidget {
+  const _EvidenceLine({super.key, required this.dimension, required this.evidence});
+
+  final AptitudeDimension dimension;
+  final DimensionEvidence? evidence;
+
+  @override
+  Widget build(BuildContext context) {
+    final found = evidence?.found ?? false;
+    final text = found
+        ? '${dimension.label}: ${evidence!.evidence}'
+        : '${dimension.label}: No CV evidence found for this yet.';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: found
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.error,
+            ),
       ),
     );
   }

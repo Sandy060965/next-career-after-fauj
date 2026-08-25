@@ -1,5 +1,6 @@
 import '../career_paths/career_vertical.dart';
 import '../vertical_fit/aptitude_question.dart';
+import '../vertical_fit/cv_evidence.dart';
 import '../vertical_fit/vertical_fit.dart';
 
 /// One deterministically-derived target — vertical, role title, fit score,
@@ -31,11 +32,16 @@ class TargetRoleDraft {
 /// Builds the top 3 [TargetRoleDraft]s (primary + 2 secondary), highest fit
 /// first — entirely deterministic, no AI involved at this stage. Pass
 /// [universe] for a Corps/Arm-constrained officer (see
-/// `corps_affinity.dart`); defaults to the general 20 verticals.
+/// `corps_affinity.dart`); defaults to the general 20 verticals. Pass
+/// [cvEvidence] (from Vertical Fit's own opt-in CV-evidence grounding, if
+/// the officer already ran it and it still matches this top-3) so
+/// confidence here stays consistent with Vertical Fit's — this screen
+/// doesn't offer its own "ground in CV" action, it only reuses the cache.
 List<TargetRoleDraft> buildTargetRoleDrafts({
   required Map<AptitudeDimension, int> dimensionScores,
   required int workExperienceYears,
   List<CareerVertical> universe = kCareerVerticals,
+  CvEvidenceResult? cvEvidence,
 }) {
   final ranked = rankVerticalFit(dimensionScores, universe: universe).take(3);
   return ranked
@@ -49,7 +55,7 @@ List<TargetRoleDraft> buildTargetRoleDrafts({
               .topContributingDimensions(dimensionScores)
               .map((d) => d.label)
               .toList(),
-          confidence: fit.confidence(dimensionScores),
+          confidence: fit.confidence(dimensionScores, cvEvidence: cvEvidence),
         ),
       )
       .toList();

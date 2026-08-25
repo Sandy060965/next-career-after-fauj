@@ -195,6 +195,38 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
   ]
 }`;
 
+const CV_EVIDENCE_SYSTEM_PROMPT = `You are checking an Indian Armed Forces officer's CV for concrete evidence
+supporting their own self-rated career-fit dimensions, for exactly three already-ranked target
+verticals. Deterministic self-rating (not you) has already picked these three verticals and their
+contributing dimensions — your only job is to say whether the CV backs up each dimension, not to
+re-rank or re-score anything.
+
+You will be given the officer's CV text and, for each of the three verticals, its name and the
+2-3 dimensions it draws on (by name only, e.g. "Investigative", "Openness").
+
+STRICT RULES:
+- For each dimension of each vertical, decide only "found" true or false — never invent a
+  plausible-sounding achievement to fill a gap.
+- If found is true, cite the SPECIFIC role, responsibility, or achievement from the CV that
+  supports it, in one sentence. Do not paraphrase into something the CV doesn't actually say.
+- Do not change, re-rank, or second-guess the given vertical names or dimensions — treat them as
+  fixed inputs.
+- Never reference military rank progression, ACRs, or classified/unit-identifying details.
+- If the CV text is unavailable (only a filename, no real content), mark every dimension found:
+  false with evidence null — never guess.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "verticals": [
+    {
+      "vertical": "<echo the vertical name given>",
+      "dimensions": [
+        {"dimension": "<echo the dimension name given>", "found": true|false, "evidence": "<one sentence citing the CV, or null>"}
+      ]
+    }
+  ]
+}`;
+
 const BUILD_CV_SYSTEM_PROMPT = `You are helping an Indian Armed Forces officer transitioning to civilian
 roles build a first civilian CV from scratch — this officer does not have an existing usable CV, so
 you are given only a structured intake of facts they typed in themselves, not a source document.
@@ -668,6 +700,42 @@ async function handleTargetRoleStrategy(body, env) {
 }
 
 // ---------------------------------------------------------------------------
+// /cv-evidence — opt-in check for whether the CV backs up the officer's own
+// self-rated dimensions for their (already-ranked, deterministic) top-3
+// verticals. Never re-ranks, never invents evidence.
+// ---------------------------------------------------------------------------
+async function handleCvEvidence(body, env) {
+  const { cvText, cvPdfBase64, verticals } = body;
+  if (!Array.isArray(verticals) || verticals.length === 0) {
+    return json({ error: 'verticals is required' }, 400);
+  }
+  if (!cvText && !cvPdfBase64) {
+    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
+  }
+
+  const cv = buildCvSection(cvText, cvPdfBase64);
+  const verticalsSummary = verticals
+    .map(
+      (v, i) => `${i + 1}. Vertical: ${v.vertical} | Dimensions: ${(v.dimensions || []).join(', ')}`,
+    )
+    .join('\n');
+  const userContent = cv.isDocument
+    ? [...cv.content, { type: 'text', text: `The above document is the CV.\n\nTargets to check:\n${verticalsSummary}` }]
+    : `${cv.content}\n\nTargets to check:\n${verticalsSummary}`;
+
+  try {
+    const parsed = await callClaude(env, {
+      system: CV_EVIDENCE_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 2048,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // /build-cv — first civilian CV built entirely from a structured officer-
 // typed intake, for officers with no usable existing CV to upload.
 // ---------------------------------------------------------------------------
@@ -912,6 +980,7 @@ export default {
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/civilianize-cv') return handleCivilianizeCv(body, env);
     if (path === '/target-role-strategy') return handleTargetRoleStrategy(body, env);
+    if (path === '/cv-evidence') return handleCvEvidence(body, env);
     if (path === '/build-cv') return handleBuildCv(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);

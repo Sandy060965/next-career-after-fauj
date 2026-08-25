@@ -10,6 +10,7 @@ import 'package:next_career_after_fauj/features/target_role/target_role_service.
 import 'package:next_career_after_fauj/features/target_role/target_role_strategy.dart';
 import 'package:next_career_after_fauj/features/target_role/target_role_strategy_screen.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/aptitude_question.dart';
+import 'package:next_career_after_fauj/features/vertical_fit/cv_evidence.dart';
 import 'package:next_career_after_fauj/features/vertical_fit/vertical_fit.dart';
 import 'package:provider/provider.dart';
 
@@ -216,6 +217,46 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(callCount, 2);
+    });
+
+    testWidgets('reuses cached CV evidence from Vertical Fit for its own confidence display',
+        (tester) async {
+      _setTallViewport(tester);
+      final repo = _repositoryWithAssessment();
+      final dimensionScores = VerticalFitAssessment(ratings: _skewedRatings).dimensionScores;
+      final top3 = rankVerticalFit(dimensionScores).take(3).toList();
+      await repo.saveCvEvidenceResult(
+        CvEvidenceResult(
+          verticals: top3
+              .map(
+                (fit) => VerticalEvidence(
+                  verticalName: fit.vertical.name,
+                  dimensionEvidence: fit
+                      .topContributingDimensions(dimensionScores)
+                      .map((d) => DimensionEvidence(dimension: d, found: false))
+                      .toList(),
+                ),
+              )
+              .toList(),
+        ),
+      );
+
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      // Every dimension in the skewed ratings scores 100 (>=80), and the
+      // cached evidence found none of them, so the primary target's
+      // confidence chip should read as disconnected rather than whatever
+      // the self-rating alone would otherwise produce.
+      final primaryCard = find.byKey(const ValueKey('targetCard_Tech Product & Data Operations'));
+      expect(primaryCard, findsOneWidget);
+      expect(
+        find.descendant(
+          of: primaryCard,
+          matching: find.text('Self-rating vs. CV — worth a second look'),
+        ),
+        findsOneWidget,
+      );
     });
   });
 }

@@ -76,4 +76,23 @@ void main() {
 
     expect(find.byKey(const Key('yourLevelChip')), findsNothing);
   });
+
+  testWidgets('"Read full guide" opens the Career Vertical Handbook entry for that vertical',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 4000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(_appUnderTest(ProfileRepository()));
+
+    await tester.tap(find.text('Security, Risk & Crisis Management'));
+    await tester.pumpAndSettle();
+    final guideButton = find.byKey(const Key('readFullGuide_Security, Risk & Crisis Management'));
+    await tester.ensureVisible(guideButton);
+    await tester.tap(guideButton);
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(AppBar, 'Security, Risk & Crisis Management'), findsOneWidget);
+  });
 }

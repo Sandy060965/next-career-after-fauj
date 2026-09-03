@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../career_handbook/career_handbook_detail_screen.dart';
 import 'career_vertical.dart';
 import 'corps_affinity.dart';
 
@@ -102,6 +103,17 @@ class _VerticalTile extends StatelessWidget {
                   ),
             ),
           ],
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              key: Key('readFullGuide_${vertical.name}'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => CareerHandbookDetailScreen(vertical: vertical)),
+              ),
+              child: const Text('Read full guide →'),
+            ),
+          ),
         ],
       ),
     );

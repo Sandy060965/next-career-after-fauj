@@ -66,8 +66,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final existing = context.read<ProfileRepository>().profile;
     if (existing != null) {
       _service = existing.service;
-      _rank = existing.rank;
-      _corpsOrArm = existing.corpsOrArm;
+      // Both dropdowns require their initialValue to exactly match one of
+      // their current items, or Flutter throws on first build — not just a
+      // theoretical risk, since kRanksByService/kCorpsByService values are
+      // free-form strings on OfficerProfile with no enforced link back to
+      // the list they came from. A future wording change to either list
+      // would otherwise crash "Edit" for every officer with an
+      // already-saved profile, instead of just clearing the now-invalid
+      // selection for them to re-pick.
+      _rank = kRanksByService[_service]!.contains(existing.rank) ? existing.rank : null;
+      _corpsOrArm = existing.corpsOrArm != null && kCorpsByService[_service]!.contains(existing.corpsOrArm)
+          ? existing.corpsOrArm
+          : null;
       _nameController.text = existing.fullName;
       _dateOfBirth = existing.dateOfBirth;
       _dobController.text = formatDate(existing.dateOfBirth);

@@ -372,4 +372,49 @@ void main() {
 
     expect(repository.profile?.corpsOrArm, isNull);
   });
+
+  testWidgets(
+      'editing a profile whose stored rank/corpsOrArm no longer match the dropdown '
+      "lists clears them instead of crashing on Flutter's own DropdownButton assertion",
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    // A profile whose rank/corpsOrArm are free-form strings that don't
+    // exactly match any entry in kRanksByService/kCorpsByService for Army
+    // — e.g. data saved before a future wording change to either list, or
+    // (as actually happened) a shorthand written directly rather than
+    // picked from the dropdown.
+    final mismatchedProfile = OfficerProfile(
+      rank: 'Col', // real values are the full word, e.g. "Colonel"
+      fullName: 'Col A K Sharma',
+      dateOfBirth: DateTime(1973, 5, 10),
+      workExperienceYears: 22,
+      workExperienceMonths: 0,
+      releaseStatus: ReleaseStatus.tentative,
+      releaseDate: DateTime(2027, 6, 30),
+      service: OfficerService.army,
+      mobileNumber: '9876543210',
+      email: 'a.sharma@example.com',
+      segment: OfficerSegment.pmr,
+      cvFileName: 'resume.pdf',
+      corpsOrArm: 'Not A Real Corps',
+    );
+    final repository = ProfileRepository()..saveProfile(mismatchedProfile);
+
+    // The crash this guards against happens on the very first build, in
+    // initState — reaching this pumpWidget call at all without a thrown
+    // exception is the actual regression test.
+    await tester.pumpWidget(
+      _appUnderTest(repository: repository, pickFile: () async => null),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Colonel'), findsNothing);
+    expect(find.text('Select service first'), findsNothing); // service itself is still prefilled
+    expect(find.text('Required'), findsNothing); // no validation run yet, just an empty field
+  });
 }

@@ -25,8 +25,15 @@ you can ask for your data to be deleted at any time.
 
 ## How to access it
 
-**Web (all devices, including iOS):** https://next-career-after-fauj.sandy060965.workers.dev
+**Web (all devices, including iOS):** https://nextcareerafterfauj.com
 — open it in your phone or laptop browser, no install needed.
+
+**First thing you'll see is a Cloudflare login screen**, separate from the
+app itself — this restricts access to invited testers only. Enter the
+exact email address we invited you with, and Cloudflare will email you a
+one-time code to enter. This is a one-time-per-session check before the
+app loads; it's not part of the app's own sign-up (that comes right after,
+using your phone number).
 
 **Want it to feel like an installed app?** Add it to your home screen —
 takes 10 seconds, no app store, works on both iPhone and Android:

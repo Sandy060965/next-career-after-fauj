@@ -108,12 +108,24 @@ flutter build web --release --dart-define=APP_SHARED_KEY=<value>
 npx wrangler deploy   # from the repo root — uses wrangler.jsonc
 ```
 
-Live at: **https://next-career-after-fauj.sandy060965.workers.dev**
+Live at: **https://nextcareerafterfauj.com** (custom domain, registered
+via Cloudflare Registrar and connected as this Worker's custom domain —
+the underlying `next-career-after-fauj.sandy060965.workers.dev` still
+resolves too, but isn't the one to share).
 
 `wrangler.jsonc`'s `assets.directory` must point at `build/web` (the
 compiled output), not `web` (the source scaffold) — `wrangler deploy`
 auto-detects the wrong one by default if `wrangler.jsonc` doesn't already
 exist, since `web/` also contains an `index.html`.
+
+### Access control
+
+The live site sits behind **Cloudflare Access** (Zero Trust → Access
+controls → Applications → "nextcareerafterfauj.com"), gated to an
+email allow-list (policy: "Beta Testers") — only those exact addresses
+can get past the login wall, regardless of who has the link. To add or
+remove a tester, edit that policy's email list directly in the Cloudflare
+dashboard.
 
 ## What's not built yet
 

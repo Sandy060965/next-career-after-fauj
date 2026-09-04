@@ -135,7 +135,7 @@ class ProfileScreen extends StatelessWidget {
             child: OutlinedButton(
               key: const Key('corpsMatrixButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.corpsMatrix),
-              child: const Text('Corps/Arm Fit Matrix'),
+              child: const Text('Corps/Arm/Branch Fit Matrix'),
             ),
           ),
           const SizedBox(height: 12),

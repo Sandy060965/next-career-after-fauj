@@ -70,7 +70,7 @@ class CareerHandbookScreen extends StatelessWidget {
             child: FilledButton.icon(
               key: const Key('openCorpsMatrixButton'),
               icon: const Icon(Icons.grid_view_outlined),
-              label: const Text('Focus your search: Corps/Arm Fit Matrix'),
+              label: const Text('Focus your search: Corps/Arm/Branch Fit Matrix'),
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const CorpsMatrixScreen()),
               ),

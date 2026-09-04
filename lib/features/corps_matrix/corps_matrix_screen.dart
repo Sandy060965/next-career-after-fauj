@@ -36,12 +36,12 @@ class _CorpsMatrixScreenState extends State<CorpsMatrixScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Corps/Arm Fit Matrix'),
+        title: const Text('Corps/Arm/Branch Fit Matrix'),
         actions: [
           IconButton(
             key: const Key('toggleMatrixDirectionButton'),
             icon: const Icon(Icons.swap_horiz),
-            tooltip: _byVertical ? 'Browse by Corps/Arm' : 'Browse by vertical',
+            tooltip: _byVertical ? 'Browse by Corps/Arm/Branch' : 'Browse by vertical',
             onPressed: () => setState(() => _byVertical = !_byVertical),
           ),
         ],

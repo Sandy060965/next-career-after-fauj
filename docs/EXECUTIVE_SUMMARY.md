@@ -49,7 +49,7 @@ link out to every module. The modules fall into seven natural groups:
   Corporate Investigations, and more.
 - **Career Vertical Handbook** — deeper reference detail behind each
   vertical.
-- **Corps/Arm Fit Matrix** — a ready-reckoner: pick a Corps/Arm/Branch to
+- **Corps/Arm/Branch Fit Matrix** — a ready-reckoner: pick a Corps/Arm/Branch to
   see which verticals fit best, or the reverse — narrows down what's
   worth reading in the Handbook.
 - **Vertical Fit Quiz** — an aptitude-style quiz, corroborated against the

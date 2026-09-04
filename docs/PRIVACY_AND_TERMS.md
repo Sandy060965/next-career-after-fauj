@@ -17,7 +17,7 @@ Last updated: 4 September 2026.
 When you sign up: your rank, full name, date of birth, service branch
 (Army/Navy/Air Force), total work experience, release status and date,
 mobile number, email, and your SSC/PMR/Superannuation segment. Optionally,
-your Corps/Arm.
+your Corps/Arm/Branch.
 
 **Your CV**, if you upload one — either as extracted text or, for PDFs, the
 file itself.

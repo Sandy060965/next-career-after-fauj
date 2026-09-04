@@ -17,7 +17,7 @@ class ReadingProgrammeBook {
     required this.howToRead,
     required this.whatYoudLearn,
     required this.keyTakeaways,
-    required this.thirtyMinuteSummary,
+    required this.summary,
     required this.selfAssessmentQuestions,
   });
 
@@ -41,6 +41,6 @@ class ReadingProgrammeBook {
 
   final String whatYoudLearn;
   final List<String> keyTakeaways;
-  final String thirtyMinuteSummary;
+  final String summary;
   final List<String> selfAssessmentQuestions;
 }

@@ -75,16 +75,16 @@ class ReadingProgrammeDetailScreen extends StatelessWidget {
             child: _BulletList(items: book.keyTakeaways),
           ),
           const SizedBox(height: 20),
-          Text('30-minute summary', style: Theme.of(context).textTheme.titleMedium),
+          Text('Summary', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Container(
-            key: const Key('thirtyMinuteSummaryBox'),
+            key: const Key('summaryBox'),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(book.thirtyMinuteSummary),
+            child: Text(book.summary),
           ),
           const SizedBox(height: 20),
           _Section(

@@ -22,7 +22,7 @@ void main() {
       for (final b in kReadingProgrammeBooks) {
         expect(b.whatYoudLearn, isNotEmpty, reason: b.title);
         expect(b.keyTakeaways, isNotEmpty, reason: b.title);
-        expect(b.thirtyMinuteSummary, isNotEmpty, reason: b.title);
+        expect(b.summary, isNotEmpty, reason: b.title);
         expect(b.selfAssessmentQuestions, isNotEmpty, reason: b.title);
       }
     });
@@ -86,11 +86,14 @@ void main() {
     for (final t in book.keyTakeaways) {
       expect(find.text(t), findsOneWidget);
     }
-    expect(find.text('30-minute summary'), findsOneWidget);
-    expect(find.byKey(const Key('thirtyMinuteSummaryBox')), findsOneWidget);
-    expect(find.text(book.thirtyMinuteSummary), findsOneWidget);
+    expect(find.text('Summary'), findsOneWidget);
+    await tester.scrollUntilVisible(find.byKey(const Key('summaryBox')), 500);
+    expect(find.byKey(const Key('summaryBox')), findsOneWidget);
+    expect(find.text(book.summary), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Self-assessment questions'), 500);
     expect(find.text('Self-assessment questions'), findsOneWidget);
     for (final q in book.selfAssessmentQuestions) {
+      await tester.scrollUntilVisible(find.text(q), 500);
       expect(find.text(q), findsOneWidget);
     }
   });

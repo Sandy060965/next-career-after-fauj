@@ -61,7 +61,7 @@ You don't need to use every module, but if you can, please try:
   expected to find and didn't.
 
 Please use this form to report anything you find — it keeps a record so
-nothing gets lost in a chat thread: *[feedback form link]*
+nothing gets lost in a chat thread: https://forms.gle/oGXMjQRVmaqUo5sq6
 
 ## What's not there yet
 

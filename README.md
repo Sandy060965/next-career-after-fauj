@@ -1,23 +1,16 @@
-# Next Career After Fauj — Vertical Slice 1
+# Next Career After Fauj
 
-Onboarding (service-verified sign-up: Service, Rank, Name, Date of birth,
-Total work experience, tentative/actual release-from-service date, Mobile,
-Email — with SSC/PMR/Superannuation segment branching and CV upload with a
-confidentiality disclaimer) → Profile (read-only view of what was entered) →
-Career Paths (browsable civilian-role ladders, segment-aware entry level) →
-JD Match (paste or upload a job description, analyzed against the CV) →
-Fitment Score / Refined CV / Certification Guidance (score out of 10 with a
-per-requirement breakdown, a reframed CV, and a prioritized certification
-roadmap timed against the release date). See [docs/PRD.md](docs/PRD.md) for
-the full product brief.
+An AI career-transition app for Indian Armed Forces officers (SSC/PMR/
+Superannuation) moving into civilian careers — CV translation and tailoring,
+JD-specific fitment scoring, a 13-vertical career taxonomy, skills-gap
+roadmaps, and a growing set of reference/planning tools (compensation
+guidance, a real-pay-matrix financial calculator, corporate language guide,
+reading programme, and more). See [docs/PRD.md](docs/PRD.md) for the
+original product brief and [docs/EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md)
+for a plain-language walkthrough of every module.
 
-Note: this build deliberately deviates from the PRD's "draft-CV upload or
-structured-entry form" onboarding spec — CV upload is currently the only
-intake path, per a later product decision. Email/mobile are format-validated
-only; OTP verification is deferred until a backend/SMS/email-delivery service
-exists to actually perform it. The fitment analysis is powered by a Cloudflare
-Worker backend (`backend/cloudflare-worker/`) that proxies to the Anthropic
-API — see the "Backend" section below for how it's authenticated.
+**Status: pre-launch beta.** Real backend, real phone-OTP login, no payment
+gateway yet, not listed on any app store. See "What's not built yet" below.
 
 ## Prerequisites
 
@@ -28,17 +21,25 @@ also on `PATH` via `~/.zshrc`).
 
 ## Run
 
-JD Match calls the deployed Cloudflare Worker, which requires the shared
-secret set as `APP_SHARED_KEY` on the Worker (see Backend section below) to
-be passed at build/run time — it's never hardcoded in source:
+The app calls the deployed Cloudflare Worker for every AI/backend feature,
+which requires the shared secret set as `APP_SHARED_KEY` on the Worker (see
+Backend section below) to be passed at build/run time — it's never
+hardcoded in source:
 
 ```
 flutter run --dart-define=APP_SHARED_KEY=<value>
 ```
 
-Running without the flag still launches the app, but JD Match's analysis
-step will show an "Unauthorized" error since the Worker rejects requests
-missing a valid key.
+Running without the flag still launches the app, but every backend-calling
+screen (JD Match, Compensation, CV tools, etc.) will show an "Unauthorized"
+error since the Worker rejects requests missing a valid key.
+
+For a UI-only preview that skips phone verification (no real OTP needed),
+add `--dart-define=SKIP_AUTH_FOR_TESTING=true` — debug-only, never set in a
+real build; see `main.dart`. Screens that call the real backend will still
+require a valid `APP_SHARED_KEY` and will still fail auth-gated calls
+without a real session, since this flag only bypasses the phone-verification
+*screen*, not the Worker's own auth.
 
 ## Test
 
@@ -46,55 +47,69 @@ missing a valid key.
 flutter test
 ```
 
+246+ widget/unit tests across every module.
+
 ## Build
 
+**Web** (fastest path to a shareable link — see "Beta distribution" below):
+```
+flutter build web --dart-define=APP_SHARED_KEY=<value>
+```
+
+**Android:**
 ```
 flutter build apk --debug   --dart-define=APP_SHARED_KEY=<value>
 flutter build apk --release --dart-define=APP_SHARED_KEY=<value>
-# release APK is R8-minified; still signed with the debug keystore
-# placeholder, not ready for Play Store submission until a real
-# signing config is added
 ```
+Release APK is R8-minified but still signed with the debug keystore
+placeholder and uses the default `com.example.next_career_after_fauj`
+application ID — fine for sideloading beta testers, **not** Play Store
+submission-ready (needs a real applicationId + release signing config).
+
+**iOS:** no distribution setup yet (no Apple Developer account/provisioning
+configured in this repo).
 
 ## Layout
 
-- `lib/core` — theme, the `OfficerProfile` model (service, rank, name, DOB,
-  work experience, release status/date, mobile, email, segment, CV filename),
-  the in-memory `ProfileRepository` (Provider/`ChangeNotifier`), route name
-  constants, the shared `pickFileName()` file-picker wrapper, and the
-  `formatDate()` utility.
-- `lib/features/onboarding` — the 3-step onboarding flow (verification →
-  segment → CV upload). Rank is a dropdown constrained by the selected
-  Service (`rank_options.dart`). `OnboardingScreen` takes an injectable
-  `pickFile` callback so tests never touch the native file-picker channel.
-- `lib/features/profile` — read-only profile screen, with links to Career
-  Paths and JD Match.
-- `lib/features/career_paths` — browsable list of 13 civilian functional
-  verticals (`career_vertical.dart`), each a 5-rung ladder highlighting the
-  rung the user's segment (SSC/PMR/Superannuation) typically enters at.
-- `lib/features/jd_match` — paste-or-upload job description intake; on
-  submit, calls `analyzeFitment` (real HTTP call in the running app, an
-  injectable stub in tests) and navigates into the fitment result screens.
-- `lib/features/fitment` — `FitmentResult` model, `fitment_http_service.dart`
-  (the real Cloudflare Worker client) and `fitment_service.dart` (a mock used
-  as the widget's default/test value), and three screens: Score & Gap
-  Breakdown, Refined CV (original/refined toggle), and Certification
-  Guidance (timeline anchored to the profile's release date).
-- `test/` — widget tests for onboarding → profile, Career Paths, JD Match,
-  and the three fitment screens.
+- `lib/core` — `OfficerProfile` model, `ProfileRepository` (Provider/
+  `ChangeNotifier`, persists via `SharedPreferences` + `flutter_secure_storage`
+  for session tokens), route name constants, shared utilities (file picker,
+  PDF export, date formatting).
+- `lib/features/*` — one directory per module (27 total); see
+  [docs/EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md) for what each one does.
+  Every screen that calls the backend takes an injectable function parameter
+  (defaulting to a `mock*` implementation for tests); `lib/main.dart` wires
+  every route to its real `http*` implementation.
+- `test/` — widget/unit tests, one file per module, mirroring `lib/features/`.
 
 ## Backend
 
-`backend/cloudflare-worker/` is a small proxy that keeps the Anthropic API
-key off the client: the app POSTs `{cvText, jdText}` with an `x-app-key`
-header, the Worker calls Anthropic with the analysis system prompt, and
-returns the structured JSON the fitment screens render. See that folder's
-`wrangler.toml` for the two secrets it needs (`ANTHROPIC_API_KEY`,
-`APP_SHARED_KEY`) and use `npx wrangler secret put <NAME>` / `npx wrangler
-deploy` from inside it to (re)deploy.
+`backend/cloudflare-worker/` is a Cloudflare Worker (`next-career-after-fauj-fitment`)
+that:
+- proxies AI analysis calls to the Anthropic API (keeping the API key off
+  the client),
+- handles phone-OTP login via Twilio Verify and issues JWT session tokens,
+- reads/writes a D1 database (`next-career-after-fauj-officers`) for officer
+  accounts, entitlements, and mentor-pledge records,
+- proxies job-market data via the JSearch (RapidAPI) API.
 
-## Not built yet (by design)
+See `wrangler.toml` for the full secrets list and use `npx wrangler secret
+put <NAME>` / `npx wrangler deploy` from inside `backend/cloudflare-worker/`
+to (re)deploy. There's currently no CI — every deploy is manual.
 
-Real OTP-based service verification, CV text extraction (CV content is
-currently referenced by filename only, not parsed), and subscription/paywall
-— per the phased build plan in the PRD.
+## What's not built yet
+
+- **Subscription/paywall** — no payment gateway; the only entitlement
+  mechanism is a manual `ADMIN_SECRET`-gated grant endpoint.
+- **Public hosting** — the web build has no deployed URL yet; run it
+  locally or see "Beta distribution" for how to get a shareable link.
+- **Play Store / App Store distribution** — Android needs a real
+  applicationId + signing config; iOS needs Apple Developer setup.
+- **CI/CD** — no automated test/build/deploy pipeline.
+- Real app icon (currently the default Flutter template icon).
+
+## Beta distribution
+
+See [docs/TESTER_BRIEF.md](docs/TESTER_BRIEF.md) for what to send testers,
+and [docs/PRIVACY_AND_TERMS.md](docs/PRIVACY_AND_TERMS.md) for the privacy
+note / terms to share alongside it.

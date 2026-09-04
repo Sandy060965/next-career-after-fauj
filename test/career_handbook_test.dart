@@ -98,14 +98,13 @@ void main() {
     expect(find.text('—'), findsNWidgets(20));
   });
 
-  testWidgets('the glossary lists real corporate terms', (tester) async {
+  testWidgets('the glossary button opens the Corporate Language Guide', (tester) async {
     _setTallViewport(tester);
     await tester.pumpWidget(_wrap(const CareerHandbookScreen()));
     await tester.tap(find.byKey(const Key('handbookGlossaryButton')));
     await tester.pumpAndSettle();
 
-    expect(find.text('KPI (Key Performance Indicator)'), findsOneWidget);
-    expect(find.text('ESG (Environmental, Social & Governance)'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Corporate Language Guide'), findsOneWidget);
   });
 
   testWidgets('tapping a vertical opens its detail screen', (tester) async {

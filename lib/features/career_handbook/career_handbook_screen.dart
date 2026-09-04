@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
+import '../corporate_language/corporate_language_guide_screen.dart';
 import '../corps_matrix/corps_matrix_screen.dart';
 import 'career_handbook_detail_screen.dart';
 import 'career_handbook_support.dart';
@@ -93,9 +94,9 @@ class CareerHandbookScreen extends StatelessWidget {
             child: OutlinedButton.icon(
               key: const Key('handbookGlossaryButton'),
               icon: const Icon(Icons.menu_book_outlined),
-              label: const Text('Corporate terms glossary'),
+              label: const Text('Corporate Language Guide'),
               onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const _GlossaryScreen()),
+                MaterialPageRoute(builder: (_) => const CorporateLanguageGuideScreen()),
               ),
             ),
           ),
@@ -151,33 +152,6 @@ class _ComparisonTableScreen extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _GlossaryScreen extends StatelessWidget {
-  const _GlossaryScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Corporate terms glossary')),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(24),
-        itemCount: kHandbookGlossary.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 16),
-        itemBuilder: (context, index) {
-          final term = kHandbookGlossary[index];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(term.term, style: Theme.of(context).textTheme.titleSmall),
-              const SizedBox(height: 4),
-              Text(term.definition),
-            ],
-          );
-        },
       ),
     );
   }

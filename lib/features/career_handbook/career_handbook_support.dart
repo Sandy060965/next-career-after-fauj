@@ -56,35 +56,6 @@ List<CareerVertical> relatedVerticals(CareerVertical vertical) {
       .toList();
 }
 
-/// Standard, non-India-specific corporate vocabulary that recurs across the
-/// vertical write-ups — dictionary-style definitions, not factual claims
-/// about any employer, law, or statistic.
-class GlossaryTerm {
-  const GlossaryTerm(this.term, this.definition);
-  final String term;
-  final String definition;
-}
-
-const List<GlossaryTerm> kHandbookGlossary = [
-  GlossaryTerm('P&L (Profit & Loss)', 'Owning a budget where you are measured on both revenue/cost outcomes and how efficiently you got there, not just on completing tasks.'),
-  GlossaryTerm('KPI (Key Performance Indicator)', 'A specific, numeric measure used to judge whether a role or team is performing — e.g. on-time delivery %, attrition rate, cost per unit.'),
-  GlossaryTerm('SLA (Service Level Agreement)', 'A committed standard of service (usually a response time or quality threshold) that a team or vendor is contractually expected to meet.'),
-  GlossaryTerm('RFP / RFQ', 'Request for Proposal / Request for Quotation — the formal document a company issues to invite vendors to bid on a piece of work.'),
-  GlossaryTerm('M&A (Mergers & Acquisitions)', 'The corporate function or activity of combining with, buying, or being bought by another company.'),
-  GlossaryTerm('ESG (Environmental, Social & Governance)', 'A framework companies use to report and improve their environmental impact, social conduct, and governance practices — increasingly tracked by investors and regulators.'),
-  GlossaryTerm('Agile / Waterfall', 'Two ways of running project work — Agile delivers in short, iterative cycles with frequent course-correction; Waterfall plans the whole project upfront and executes it in a fixed sequence.'),
-  GlossaryTerm('Matrixed authority', 'Getting things done through people who do not report to you directly — via influence, stakeholder alignment, and cross-functional collaboration rather than the chain of command.'),
-  GlossaryTerm('Stakeholder management', 'Identifying everyone with an interest in a decision or project, and deliberately managing their expectations and buy-in — not just the people directly above or below you.'),
-  GlossaryTerm('POSH', 'The Prevention of Sexual Harassment at workplace framework that Indian companies are legally required to have policies and committees for.'),
-  GlossaryTerm('Offset obligations', 'A requirement, common in Indian defence contracts, that a foreign vendor reinvest a portion of the contract value back into India — often via local sourcing or technology transfer.'),
-  GlossaryTerm('Deliverable', 'A concrete output a role or project is expected to produce by a given date — a report, a system, a signed contract, a completed audit.'),
-  GlossaryTerm('Escalation matrix', 'A pre-agreed chain of who gets notified, and in what order, when an issue can’t be resolved at the current level.'),
-  GlossaryTerm('Bandwidth', 'Corporate shorthand for the spare capacity — time or attention — a person or team has to take on more work.'),
-  GlossaryTerm('Notice period', 'The gap between resigning (or here, formally intimating release) and the actual last working day, during which handover happens.'),
-  GlossaryTerm('CTC (Cost to Company)', 'The full annual cost a company attributes to employing someone, including salary, benefits, and employer contributions — not the same as the take-home/in-hand salary.'),
-  GlossaryTerm('Individual contributor (IC) vs. people manager', 'Two different tracks at the same seniority level — an IC is judged on their own expert output, a people manager on the output and development of a team.'),
-  GlossaryTerm('Onboarding / induction', 'The structured process a new joiner goes through in their first weeks — systems access, policy briefings, role handover — broadly analogous to a unit induction, but company-specific and usually shorter.'),
-];
 
 /// General guidance for officers whose background is a partial match to a
 /// restricted vertical's typical entry point — not a claim about any

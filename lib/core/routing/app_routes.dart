@@ -27,4 +27,5 @@ class AppRoutes {
   static const String cvWritingGuide = '/cv-writing-guide';
   static const String careerHandbook = '/career-handbook';
   static const String corpsMatrix = '/corps-vertical-matrix';
+  static const String corporateLanguageGuide = '/corporate-language-guide';
 }

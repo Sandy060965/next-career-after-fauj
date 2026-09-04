@@ -37,12 +37,16 @@ link out to every module. The modules fall into seven natural groups:
 
 ## 2. Where to aim — career exploration
 
-- **Career Paths** — 13 civilian functional verticals (Security,
-  Administration, Business Development, Supply Chain, Operations, HR,
-  Manufacturing/Technical, Project Management, Corporate Affairs &
-  Governance, L&D, Hospitality/Institutional Management, IT/Cybersecurity,
-  PSU/Government), each a 5-rung ladder highlighting the rung an officer's
-  segment typically enters at.
+- **Career Paths** — 34 civilian functional verticals, each a 5-rung
+  ladder highlighting the rung an officer's segment typically enters at.
+  Spans well beyond the original generalist categories (Operations,
+  Supply Chain, Security & Risk, HR, Business Development, IT &
+  Cybersecurity, Corporate Governance, Defence PSUs/GovTech) into
+  specialized clusters — a full Healthcare track (9 verticals, from
+  Clinical Practice to HealthTech to Government/PSU Healthcare) and a
+  full Legal track (5, from Corporate Legal to Arbitration to Labour
+  Law), plus Aviation/Maritime, Aerospace & Defence Tech, Intelligence &
+  Corporate Investigations, and more.
 - **Career Vertical Handbook** — deeper reference detail behind each
   vertical.
 - **Corps/Arm Fit Matrix** — a ready-reckoner: pick a Corps/Arm/Branch to

@@ -133,6 +133,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('corpsMatrixButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.corpsMatrix),
+              child: const Text('Corps/Arm Fit Matrix'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('skillEquivalencyButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.skillEquivalency),
               child: const Text('Skill Equivalency Matrix'),

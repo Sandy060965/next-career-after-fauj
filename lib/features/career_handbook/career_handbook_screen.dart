@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
+import '../corps_matrix/corps_matrix_screen.dart';
 import 'career_handbook_detail_screen.dart';
 import 'career_handbook_support.dart';
 
@@ -59,6 +60,18 @@ class CareerHandbookScreen extends StatelessWidget {
                     const Text(kHandbookHybridFitNote),
                   ],
                 ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: FilledButton.icon(
+              key: const Key('openCorpsMatrixButton'),
+              icon: const Icon(Icons.grid_view_outlined),
+              label: const Text('Focus your search: Corps/Arm Fit Matrix'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CorpsMatrixScreen()),
               ),
             ),
           ),

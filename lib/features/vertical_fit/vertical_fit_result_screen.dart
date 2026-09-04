@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../career_handbook/career_handbook_detail_screen.dart';
 import '../career_paths/career_paths_screen.dart';
 import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
+import '../career_paths/corps_vertical_fit_matrix.dart';
 import 'aptitude_question.dart';
 import 'cv_evidence.dart';
 import 'cv_evidence_service.dart';
@@ -40,8 +42,13 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
   late final Map<AptitudeDimension, int> _dimensionScores;
   late final List<CareerVertical> _universe;
   late final bool _constrained;
+  late final List<VerticalFit> _fullRanking;
   late final List<VerticalFit> _top3;
-  late final List<String> _softAffinity;
+
+  /// Strong-fit-per-matrix verticals that narrowly missed the top 3 (ranked
+  /// 4-6) — surfaced separately rather than folded into the ranking itself,
+  /// since [rankVerticalFit] stays purely aptitude-driven.
+  late final List<VerticalFit> _nearMisses;
 
   bool _isGroundingEvidence = false;
   String? _evidenceError;
@@ -54,8 +61,11 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
     _dimensionScores = widget.assessment.dimensionScores;
     _universe = effectiveVerticalUniverse(widget.corpsOrArm);
     _constrained = isDomainConstrained(widget.corpsOrArm);
-    _top3 = rankVerticalFit(_dimensionScores, universe: _universe).take(3).toList();
-    _softAffinity = _constrained ? const [] : (kCorpsSoftAffinity[widget.corpsOrArm] ?? const []);
+    _fullRanking = rankVerticalFit(_dimensionScores, universe: _universe);
+    _top3 = _fullRanking.take(3).toList();
+    _nearMisses = (_constrained || widget.corpsOrArm == null)
+        ? const []
+        : _fullRanking.skip(3).take(3).where((f) => _tierFor(f.vertical.name) == CorpsVerticalFitTier.strong).toList();
 
     final cached = context.read<ProfileRepository>().lastCvEvidenceResult;
     final cachedNames = cached?.verticals.map((v) => v.verticalName).toSet();
@@ -63,6 +73,14 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
     if (cached != null && setEquals(cachedNames, top3Names)) {
       _evidence = cached;
     }
+  }
+
+  /// Null when constrained (badges are suppressed there — the whole
+  /// universe is already Corps/Arm-scoped) or the officer skipped Corps/Arm
+  /// at onboarding.
+  CorpsVerticalFitTier? _tierFor(String verticalName) {
+    if (_constrained || widget.corpsOrArm == null) return null;
+    return corpsVerticalFitTier(widget.corpsOrArm!, verticalName);
   }
 
   Future<void> _groundInCv() async {
@@ -147,13 +165,31 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
               rank: i + 1,
               fit: _top3[i],
               dimensionScores: _dimensionScores,
-              corpsAffinity: _softAffinity.contains(_top3[i].vertical.name),
+              corpsTier: _tierFor(_top3[i].vertical.name),
               evidence: _evidence,
               isDismissed: _dismissedDisconnects.contains(_top3[i].vertical.name),
               onRetake: _retake,
               onDismiss: () =>
                   setState(() => _dismissedDisconnects.add(_top3[i].vertical.name)),
             ),
+          if (_nearMisses.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text('Also worth a look, given your background', style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 8),
+            for (final fit in _nearMisses)
+              Card(
+                key: ValueKey('nearMiss_${fit.vertical.name}'),
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  title: Text(fit.vertical.name),
+                  subtitle: Text('${fit.fitScore}/100 by aptitude — a Strong fit for ${widget.corpsOrArm}'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => CareerHandbookDetailScreen(vertical: fit.vertical)),
+                  ),
+                ),
+              ),
+          ],
           const SizedBox(height: 8),
           if (_evidenceError != null) ...[
             Text(_evidenceError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -231,7 +267,7 @@ class _VerticalFitCard extends StatelessWidget {
     required this.dimensionScores,
     required this.onRetake,
     required this.onDismiss,
-    this.corpsAffinity = false,
+    this.corpsTier,
     this.evidence,
     this.isDismissed = false,
   });
@@ -242,9 +278,11 @@ class _VerticalFitCard extends StatelessWidget {
   final VoidCallback onRetake;
   final VoidCallback onDismiss;
 
-  /// True when this vertical also matches the officer's Corps/Arm — a
-  /// corroborating badge only, never a factor in [fit.fitScore] itself.
-  final bool corpsAffinity;
+  /// This vertical's Strong/Possible/Limited fit for the officer's
+  /// Corps/Arm, from `corps_vertical_fit_matrix.dart` — a corroborating
+  /// badge only, never a factor in [fit.fitScore] itself. Null when Corps/
+  /// Arm badges don't apply here (constrained officer, or none given).
+  final CorpsVerticalFitTier? corpsTier;
 
   /// CV-evidence grounding result, if the officer opted in — null means
   /// they haven't (yet), in which case confidence falls back to
@@ -263,7 +301,10 @@ class _VerticalFitCard extends StatelessWidget {
         ? 'Broadly aligned with your overall profile.'
         : 'Driven mainly by your strengths in '
             '${topDimensions.map((d) => '${d.label} (${dimensionScores[d]}/100)').join(' and ')}.';
-    final confidence = fit.confidence(dimensionScores, cvEvidence: evidence, corpsAffinity: corpsAffinity);
+    final corpsCorroborates =
+        corpsTier == CorpsVerticalFitTier.strong || corpsTier == CorpsVerticalFitTier.possible;
+    final confidence =
+        fit.confidence(dimensionScores, cvEvidence: evidence, corpsAffinity: corpsCorroborates);
     final colorScheme = Theme.of(context).colorScheme;
     final confidenceColor = switch (confidence) {
       FitConfidence.high => colorScheme.primaryContainer,
@@ -301,10 +342,10 @@ class _VerticalFitCard extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   backgroundColor: confidenceColor,
                 ),
-                if (corpsAffinity)
+                if (corpsCorroborates)
                   Chip(
                     key: ValueKey('corpsAffinity_${fit.vertical.name}'),
-                    label: const Text('Matches your Corps/Arm background'),
+                    label: Text('${corpsTier!.label} for your Corps/Arm'),
                     visualDensity: VisualDensity.compact,
                     backgroundColor: colorScheme.secondaryContainer,
                   ),

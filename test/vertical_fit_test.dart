@@ -165,6 +165,67 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets(
+        'a Strong-fit-per-matrix vertical ranked 4-6 by aptitude is surfaced as a near-miss, '
+        'not folded into the top 3', (tester) async {
+      tester.view.physicalSize = const Size(430, 4000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      // Deliberately skews ratings so the aptitude-only top 3 (Business
+      // Development, HR/L&D, Corporate Affairs) are all "limited" fit for
+      // Corps of Signals, while "Aerospace, Drone & Defence Tech" — a real
+      // Strong-fit vertical for that Corps/Arm — lands at rank 6: a clean,
+      // tie-free near-miss case confirmed empirically against the real
+      // ranking function rather than hand-derived.
+      final perDim = <AptitudeDimension, List<int>>{
+        AptitudeDimension.realistic: [3, 3, 3],
+        AptitudeDimension.investigative: [3, 3, 3],
+        AptitudeDimension.artistic: [1, 1, 1],
+        AptitudeDimension.social: [5, 5, 4],
+        AptitudeDimension.enterprising: [5, 4, 5],
+        AptitudeDimension.conventional: [1, 1, 1],
+        AptitudeDimension.openness: [3, 3, 3],
+        AptitudeDimension.conscientiousness: [1, 1, 1],
+        AptitudeDimension.extraversion: [5, 5, 5],
+        AptitudeDimension.agreeableness: [4, 4, 5],
+        AptitudeDimension.emotionalStability: [1, 1, 1],
+      };
+      final byDim = <AptitudeDimension, List<AptitudeQuestion>>{};
+      for (final q in kAptitudeQuestions) {
+        byDim.putIfAbsent(q.dimension, () => []).add(q);
+      }
+      final ratings = <String, int>{};
+      for (final entry in byDim.entries) {
+        final vals = perDim[entry.key]!;
+        for (var i = 0; i < entry.value.length; i++) {
+          ratings[entry.value[i].id] = vals[i];
+        }
+      }
+      final assessment = VerticalFitAssessment(ratings: ratings);
+
+      await tester.pumpWidget(
+        _wrap(
+          VerticalFitResultScreen(assessment: assessment, corpsOrArm: 'Corps of Signals'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Also worth a look, given your background'), findsOneWidget);
+      expect(find.byKey(const ValueKey('nearMiss_Aerospace, Drone & Defence Tech')), findsOneWidget);
+      expect(find.textContaining('Strong fit for Corps of Signals'), findsOneWidget);
+
+      // None of the actual top 3 duplicate into the near-miss section.
+      for (final name in [
+        'Business Development & Strategic Sales',
+        'HR, Talent Management & L&D',
+        'Corporate Affairs, ESG & Public Policy',
+      ]) {
+        expect(find.byKey(ValueKey('nearMiss_$name')), findsNothing);
+      }
+    });
   });
 
   group('VerticalFit.confidence', () {

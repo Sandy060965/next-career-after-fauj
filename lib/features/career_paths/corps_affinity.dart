@@ -4,10 +4,11 @@ import 'career_vertical.dart';
 /// Role Strategy. Two mechanisms, both purely additive/corroborating or
 /// fully substitutive — never a blended score:
 ///
-/// - Most Corps/Arm entries get a **soft affinity badge**: the general 20
-///   verticals remain the ranked universe, and matching entries just get a
-///   "this also aligns with your Corps/Arm background" badge. Never changes
-///   the fit score or ranking.
+/// - Most Corps/Arm entries get a **fit-tier badge** (Strong/Possible, from
+///   `corps_vertical_fit_matrix.dart`): the general 20 verticals remain the
+///   ranked universe, and matching entries just get a "this also aligns
+///   with your Corps/Arm background" badge. Never changes the fit score or
+///   ranking.
 /// - A few Corps/Arm entries — medically- or legally-licensed ones — get a
 ///   **constrained universe**: their entire vertical universe is replaced,
 ///   not merged. AMC and the Navy/Air Force medical branches are fully
@@ -17,13 +18,18 @@ import 'career_vertical.dart';
 ///   general verticals legal training genuinely bridges into, since law
 ///   (unlike medicine) isn't confined to one licensed practice.
 
-const _medicalCorps = [
+/// The Corps/Arm/Branch entries whose civilian employability stays within
+/// medicine — exported so `corps_vertical_fit_matrix.dart` can apply the
+/// same hard gate rather than duplicating this list.
+const kMedicalCorps = [
   'Army Medical Corps (AMC)',
   'Medical Branch (Navy)',
   'Medical Branch (Air Force)',
 ];
 
-const _jagCorps = [
+/// The Judge Advocate General entries across all three services — exported
+/// for the same reason as [kMedicalCorps].
+const kJagCorps = [
   "Judge Advocate General's Department (JAG)",
   "Judge Advocate General's Branch (Navy)",
   "Judge Advocate General's Branch (Air Force)",
@@ -43,49 +49,10 @@ final List<CareerVertical> _jagUniverse = [
 
 /// Corps/Arm name -> its replacement vertical universe. Absence from this
 /// map means the officer isn't domain-constrained — see
-/// [kCorpsSoftAffinity] instead.
+/// `corps_vertical_fit_matrix.dart` instead.
 final Map<String, List<CareerVertical>> kCorpsConstrainedUniverse = {
-  for (final corps in _medicalCorps) corps: kMedicalCareerVerticals,
-  for (final corps in _jagCorps) corps: _jagUniverse,
-};
-
-/// Corps/Arm name -> general-vertical names it corroborates with a badge.
-/// Only consulted when the Corps/Arm has no entry in
-/// [kCorpsConstrainedUniverse]. Intentionally not exhaustive — only
-/// well-known, defensible functional associations are included; anything
-/// not listed here simply gets no badge, never a guessed one.
-const Map<String, List<String>> kCorpsSoftAffinity = {
-  'Infantry': ['Security, Risk & Crisis Management', 'Corporate Investigations', 'Operations & Process Excellence'],
-  'Armoured Corps': ['Manufacturing & Technical Systems', 'Operations & Process Excellence', 'Security, Risk & Crisis Management'],
-  'Regiment of Artillery': ['Manufacturing & Technical Systems', 'Aerospace, Drone & Defence Tech'],
-  'Corps of Army Air Defence': ['Aerospace, Drone & Defence Tech', 'IT Infrastructure & Cybersecurity'],
-  'Corps of Engineers': ['Manufacturing & Technical Systems', 'Integrated Facilities Management', 'Project & Program Management (PMO)'],
-  'Corps of Signals': ['IT Infrastructure & Cybersecurity', 'Tech Product & Data Operations', 'Intelligence & Vigilance'],
-  'Army Aviation Corps': ['Aviation, Maritime & Fleet Management', 'Aerospace, Drone & Defence Tech'],
-  'Mechanised Infantry': ['Manufacturing & Technical Systems', 'Operations & Process Excellence'],
-  'Army Service Corps (ASC)': ['Supply Chain & Procurement', 'Operations & Process Excellence'],
-  'Army Ordnance Corps (AOC)': ['Supply Chain & Procurement', 'Manufacturing & Technical Systems', 'Defence PSUs, Offsets & GovTech'],
-  'Corps of Electronics & Mechanical Engineers (EME)': ['Manufacturing & Technical Systems', 'Aviation, Maritime & Fleet Management'],
-  'Army Dental Corps (ADC)': [],
-  'Military Nursing Service (MNS)': [],
-  'Corps of Military Police (CMP)': ['Security, Risk & Crisis Management', 'Corporate Investigations'],
-  'Military Intelligence': ['Intelligence & Vigilance', 'Corporate Investigations', 'BFSI & Financial Crime Risk'],
-  'Intelligence Corps': ['Intelligence & Vigilance', 'Corporate Investigations'],
-  'Army Education Corps (AEC)': ['HR, Talent Management & L&D'],
-  'Army Postal Service (APS)': ['Supply Chain & Procurement', 'Operations & Process Excellence'],
-  'Remount & Veterinary Corps (RVC)': ['Manufacturing & Technical Systems'],
-  'Pioneer Corps': ['Manufacturing & Technical Systems', 'Integrated Facilities Management'],
-  'Executive Branch (Seaman/Gunnery/Navigation)': ['Aviation, Maritime & Fleet Management', 'Security, Risk & Crisis Management'],
-  'Executive Branch (Air Traffic Control/Observer)': ['Aviation, Maritime & Fleet Management', 'Aerospace, Drone & Defence Tech'],
-  'Engineering Branch': ['Manufacturing & Technical Systems', 'Aviation, Maritime & Fleet Management'],
-  'Electrical Branch': ['Manufacturing & Technical Systems', 'IT Infrastructure & Cybersecurity'],
-  'Education Branch': ['HR, Talent Management & L&D'],
-  'Logistics Branch': ['Supply Chain & Procurement', 'Operations & Process Excellence'],
-  'Flying Branch': ['Aviation, Maritime & Fleet Management', 'Aerospace, Drone & Defence Tech'],
-  'Technical Branch (Engineering)': ['Manufacturing & Technical Systems', 'Aerospace, Drone & Defence Tech'],
-  'Administration Branch': ['Operations & Process Excellence', 'Integrated Facilities Management'],
-  'Accounts Branch': ['BFSI & Financial Crime Risk', 'Operations & Process Excellence'],
-  'Meteorology Branch': ['Aerospace, Drone & Defence Tech', 'Aviation, Maritime & Fleet Management'],
+  for (final corps in kMedicalCorps) corps: kMedicalCareerVerticals,
+  for (final corps in kJagCorps) corps: _jagUniverse,
 };
 
 /// Realistic, India-context job titles used to search JSearch directly for
@@ -118,7 +85,7 @@ const List<String> kLegalJobSearchTitles = [
 /// officer's professional domain — a listing whose title contains none of
 /// these is dropped before ranking, never shown as a "close enough"
 /// adjacent role. Short and hand-reviewed, the same discipline as
-/// [kCorpsSoftAffinity] — not derived or guessed.
+/// `corps_vertical_fit_matrix.dart` — not derived or guessed.
 const List<String> kMedicalJobTitleKeywords = [
   'medical', 'physician', 'clinical', 'health', 'hospital', 'doctor',
 ];
@@ -133,10 +100,10 @@ const List<String> kLegalJobTitleKeywords = [
 /// and Job Matches should keep deriving the query from the CV as before.
 String? domainConstrainedJobQuery(String? corpsOrArm) {
   if (corpsOrArm == null) return null;
-  if (_medicalCorps.contains(corpsOrArm)) {
+  if (kMedicalCorps.contains(corpsOrArm)) {
     return kMedicalJobSearchTitles.map((t) => '"$t"').join(' OR ');
   }
-  if (_jagCorps.contains(corpsOrArm)) {
+  if (kJagCorps.contains(corpsOrArm)) {
     return kLegalJobSearchTitles.map((t) => '"$t"').join(' OR ');
   }
   return null;
@@ -147,8 +114,8 @@ String? domainConstrainedJobQuery(String? corpsOrArm) {
 /// officers see exactly what they see today).
 List<String>? domainConstrainedJobTitleKeywords(String? corpsOrArm) {
   if (corpsOrArm == null) return null;
-  if (_medicalCorps.contains(corpsOrArm)) return kMedicalJobTitleKeywords;
-  if (_jagCorps.contains(corpsOrArm)) return kLegalJobTitleKeywords;
+  if (kMedicalCorps.contains(corpsOrArm)) return kMedicalJobTitleKeywords;
+  if (kJagCorps.contains(corpsOrArm)) return kLegalJobTitleKeywords;
   return null;
 }
 

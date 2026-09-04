@@ -66,23 +66,6 @@ void main() {
     });
   });
 
-  group('kCorpsSoftAffinity', () {
-    test('only references real general vertical names', () {
-      final generalNames = kCareerVerticals.map((v) => v.name).toSet();
-      for (final entry in kCorpsSoftAffinity.entries) {
-        for (final verticalName in entry.value) {
-          expect(generalNames, contains(verticalName), reason: '${entry.key} -> $verticalName');
-        }
-      }
-    });
-
-    test('never lists a domain-constrained Corps/Arm', () {
-      for (final corps in kCorpsSoftAffinity.keys) {
-        expect(kCorpsConstrainedUniverse.containsKey(corps), isFalse);
-      }
-    });
-  });
-
   group('domainConstrainedJobQuery', () {
     test('null for an unconstrained or missing Corps/Arm', () {
       expect(domainConstrainedJobQuery(null), isNull);

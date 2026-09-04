@@ -28,10 +28,21 @@ you can ask for your data to be deleted at any time.
 **Web (all devices, including iOS):** https://next-career-after-fauj.sandy060965.workers.dev
 — open it in your phone or laptop browser, no install needed.
 
-**Android:** you'll receive an APK directly (not via Play Store) — enable
-"install from unknown sources" for the download source when prompted, then
-install as usual. The web link above works fine as an alternative if you'd
-rather not install anything.
+**Want it to feel like an installed app?** Add it to your home screen —
+takes 10 seconds, no app store, works on both iPhone and Android:
+- **iPhone (Safari):** open the link, tap the **Share** icon (square with
+  an arrow, bottom of the screen), scroll down and tap **"Add to Home
+  Screen."**
+- **Android (Chrome):** open the link, tap the **⋮** menu (top right), tap
+  **"Add to Home screen"** (or Chrome may show a banner prompting this
+  automatically).
+
+Either way, you get a real icon on your home screen that opens full-screen
+— no browser address bar, closer to a native app.
+
+**Android (native APK, alternative to the web link):** you'll receive an
+APK directly (not via Play Store) — enable "install from unknown sources"
+for the download source when prompted, then install as usual.
 
 ## What to try
 

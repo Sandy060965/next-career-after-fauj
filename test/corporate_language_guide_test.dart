@@ -76,6 +76,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('searchResult_RACI')), findsOneWidget);
+    expect(find.text('RACI (Responsible, Accountable, Consulted, Informed)'), findsOneWidget);
     // Priority buttons and category list are hidden while searching.
     expect(find.byKey(const Key('priorityTier1Button')), findsNothing);
 
@@ -109,6 +110,10 @@ void main() {
     for (final t in tier1Terms) {
       expect(find.byKey(Key('termListEntry_${t.term}')), findsWidgets);
     }
+    // Every row shows the full form alongside the abbreviation, not just
+    // the bare abbreviation on its own.
+    expect(find.text('P&L (Profit & Loss)'), findsOneWidget);
+    expect(find.text('KPI (Key Performance Indicator)'), findsOneWidget);
   });
 
   testWidgets('browsing a category shows its terms, including cross-listed ones', (tester) async {
@@ -142,15 +147,25 @@ void main() {
 
     expect(find.text('KRA vs KPI vs OKR'), findsOneWidget);
     expect(find.textContaining('Risk vs Issue'), findsOneWidget);
+    // The abbreviations in "KRA vs KPI vs OKR" are expanded on their own —
+    // "Risk vs Issue" has no real abbreviations, so it gets no such line.
+    expect(
+      find.text('KRA = Key Result Area  •  KPI = Key Performance Indicator  •  '
+          'OKR = Objectives and Key Results'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('the meeting-phrases screen lists real workplace phrases', (tester) async {
+  testWidgets('the meeting-phrases screen lists real workplace phrases, with abbreviations expanded',
+      (tester) async {
     _setTallViewport(tester);
     await tester.pumpWidget(_wrap(const CorporateLanguageGuideScreen()));
     await tester.tap(find.byKey(const Key('meetingPhrasesButton')));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Who owns this'), findsOneWidget);
+    // "What's the ETA?" contains a bare abbreviation that gets expanded.
+    expect(find.text('ETA = Estimated Time of Arrival'), findsOneWidget);
   });
 
   testWidgets('role quick reference drills down from a role to its term list', (tester) async {

@@ -37,6 +37,33 @@ List<CorporateLanguageTerm> _termsByName(List<String> names) => [
         ...kCorporateLanguageTerms.where((t) => t.term == name),
     ];
 
+/// "TERM" when there's no full form to expand, else "TERM (Full Form)" —
+/// used everywhere a term is shown as a short list row, so the abbreviation
+/// is never left unexplained.
+String _titleWithFullForm(CorporateLanguageTerm t) =>
+    t.fullForm == '—' ? t.term : '${t.term} (${t.fullForm})';
+
+/// Every real abbreviation (a glossary term with a genuine full form) that
+/// appears as a whole word in [text], each as "TERM = Full Form", in the
+/// order they first appear in [text] — used to expand abbreviations that
+/// show up bare inside a quoted phrase or a "X vs Y" pairing rather than as
+/// a list row of their own.
+List<String> _expandAbbreviationsIn(String text) {
+  final matches = <(int, String)>[];
+  final seen = <String>{};
+  for (final t in kCorporateLanguageTerms) {
+    if (t.fullForm == '—' || seen.contains(t.term)) continue;
+    final pattern = RegExp('(?<![A-Za-z0-9])${RegExp.escape(t.term)}(?![A-Za-z0-9])');
+    final match = pattern.firstMatch(text);
+    if (match != null) {
+      seen.add(t.term);
+      matches.add((match.start, '${t.term} = ${t.fullForm}'));
+    }
+  }
+  matches.sort((a, b) => a.$1.compareTo(b.$1));
+  return [for (final m in matches) m.$2];
+}
+
 class CorporateLanguageGuideScreen extends StatefulWidget {
   const CorporateLanguageGuideScreen({super.key});
 
@@ -111,7 +138,7 @@ class _CorporateLanguageGuideScreenState extends State<CorporateLanguageGuideScr
               for (final entry in results)
                 ListTile(
                   key: Key('searchResult_${entry.term}'),
-                  title: Text(entry.term),
+                  title: Text(_titleWithFullForm(entry)),
                   subtitle: Text(entry.meaning, maxLines: 1, overflow: TextOverflow.ellipsis),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
@@ -257,7 +284,7 @@ class _TermListScreen extends StatelessWidget {
           for (final entry in items)
             ListTile(
               key: Key('termListEntry_${entry.term}'),
-              title: Text(entry.term),
+              title: Text(_titleWithFullForm(entry)),
               subtitle: Text(entry.meaning, maxLines: 1, overflow: TextOverflow.ellipsis),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
@@ -312,10 +339,21 @@ class _ConfusedTermsScreen extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(height: 16),
         itemBuilder: (context, i) {
           final c = kConfusedTermPairs[i];
+          final expansions = _expandAbbreviationsIn(c.pair);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(c.pair, style: Theme.of(context).textTheme.titleSmall),
+              if (expansions.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  expansions.join('  •  '),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ],
               const SizedBox(height: 4),
               Text(c.distinction),
             ],
@@ -339,10 +377,21 @@ class _MeetingPhrasesScreen extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(height: 16),
         itemBuilder: (context, i) {
           final m = kMeetingPhrases[i];
+          final expansions = _expandAbbreviationsIn(m.heard);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(m.heard, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontStyle: FontStyle.italic)),
+              if (expansions.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  expansions.join('  •  '),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ],
               const SizedBox(height: 4),
               Text(m.means),
             ],

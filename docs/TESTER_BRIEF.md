@@ -25,12 +25,13 @@ you can ask for your data to be deleted at any time.
 
 ## How to access it
 
+**Web (all devices, including iOS):** https://next-career-after-fauj.sandy060965.workers.dev
+— open it in your phone or laptop browser, no install needed.
+
 **Android:** you'll receive an APK directly (not via Play Store) — enable
 "install from unknown sources" for the download source when prompted, then
-install as usual.
-
-**Web / iOS:** *not yet available — a hosted web link is still pending;
-this section will be updated once it's live.*
+install as usual. The web link above works fine as an alternative if you'd
+rather not install anything.
 
 ## What to try
 

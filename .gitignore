@@ -57,3 +57,10 @@ app.*.map.json
 # never in this repo, they're set via `wrangler secret put`)
 backend/cloudflare-worker/node_modules/
 backend/cloudflare-worker/.wrangler/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example

@@ -97,14 +97,32 @@ See `wrangler.toml` for the full secrets list and use `npx wrangler secret
 put <NAME>` / `npx wrangler deploy` from inside `backend/cloudflare-worker/`
 to (re)deploy. There's currently no CI — every deploy is manual.
 
+## Web hosting
+
+The web build is deployed as a separate Cloudflare Worker (static assets,
+what used to be called "Cloudflare Pages" — Cloudflare folded Pages into
+Workers) — a different project from the API backend above:
+
+```
+flutter build web --release --dart-define=APP_SHARED_KEY=<value>
+npx wrangler deploy   # from the repo root — uses wrangler.jsonc
+```
+
+Live at: **https://next-career-after-fauj.sandy060965.workers.dev**
+
+`wrangler.jsonc`'s `assets.directory` must point at `build/web` (the
+compiled output), not `web` (the source scaffold) — `wrangler deploy`
+auto-detects the wrong one by default if `wrangler.jsonc` doesn't already
+exist, since `web/` also contains an `index.html`.
+
 ## What's not built yet
 
 - **Subscription/paywall** — no payment gateway; the only entitlement
   mechanism is a manual `ADMIN_SECRET`-gated grant endpoint.
-- **Public hosting** — the web build has no deployed URL yet; run it
-  locally or see "Beta distribution" for how to get a shareable link.
 - **Play Store / App Store distribution** — Android needs a real
-  applicationId + signing config; iOS needs Apple Developer setup.
+  applicationId + signing config; iOS needs Apple Developer setup (the
+  web build above works fine on iOS in the meantime, just not as an
+  installed app).
 - **CI/CD** — no automated test/build/deploy pipeline.
 - Real app icon (currently the default Flutter template icon).
 

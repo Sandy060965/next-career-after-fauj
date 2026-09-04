@@ -10,16 +10,7 @@ import {
   handleMe,
   handleGrantEntitlement,
 } from './auth.js';
-import {
-  handleOptIn,
-  handleOptOut,
-  handleMyListing,
-  handleBrowse,
-  handleRequestConnection,
-  handleRespondConnection,
-  handleMyQueue,
-  handleMyRequests,
-} from './network.js';
+import { handleOptIn, handleOptOut, handleMyListing } from './network.js';
 
 const FITMENT_SYSTEM_PROMPT = `You are a career-transition advisor for Indian Armed Forces officers moving into
 civilian roles. You will be given (a) an officer's CV text and (b) a target job
@@ -1188,11 +1179,6 @@ export default {
     if (path === '/network/opt-in') return handleOptIn(request, body, env);
     if (path === '/network/opt-out') return handleOptOut(request, env);
     if (path === '/network/my-listing') return handleMyListing(request, env);
-    if (path === '/network/browse') return handleBrowse(request, body, env);
-    if (path === '/network/request') return handleRequestConnection(request, body, env);
-    if (path === '/network/respond') return handleRespondConnection(request, body, env);
-    if (path === '/network/my-queue') return handleMyQueue(request, env);
-    if (path === '/network/my-requests') return handleMyRequests(request, env);
     return handleFitmentAnalysis(body, env);
   },
 };

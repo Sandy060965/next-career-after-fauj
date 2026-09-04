@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
-import 'network_browse_screen.dart';
+import '../../core/utils/date_format.dart';
 import 'network_models.dart';
-import 'network_my_requests_screen.dart';
 import 'network_opt_in_screen.dart';
-import 'network_queue_screen.dart';
 import 'network_service.dart';
 
+/// Pure data capture: officers pledge to give a small, recurring amount of
+/// time to help other officers once they've joined their own civilian role.
+/// There's deliberately no browsing, request or scheduling flow here —
+/// officers typically lose access to this app once they join their new
+/// employer, so this only ever captures the pledge itself.
 class NetworkDirectoryScreen extends StatefulWidget {
   const NetworkDirectoryScreen({super.key, this.networkService});
 
@@ -21,7 +24,7 @@ class NetworkDirectoryScreen extends StatefulWidget {
 
 class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
   bool _isLoading = true;
-  NetworkContact? _listing;
+  MentorPledge? _pledge;
 
   NetworkService? _service() {
     if (widget.networkService != null) return widget.networkService;
@@ -32,20 +35,20 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadListing();
+    _load();
   }
 
-  Future<void> _loadListing() async {
+  Future<void> _load() async {
     final service = _service();
     if (service == null) {
       setState(() => _isLoading = false);
       return;
     }
     try {
-      final listing = await service.myListing();
+      final pledge = await service.myListing();
       if (!mounted) return;
       setState(() {
-        _listing = listing;
+        _pledge = pledge;
         _isLoading = false;
       });
     } catch (_) {
@@ -54,16 +57,16 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
     }
   }
 
-  Future<void> _optOut() async {
+  Future<void> _withdraw() async {
     final service = _service();
     if (service == null) return;
     try {
       await service.optOut();
       if (!mounted) return;
-      setState(() => _listing = null);
+      setState(() => _pledge = null);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Removed from the directory')));
+        ..showSnackBar(const SnackBar(content: Text('Your pledge has been withdrawn')));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -80,67 +83,35 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
         padding: const EdgeInsets.all(24),
         children: [
           Text(
-            'Connect with other officers voluntarily, on your own terms — a call or a '
-            'referral ask, capped so nobody gets flooded.',
+            'Pledge a small, recurring amount of time to mentor other officers once you\'ve '
+            'joined your own civilian role — a simple sign-up, not a live booking system.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
-          _buildListingCard(),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              key: const Key('browseVolunteersButton'),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => NetworkBrowseScreen(networkService: widget.networkService)),
-              ),
-              child: const Text('Browse Volunteers'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('myRequestsButton'),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => NetworkMyRequestsScreen(networkService: widget.networkService)),
-              ),
-              child: const Text('My Sent Requests'),
-            ),
-          ),
-          if (_listing != null) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                key: const Key('myQueueButton'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => NetworkQueueScreen(networkService: widget.networkService)),
-                ),
-                child: const Text('Requests Waiting for You'),
-              ),
-            ),
-          ],
+          _buildPledgeCard(),
         ],
       ),
     );
   }
 
-  Widget _buildListingCard() {
+  Widget _buildPledgeCard() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    final listing = _listing;
-    if (listing == null) {
+    final pledge = _pledge;
+    if (pledge == null) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("You're not listed yet", style: Theme.of(context).textTheme.titleMedium),
+              Text("You haven't pledged yet", style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 4),
-              const Text('Volunteer a small amount of time to help other officers — fully optional.'),
+              const Text(
+                'Willing to give a little time to the next officer transitioning, once you\'ve '
+                'settled into your own role? Fully optional.',
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -152,9 +123,9 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
                         builder: (_) => NetworkOptInScreen(networkService: widget.networkService),
                       ),
                     );
-                    if (saved == true) _loadListing();
+                    if (saved == true) _load();
                   },
-                  child: const Text('Volunteer to help others'),
+                  child: const Text('Pledge to mentor'),
                 ),
               ),
             ],
@@ -168,16 +139,13 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text("You're listed as ${listing.channel.label}",
-                      style: Theme.of(context).textTheme.titleMedium),
-                ),
-              ],
-            ),
+            Text("You're pledged as a future mentor", style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
-            Text('${listing.callFrequency.label} · ${listing.callSlots.length} slot(s)'),
+            Text('${pledge.callFrequency.label} · ${pledge.sessionMinutes} min sessions'),
+            if (pledge.joiningDate != null) ...[
+              const SizedBox(height: 4),
+              Text('Joining: ${formatDate(pledge.joiningDate!)}'),
+            ],
             const SizedBox(height: 12),
             Row(
               children: [
@@ -188,10 +156,10 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
                       final saved = await Navigator.of(context).push<bool>(
                         MaterialPageRoute(
                           builder: (_) =>
-                              NetworkOptInScreen(existing: listing, networkService: widget.networkService),
+                              NetworkOptInScreen(existing: pledge, networkService: widget.networkService),
                         ),
                       );
-                      if (saved == true) _loadListing();
+                      if (saved == true) _load();
                     },
                     child: const Text('Edit'),
                   ),
@@ -200,8 +168,8 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
                 Expanded(
                   child: OutlinedButton(
                     key: const Key('optOutButton'),
-                    onPressed: _optOut,
-                    child: const Text('Remove me'),
+                    onPressed: _withdraw,
+                    child: const Text('Withdraw'),
                   ),
                 ),
               ],

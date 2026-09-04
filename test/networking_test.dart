@@ -3,12 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
-import 'package:next_career_after_fauj/features/networking/network_browse_screen.dart';
+import 'package:next_career_after_fauj/core/utils/date_format.dart';
 import 'package:next_career_after_fauj/features/networking/network_directory_screen.dart';
 import 'package:next_career_after_fauj/features/networking/network_models.dart';
-import 'package:next_career_after_fauj/features/networking/network_my_requests_screen.dart';
 import 'package:next_career_after_fauj/features/networking/network_opt_in_screen.dart';
-import 'package:next_career_after_fauj/features/networking/network_queue_screen.dart';
 import 'package:next_career_after_fauj/features/networking/network_service.dart'
     show NetworkService, NetworkServiceException;
 import 'package:provider/provider.dart';
@@ -18,490 +16,335 @@ import 'package:provider/provider.dart';
 final _unusedProfileRepository = ProfileRepository();
 
 class _FakeNetworkService extends NetworkService {
-  _FakeNetworkService({
-    this.listing,
-    this.contacts = const [],
-    this.incomingRequests = const [],
-    this.outgoingRequests = const [],
-    this.optInError,
-    this.requestError,
-  }) : super(profileRepository: _unusedProfileRepository);
+  _FakeNetworkService({this.listing, this.optInError, this.optOutError})
+      : super(profileRepository: _unusedProfileRepository);
 
-  NetworkContact? listing;
-  List<NetworkContact> contacts;
-  List<IncomingRequest> incomingRequests;
-  List<OutgoingRequest> outgoingRequests;
+  MentorPledge? listing;
   final Object? optInError;
-  final Object? requestError;
+  final Object? optOutError;
 
   final List<Map<String, dynamic>> optInCalls = [];
   bool optedOut = false;
-  final List<String> respondedIds = [];
-  final List<bool> respondedAccept = [];
-  final List<Map<String, dynamic>> connectionRequests = [];
 
   @override
   Future<void> optIn({
-    required NetworkChannel channel,
     required String displayName,
     required String email,
     required CallFrequency callFrequency,
-    required List<CallSlot> callSlots,
-    required bool offersReferrals,
+    required int sessionMinutes,
     String? vertical,
     String? city,
     String? currentCompany,
+    DateTime? joiningDate,
   }) async {
     if (optInError != null) throw optInError!;
     optInCalls.add({
-      'channel': channel,
       'displayName': displayName,
       'email': email,
       'callFrequency': callFrequency,
-      'callSlots': callSlots,
-      'offersReferrals': offersReferrals,
+      'sessionMinutes': sessionMinutes,
+      'vertical': vertical,
+      'city': city,
+      'currentCompany': currentCompany,
+      'joiningDate': joiningDate,
     });
+    listing = MentorPledge(
+      officerId: 'me',
+      displayName: displayName,
+      email: email,
+      callFrequency: callFrequency,
+      sessionMinutes: sessionMinutes,
+      vertical: vertical,
+      city: city,
+      currentCompany: currentCompany,
+      joiningDate: joiningDate,
+    );
   }
 
   @override
   Future<void> optOut() async {
+    if (optOutError != null) throw optOutError!;
     optedOut = true;
+    listing = null;
   }
 
   @override
-  Future<NetworkContact?> myListing() async => listing;
-
-  @override
-  Future<List<NetworkContact>> browse({NetworkChannel? channel, String? vertical, String? city}) async =>
-      contacts;
-
-  @override
-  Future<void> requestConnection({
-    required String volunteerOfficerId,
-    required AskType askType,
-    required String requesterDisplayName,
-    int? slotIndex,
-    String? requesterNote,
-  }) async {
-    if (requestError != null) throw requestError!;
-    connectionRequests.add({
-      'volunteerOfficerId': volunteerOfficerId,
-      'askType': askType,
-      'slotIndex': slotIndex,
-    });
-  }
-
-  @override
-  Future<void> respond({required String requestId, required bool accept}) async {
-    respondedIds.add(requestId);
-    respondedAccept.add(accept);
-  }
-
-  @override
-  Future<List<IncomingRequest>> myQueue() async => incomingRequests;
-
-  @override
-  Future<List<OutgoingRequest>> myRequests() async => outgoingRequests;
+  Future<MentorPledge?> myListing() async => listing;
 }
 
-const _contact = NetworkContact(
-  officerId: 'officer-9',
-  channel: NetworkChannel.transitioned,
-  displayName: 'Col B Rao (Retd)',
-  callFrequency: CallFrequency.weekly,
-  callSlots: [
-    CallSlot(dayOfWeek: 'Wed', startTime: '19:00'),
-    CallSlot(dayOfWeek: 'Sat', startTime: '10:00'),
-  ],
-  offersReferrals: true,
-  vertical: 'Operations',
-  city: 'Pune',
-  currentCompany: 'Acme Corp',
-  slotAvailability: [true, false],
-);
-
-const _contactJson = {
-  'officerId': 'officer-9',
-  'channel': 'transitioned',
-  'displayName': 'Col B Rao (Retd)',
-  'callFrequency': 'weekly',
-  'callSlots': [
-    {'dayOfWeek': 'Wed', 'startTime': '19:00'},
-    {'dayOfWeek': 'Sat', 'startTime': '10:00'},
-  ],
-  'offersReferrals': true,
-  'vertical': 'Operations',
-  'city': 'Pune',
-  'currentCompany': 'Acme Corp',
-  'slotAvailability': [true, false],
-};
-
-ProfileRepository _repositoryWithProfile() {
-  return ProfileRepository()
-    ..saveProfile(
-      OfficerProfile(
-        rank: 'Lt Col',
-        fullName: 'Lt Col A Verma',
-        dateOfBirth: DateTime(1978, 5, 10),
-        workExperienceYears: 18,
-        workExperienceMonths: 2,
-        releaseStatus: ReleaseStatus.tentative,
-        releaseDate: DateTime(2027, 6, 30),
-        service: OfficerService.army,
-        mobileNumber: '9876543210',
-        email: 'a.verma@example.com',
-        segment: OfficerSegment.pmr,
-        cvFileName: 'resume.pdf',
-        cvExtractedText: 'Sample CV text',
-      ),
+OfficerProfile _profile() => OfficerProfile(
+      rank: 'Lt Col',
+      fullName: 'Lt Col A Verma',
+      dateOfBirth: DateTime(1978, 5, 10),
+      workExperienceYears: 18,
+      workExperienceMonths: 2,
+      releaseStatus: ReleaseStatus.tentative,
+      releaseDate: DateTime(2027, 6, 30),
+      service: OfficerService.army,
+      mobileNumber: '9876543210',
+      email: 'a.verma@example.com',
+      segment: OfficerSegment.pmr,
+      cvFileName: 'resume.pdf',
     );
-}
 
 Widget _wrap(Widget child, {ProfileRepository? repository}) {
+  final repo = repository ?? (ProfileRepository()..saveProfile(_profile()));
   return ChangeNotifierProvider<ProfileRepository>.value(
-    value: repository ?? _repositoryWithProfile(),
+    value: repo,
     child: MaterialApp(theme: AppTheme.light, home: child),
   );
 }
 
+void _setTallViewport(WidgetTester tester) {
+  tester.view.physicalSize = const Size(430, 1400);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
 void main() {
-  group('model serialization round-trips', () {
-    test('CallSlot', () {
-      const slot = CallSlot(dayOfWeek: 'Mon', startTime: '09:30');
-      final restored = CallSlot.fromJson(slot.toJson());
-      expect(restored.dayOfWeek, 'Mon');
-      expect(restored.startTime, '09:30');
-    });
-
-    test('NetworkContact', () {
-      final restored = NetworkContact.fromJson(_contactJson);
-      expect(restored.officerId, _contact.officerId);
-      expect(restored.channel, NetworkChannel.transitioned);
-      expect(restored.callFrequency, CallFrequency.weekly);
-      expect(restored.callSlots.length, 2);
-      expect(restored.callSlots[0].dayOfWeek, 'Wed');
-      expect(restored.offersReferrals, true);
-      expect(restored.slotAvailability, [true, false]);
-    });
-
-    test('NetworkContact.fromJson never carries an email unless present', () {
-      final restored = NetworkContact.fromJson(_contactJson);
-      expect(restored.email, isNull);
-
-      final withEmail = NetworkContact.fromJson({..._contactJson, 'email': 'b.rao@example.com'});
-      expect(withEmail.email, 'b.rao@example.com');
-    });
-
-    test('IncomingRequest', () {
-      final restored = IncomingRequest.fromJson({
-        'id': 'req-1',
-        'requesterDisplayName': 'Maj C Singh',
-        'requesterNote': null,
-        'askType': 'call',
-        'slotIndex': 0,
-        'createdAt': '2026-01-05T10:00:00.000Z',
-      });
-      expect(restored.id, 'req-1');
-      expect(restored.askType, AskType.call);
-      expect(restored.slotIndex, 0);
-    });
-
-    test('OutgoingRequest reveals email only once accepted', () {
-      final pending = OutgoingRequest.fromJson({
-        'id': 'req-2',
-        'volunteerDisplayName': 'Col B Rao (Retd)',
-        'volunteerEmail': null,
-        'askType': 'referral',
-        'status': 'pending',
-        'createdAt': '2026-01-05T10:00:00.000Z',
-      });
-      expect(pending.volunteerEmail, isNull);
-      expect(pending.status, ConnectionRequestStatus.pending);
-
-      final accepted = OutgoingRequest.fromJson({
-        'id': 'req-2',
-        'volunteerDisplayName': 'Col B Rao (Retd)',
-        'volunteerEmail': 'b.rao@example.com',
-        'askType': 'referral',
-        'status': 'accepted',
-        'createdAt': '2026-01-05T10:00:00.000Z',
-      });
-      expect(accepted.volunteerEmail, 'b.rao@example.com');
-      expect(accepted.status, ConnectionRequestStatus.accepted);
-    });
-  });
-
   group('NetworkDirectoryScreen', () {
-    testWidgets('shows not-listed state when the officer has no listing', (tester) async {
-      final service = _FakeNetworkService(listing: null);
-      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: service)));
+    testWidgets('with no pledge yet, shows the empty state and a CTA to pledge', (tester) async {
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: fake)));
       await tester.pumpAndSettle();
 
-      expect(find.text("You're not listed yet"), findsOneWidget);
+      expect(find.text("You haven't pledged yet"), findsOneWidget);
       expect(find.byKey(const Key('becomeVolunteerButton')), findsOneWidget);
-      expect(find.byKey(const Key('myQueueButton')), findsNothing);
+      // The old marketplace UI is gone entirely.
+      expect(find.text('Browse Volunteers'), findsNothing);
+      expect(find.text('My Sent Requests'), findsNothing);
+      expect(find.text('Requests Waiting for You'), findsNothing);
     });
 
-    testWidgets('shows listing details and lets the officer remove themselves', (tester) async {
-      final service = _FakeNetworkService(listing: _contact);
-      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: service)));
+    testWidgets('with an existing pledge, shows its details plus Edit and Withdraw', (tester) async {
+      final fake = _FakeNetworkService(
+        listing: const MentorPledge(
+          officerId: 'me',
+          displayName: 'Lt Col A Verma',
+          email: 'a.verma@example.com',
+          callFrequency: CallFrequency.fortnightly,
+          sessionMinutes: 60,
+        ),
+      );
+      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: fake)));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining("You're listed as"), findsOneWidget);
-      expect(find.byKey(const Key('myQueueButton')), findsOneWidget);
+      expect(find.text("You're pledged as a future mentor"), findsOneWidget);
+      expect(find.text('Every fortnight · 60 min sessions'), findsOneWidget);
+      expect(find.byKey(const Key('editListingButton')), findsOneWidget);
+      expect(find.byKey(const Key('optOutButton')), findsOneWidget);
+    });
+
+    testWidgets('shows the joining date when one was pledged', (tester) async {
+      final fake = _FakeNetworkService(
+        listing: MentorPledge(
+          officerId: 'me',
+          displayName: 'Lt Col A Verma',
+          email: 'a.verma@example.com',
+          callFrequency: CallFrequency.weekly,
+          sessionMinutes: 30,
+          joiningDate: DateTime(2027, 8, 15),
+        ),
+      );
+      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: fake)));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Joining: ${formatDate(DateTime(2027, 8, 15))}'), findsOneWidget);
+    });
+
+    testWidgets('tapping Withdraw clears the pledge and shows a confirmation', (tester) async {
+      final fake = _FakeNetworkService(
+        listing: const MentorPledge(
+          officerId: 'me',
+          displayName: 'Lt Col A Verma',
+          email: 'a.verma@example.com',
+          callFrequency: CallFrequency.weekly,
+          sessionMinutes: 30,
+        ),
+      );
+      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: fake)));
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const Key('optOutButton')));
       await tester.pumpAndSettle();
 
-      expect(service.optedOut, isTrue);
-      expect(find.text("You're not listed yet"), findsOneWidget);
-      expect(find.text('Removed from the directory'), findsOneWidget);
+      expect(fake.optedOut, isTrue);
+      expect(find.text("You haven't pledged yet"), findsOneWidget);
+      expect(find.text('Your pledge has been withdrawn'), findsOneWidget);
+    });
+
+    testWidgets('a withdraw failure shows the error and keeps the pledge visible', (tester) async {
+      final fake = _FakeNetworkService(
+        listing: const MentorPledge(
+          officerId: 'me',
+          displayName: 'Lt Col A Verma',
+          email: 'a.verma@example.com',
+          callFrequency: CallFrequency.weekly,
+          sessionMinutes: 30,
+        ),
+        optOutError: NetworkServiceException('Could not withdraw your pledge.'),
+      );
+      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: fake)));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('optOutButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Could not withdraw your pledge.'), findsOneWidget);
+      expect(find.text("You're pledged as a future mentor"), findsOneWidget);
+    });
+
+    testWidgets('pledging navigates to the opt-in screen and reloads on save', (tester) async {
+      _setTallViewport(tester);
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkDirectoryScreen(networkService: fake)));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('becomeVolunteerButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, 'Pledge to Mentor'), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('saveListingButton')));
+      await tester.tap(find.byKey(const Key('saveListingButton')));
+      await tester.pumpAndSettle();
+
+      expect(fake.optInCalls, hasLength(1));
+      expect(find.text("You're pledged as a future mentor"), findsOneWidget);
     });
   });
 
   group('NetworkOptInScreen', () {
-    testWidgets('rejects an empty display name without calling optIn', (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('prefills name and email from the officer profile', (tester) async {
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
 
-      final service = _FakeNetworkService();
-      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: service)));
-      await tester.pumpAndSettle();
+      expect(find.text('Lt Col A Verma'), findsOneWidget);
+      expect(find.text('a.verma@example.com'), findsOneWidget);
+    });
+
+    testWidgets('requires a display name and a valid email', (tester) async {
+      _setTallViewport(tester);
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
 
       await tester.enterText(find.byKey(const Key('displayNameField')), '');
+      await tester.enterText(find.byKey(const Key('emailField')), 'not-an-email');
+      await tester.ensureVisible(find.byKey(const Key('saveListingButton')));
       await tester.tap(find.byKey(const Key('saveListingButton')));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(find.text('Required'), findsWidgets);
-      expect(service.optInCalls, isEmpty);
+      expect(find.text('Required'), findsOneWidget);
+      expect(find.text('Enter a valid email'), findsOneWidget);
+      expect(fake.optInCalls, isEmpty);
     });
 
-    testWidgets('saves with the pre-filled name/email and default weekly single slot',
-        (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('saves with the chosen frequency, session length, and optional fields', (tester) async {
+      _setTallViewport(tester);
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
 
-      final service = _FakeNetworkService();
-      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: service)));
+      await tester.enterText(find.byKey(const Key('verticalField')), 'IT Infrastructure & Cybersecurity');
+      await tester.enterText(find.byKey(const Key('cityField')), 'Pune');
+      await tester.enterText(find.byKey(const Key('companyField')), 'Acme Corp');
+
+      await tester.tap(find.byKey(const Key('frequencyDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Every month').last);
       await tester.pumpAndSettle();
 
+      await tester.tap(find.text('60 min'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('saveListingButton')));
       await tester.tap(find.byKey(const Key('saveListingButton')));
       await tester.pumpAndSettle();
 
-      expect(service.optInCalls, hasLength(1));
-      final call = service.optInCalls.single;
+      expect(fake.optInCalls, hasLength(1));
+      final call = fake.optInCalls.single;
       expect(call['displayName'], 'Lt Col A Verma');
-      expect(call['email'], 'a.verma@example.com');
+      expect(call['callFrequency'], CallFrequency.monthly);
+      expect(call['sessionMinutes'], 60);
+      expect(call['vertical'], 'IT Infrastructure & Cybersecurity');
+      expect(call['city'], 'Pune');
+      expect(call['currentCompany'], 'Acme Corp');
+      expect(call['joiningDate'], isNull);
+    });
+
+    testWidgets('defaults to a 30-minute weekly pledge with no channel choice shown', (tester) async {
+      _setTallViewport(tester);
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
+
+      // The old in-transition/transitioned channel radio is gone entirely.
+      expect(find.text('Officer in transition'), findsNothing);
+      expect(find.text('Already transitioned'), findsNothing);
+      // The old day/time call-slot picker and referral toggle are gone.
+      expect(find.text('Open to giving referrals'), findsNothing);
+
+      await tester.ensureVisible(find.byKey(const Key('saveListingButton')));
+      await tester.tap(find.byKey(const Key('saveListingButton')));
+      await tester.pumpAndSettle();
+
+      final call = fake.optInCalls.single;
       expect(call['callFrequency'], CallFrequency.weekly);
-      expect((call['callSlots'] as List<CallSlot>).length, 1);
-      expect(call['offersReferrals'], isFalse);
+      expect(call['sessionMinutes'], 30);
     });
 
-    testWidgets('switching to the transitioned channel reveals company field and referrals switch',
-        (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+    testWidgets('picking and clearing a joining date works', (tester) async {
+      final fake = _FakeNetworkService();
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
 
-      final service = _FakeNetworkService();
-      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: service)));
+      expect(find.text('Not set'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('joiningDateField')));
+      await tester.pumpAndSettle();
+      // Confirm today's date in the picker without navigating months, so
+      // the test doesn't depend on a specific target date being reachable.
+      await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('companyField')), findsNothing);
-      expect(find.byKey(const Key('offersReferralsSwitch')), findsNothing);
+      expect(find.text('Not set'), findsNothing);
+      expect(find.byKey(const Key('clearJoiningDateButton')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('channel_transitioned')));
+      await tester.tap(find.byKey(const Key('clearJoiningDateButton')));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('companyField')), findsOneWidget);
-      expect(find.byKey(const Key('offersReferralsSwitch')), findsOneWidget);
+      expect(find.text('Not set'), findsOneWidget);
+    });
 
-      await tester.tap(find.byKey(const Key('offersReferralsSwitch')));
+    testWidgets('editing an existing pledge prefills its fields', (tester) async {
+      final fake = _FakeNetworkService();
+      final existing = MentorPledge(
+        officerId: 'me',
+        displayName: 'Lt Col A Verma',
+        email: 'a.verma@example.com',
+        callFrequency: CallFrequency.fortnightly,
+        sessionMinutes: 60,
+        vertical: 'Supply Chain & Procurement',
+        city: 'Delhi',
+        currentCompany: 'Acme Corp',
+        joiningDate: DateTime(2027, 8, 15),
+      );
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(existing: existing, networkService: fake)));
+
+      expect(find.text('Supply Chain & Procurement'), findsOneWidget);
+      expect(find.text('Delhi'), findsOneWidget);
+      expect(find.text('Acme Corp'), findsOneWidget);
+      expect(find.text(formatDate(DateTime(2027, 8, 15))), findsOneWidget);
+    });
+
+    testWidgets('a save failure shows the error instead of failing silently', (tester) async {
+      _setTallViewport(tester);
+      final fake = _FakeNetworkService(optInError: NetworkServiceException('Could not save your pledge.'));
+      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
+
+      await tester.ensureVisible(find.byKey(const Key('saveListingButton')));
       await tester.tap(find.byKey(const Key('saveListingButton')));
       await tester.pumpAndSettle();
 
-      expect(service.optInCalls.single['offersReferrals'], isTrue);
-    });
-
-    testWidgets('selecting 2 slots adds a second day/time row', (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final service = _FakeNetworkService();
-      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('slotDayDropdown_1')), findsNothing);
-
-      await tester.tap(find.text('2 slots'));
-      await tester.pumpAndSettle();
-
-      expect(find.byKey(const Key('slotDayDropdown_1')), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('saveListingButton')));
-      await tester.pumpAndSettle();
-
-      expect((service.optInCalls.single['callSlots'] as List<CallSlot>).length, 2);
-    });
-
-    testWidgets('shows an error message when saving the listing fails', (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final service = _FakeNetworkService(optInError: NetworkServiceException('Could not save'));
-      await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('saveListingButton')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Could not save'), findsOneWidget);
-    });
-  });
-
-  group('NetworkBrowseScreen', () {
-    testWidgets('lists volunteers and requests an available call slot', (tester) async {
-      final service = _FakeNetworkService(contacts: [_contact]);
-      await tester.pumpWidget(_wrap(NetworkBrowseScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Col B Rao (Retd)'), findsOneWidget);
-
-      await tester.tap(find.byKey(const ValueKey('slotChip_Wed_19:00')));
-      await tester.pumpAndSettle();
-
-      expect(service.connectionRequests, hasLength(1));
-      expect(service.connectionRequests.single['askType'], AskType.call);
-      expect(service.connectionRequests.single['slotIndex'], 0);
-      expect(find.text('Call request sent'), findsOneWidget);
-    });
-
-    testWidgets('a booked slot cannot be tapped', (tester) async {
-      final service = _FakeNetworkService(contacts: [_contact]);
-      await tester.pumpWidget(_wrap(NetworkBrowseScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('slotChip_Sat_10:00')));
-      await tester.pumpAndSettle();
-
-      expect(service.connectionRequests, isEmpty);
-    });
-
-    testWidgets('requests a referral from a volunteer that offers them', (tester) async {
-      final service = _FakeNetworkService(contacts: [_contact]);
-      await tester.pumpWidget(_wrap(NetworkBrowseScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('requestReferral_officer-9')));
-      await tester.pumpAndSettle();
-
-      expect(service.connectionRequests.single['askType'], AskType.referral);
-      expect(find.text('Referral request sent'), findsOneWidget);
-    });
-
-    testWidgets('shows an error message when a request fails, e.g. the weekly referral cap',
-        (tester) async {
-      final service = _FakeNetworkService(
-        contacts: [_contact],
-        requestError: NetworkServiceException('Only 1 referral request per week'),
-      );
-      await tester.pumpWidget(_wrap(NetworkBrowseScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('requestReferral_officer-9')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Only 1 referral request per week'), findsOneWidget);
-    });
-  });
-
-  group('NetworkQueueScreen', () {
-    testWidgets('accepting an incoming request calls respond with accept=true', (tester) async {
-      final service = _FakeNetworkService(
-        incomingRequests: [
-          IncomingRequest(
-            id: 'req-5',
-            requesterDisplayName: 'Maj C Singh',
-            askType: AskType.call,
-            slotIndex: 0,
-            createdAt: DateTime(2026, 1, 5),
-          ),
-        ],
-      );
-      await tester.pumpWidget(_wrap(NetworkQueueScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Maj C Singh'), findsOneWidget);
-
-      await tester.tap(find.byKey(const ValueKey('acceptRequest_req-5')));
-      await tester.pumpAndSettle();
-
-      expect(service.respondedIds, ['req-5']);
-      expect(service.respondedAccept, [true]);
-      expect(find.text('Accepted'), findsOneWidget);
-    });
-
-    testWidgets('declining calls respond with accept=false', (tester) async {
-      final service = _FakeNetworkService(
-        incomingRequests: [
-          IncomingRequest(
-            id: 'req-6',
-            requesterDisplayName: 'Maj D Rao',
-            askType: AskType.referral,
-            createdAt: DateTime(2026, 1, 5),
-          ),
-        ],
-      );
-      await tester.pumpWidget(_wrap(NetworkQueueScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const ValueKey('declineRequest_req-6')));
-      await tester.pumpAndSettle();
-
-      expect(service.respondedIds, ['req-6']);
-      expect(service.respondedAccept, [false]);
-      expect(find.text('Declined'), findsOneWidget);
-    });
-  });
-
-  group('NetworkMyRequestsScreen', () {
-    testWidgets('reveals the volunteer email only once the request is accepted', (tester) async {
-      final service = _FakeNetworkService(
-        outgoingRequests: [
-          OutgoingRequest(
-            id: 'req-7',
-            volunteerDisplayName: 'Col B Rao (Retd)',
-            askType: AskType.call,
-            status: ConnectionRequestStatus.pending,
-            createdAt: DateTime(2026, 1, 5),
-          ),
-          OutgoingRequest(
-            id: 'req-8',
-            volunteerDisplayName: 'Col E Menon (Retd)',
-            volunteerEmail: 'e.menon@example.com',
-            askType: AskType.referral,
-            status: ConnectionRequestStatus.accepted,
-            createdAt: DateTime(2026, 1, 5),
-          ),
-        ],
-      );
-      await tester.pumpWidget(_wrap(NetworkMyRequestsScreen(networkService: service)));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Pending'), findsOneWidget);
-      expect(find.text('Accepted'), findsOneWidget);
-      expect(find.text('e.menon@example.com'), findsOneWidget);
-      expect(find.byKey(const ValueKey('copyEmail_req-8')), findsOneWidget);
-      expect(find.byKey(const ValueKey('copyEmail_req-7')), findsNothing);
+      expect(find.text('Could not save your pledge.'), findsOneWidget);
     });
   });
 }

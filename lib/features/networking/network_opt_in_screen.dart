@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../../core/utils/date_format.dart';
 import 'network_models.dart';
 import 'network_service.dart';
 
 class NetworkOptInScreen extends StatefulWidget {
   const NetworkOptInScreen({super.key, this.existing, this.networkService});
 
-  final NetworkContact? existing;
+  final MentorPledge? existing;
 
   /// Overridable for testing so no real HTTP call is made.
   final NetworkService? networkService;
@@ -25,10 +26,9 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
   late final TextEditingController _cityController;
   late final TextEditingController _companyController;
 
-  late NetworkChannel _channel;
   late CallFrequency _frequency;
-  late List<CallSlot> _slots;
-  late bool _offersReferrals;
+  late int _sessionMinutes;
+  DateTime? _joiningDate;
   bool _isSaving = false;
 
   @override
@@ -41,12 +41,9 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
     _verticalController = TextEditingController(text: existing?.vertical ?? '');
     _cityController = TextEditingController(text: existing?.city ?? '');
     _companyController = TextEditingController(text: existing?.currentCompany ?? '');
-    _channel = existing?.channel ?? NetworkChannel.inTransition;
     _frequency = existing?.callFrequency ?? CallFrequency.weekly;
-    _slots = existing?.callSlots.isNotEmpty == true
-        ? List.of(existing!.callSlots)
-        : [const CallSlot(dayOfWeek: 'Wed', startTime: '19:00')];
-    _offersReferrals = existing?.offersReferrals ?? false;
+    _sessionMinutes = existing?.sessionMinutes ?? kSessionMinuteOptions.first;
+    _joiningDate = existing?.joiningDate;
   }
 
   @override
@@ -59,29 +56,16 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
     super.dispose();
   }
 
-  Future<void> _pickTime(int slotIndex) async {
-    final current = _slots[slotIndex];
-    final parts = current.startTime.split(':');
-    final initial = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-    final picked = await showTimePicker(context: context, initialTime: initial);
+  Future<void> _pickJoiningDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _joiningDate ?? now,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 3),
+    );
     if (picked == null) return;
-    setState(() {
-      _slots[slotIndex] = CallSlot(
-        dayOfWeek: current.dayOfWeek,
-        startTime:
-            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}',
-      );
-    });
-  }
-
-  void _setSlotCount(int count) {
-    setState(() {
-      if (count == 1) {
-        _slots = [_slots.first];
-      } else if (_slots.length == 1) {
-        _slots = [_slots.first, const CallSlot(dayOfWeek: 'Sat', startTime: '10:00')];
-      }
-    });
+    setState(() => _joiningDate = picked);
   }
 
   NetworkService? _service() {
@@ -98,17 +82,15 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
     setState(() => _isSaving = true);
     try {
       await service.optIn(
-        channel: _channel,
         displayName: _nameController.text.trim(),
         email: _emailController.text.trim(),
         callFrequency: _frequency,
-        callSlots: _slots,
-        offersReferrals: _channel == NetworkChannel.transitioned && _offersReferrals,
+        sessionMinutes: _sessionMinutes,
         vertical: _verticalController.text.trim().isEmpty ? null : _verticalController.text.trim(),
         city: _cityController.text.trim().isEmpty ? null : _cityController.text.trim(),
-        currentCompany: _channel == NetworkChannel.transitioned && _companyController.text.trim().isNotEmpty
-            ? _companyController.text.trim()
-            : null,
+        currentCompany:
+            _companyController.text.trim().isEmpty ? null : _companyController.text.trim(),
+        joiningDate: _joiningDate,
       );
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -124,7 +106,7 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Volunteer to Help Others')),
+      appBar: AppBar(title: const Text('Pledge to Mentor')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -133,28 +115,11 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "You're always in control — set how much time you can give, and remove "
-                'yourself from this list any time.',
+                'A pledge to give some time to other officers once you\'ve joined your civilian '
+                'role — not a live booking. You can update or withdraw this any time before then.',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
-              RadioGroup<NetworkChannel>(
-                groupValue: _channel,
-                onChanged: (v) => setState(() => _channel = v!),
-                child: Column(
-                  children: NetworkChannel.values
-                      .map(
-                        (c) => RadioListTile<NetworkChannel>(
-                          key: ValueKey('channel_${c.wireValue}'),
-                          value: c,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(c.label),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-              const SizedBox(height: 12),
               TextFormField(
                 key: const Key('displayNameField'),
                 controller: _nameController,
@@ -168,7 +133,7 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'Email',
-                  helperText: 'Only shared once you accept a specific request — never your mobile number.',
+                  helperText: 'How officers you agree to help will reach you.',
                 ),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'Required';
@@ -188,16 +153,35 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
                 controller: _cityController,
                 decoration: const InputDecoration(labelText: 'City (optional)'),
               ),
-              if (_channel == NetworkChannel.transitioned) ...[
-                const SizedBox(height: 16),
-                TextFormField(
-                  key: const Key('companyField'),
-                  controller: _companyController,
-                  decoration: const InputDecoration(labelText: 'Current company (optional)'),
+              const SizedBox(height: 16),
+              TextFormField(
+                key: const Key('companyField'),
+                controller: _companyController,
+                decoration: const InputDecoration(
+                  labelText: 'Company joined or accepted (optional)',
                 ),
-              ],
+              ),
+              const SizedBox(height: 16),
+              InkWell(
+                key: const Key('joiningDateField'),
+                onTap: _pickJoiningDate,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'Tentative or confirmed joining date (optional)',
+                    suffixIcon: _joiningDate == null
+                        ? null
+                        : IconButton(
+                            key: const Key('clearJoiningDateButton'),
+                            icon: const Icon(Icons.clear),
+                            onPressed: () => setState(() => _joiningDate = null),
+                          ),
+                  ),
+                  child: Text(_joiningDate == null ? 'Not set' : formatDate(_joiningDate!)),
+                ),
+              ),
               const SizedBox(height: 24),
-              Text('How often can you offer time?', style: Theme.of(context).textTheme.titleSmall),
+              Text('How often can you offer time, once you\'ve joined?',
+                  style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
               DropdownButtonFormField<CallFrequency>(
                 key: const Key('frequencyDropdown'),
@@ -209,30 +193,16 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
                 onChanged: (v) => setState(() => _frequency = v!),
               ),
               const SizedBox(height: 16),
-              Text('How many 30-min slots each time?', style: Theme.of(context).textTheme.titleSmall),
+              Text('How long per session?', style: Theme.of(context).textTheme.titleSmall),
               const SizedBox(height: 8),
               SegmentedButton<int>(
-                key: const Key('slotCountSelector'),
-                segments: const [
-                  ButtonSegment(value: 1, label: Text('1 slot')),
-                  ButtonSegment(value: 2, label: Text('2 slots')),
+                key: const Key('sessionMinutesSelector'),
+                segments: [
+                  for (final m in kSessionMinuteOptions) ButtonSegment(value: m, label: Text('$m min')),
                 ],
-                selected: {_slots.length},
-                onSelectionChanged: (s) => _setSlotCount(s.first),
+                selected: {_sessionMinutes},
+                onSelectionChanged: (s) => setState(() => _sessionMinutes = s.first),
               ),
-              const SizedBox(height: 12),
-              for (var i = 0; i < _slots.length; i++) _buildSlotRow(i),
-              if (_channel == NetworkChannel.transitioned) ...[
-                const SizedBox(height: 12),
-                SwitchListTile(
-                  key: const Key('offersReferralsSwitch'),
-                  contentPadding: EdgeInsets.zero,
-                  value: _offersReferrals,
-                  onChanged: (v) => setState(() => _offersReferrals = v),
-                  title: const Text('Open to giving referrals'),
-                  subtitle: const Text('Requesting officers are capped to 1 referral ask per week.'),
-                ),
-              ],
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -245,44 +215,12 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Save my listing'),
+                      : const Text('Save my pledge'),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSlotRow(int index) {
-    final slot = _slots[index];
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              key: ValueKey('slotDayDropdown_$index'),
-              initialValue: slot.dayOfWeek,
-              decoration: const InputDecoration(labelText: 'Day'),
-              items: kWeekdays.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-              onChanged: (v) =>
-                  setState(() => _slots[index] = CallSlot(dayOfWeek: v!, startTime: slot.startTime)),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: InkWell(
-              key: ValueKey('slotTimeField_$index'),
-              onTap: () => _pickTime(index),
-              child: InputDecorator(
-                decoration: const InputDecoration(labelText: 'Time'),
-                child: Text(slot.startTime),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

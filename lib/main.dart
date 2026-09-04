@@ -15,6 +15,7 @@ import 'features/career_handbook/career_handbook_screen.dart';
 import 'features/career_paths/career_paths_screen.dart';
 import 'features/corporate_language/corporate_language_guide_screen.dart';
 import 'features/corps_matrix/corps_matrix_screen.dart';
+import 'features/reading_programme/reading_programme_screen.dart';
 import 'features/career_readiness/career_readiness_screen.dart';
 import 'features/compensation/compensation_http_service.dart';
 import 'features/compensation/compensation_screen.dart';
@@ -127,6 +128,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.careerHandbook: (_) => const CareerHandbookScreen(),
           AppRoutes.corpsMatrix: (_) => const CorpsMatrixScreen(),
           AppRoutes.corporateLanguageGuide: (_) => const CorporateLanguageGuideScreen(),
+          AppRoutes.readingProgramme: (_) => const ReadingProgrammeScreen(),
           AppRoutes.networkDirectory: (_) => const NetworkDirectoryScreen(),
           AppRoutes.financialPlanner: (_) => const FinancialPlannerScreen(),
           AppRoutes.targetRoleStrategy: (_) =>

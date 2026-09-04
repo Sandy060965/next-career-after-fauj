@@ -187,6 +187,15 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton(
+              key: const Key('readingProgrammeButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.readingProgramme),
+              child: const Text('Corporate Transition - Reading Programme'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
               key: const Key('jdMatchButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jdMatch),
               child: const Text('JD Match'),

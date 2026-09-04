@@ -210,6 +210,27 @@ void main() {
             120000,
       );
     });
+
+    test('one-time amounts pass through without affecting any annual figure', () {
+      final withOneTimes = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1500000,
+          oneTimeGratuityAndDsop: 2500000,
+          joiningBonusOneTime: 300000,
+          oneTimeEchsSubscription: 80000,
+        ),
+      );
+      final withoutOneTimes = calculateFinancialPlan(
+        const FinancialPlanInput(drawsPension: false, annualFixedPay: 1500000),
+      );
+      expect(withOneTimes.oneTimeGratuityAndDsop, 2500000);
+      expect(withOneTimes.oneTimeJoiningBonus, 300000);
+      expect(withOneTimes.oneTimeEchsSubscription, 80000);
+      expect(withOneTimes.militaryCurrentEconomicCompensation,
+          withoutOneTimes.militaryCurrentEconomicCompensation);
+      expect(withOneTimes.corporateGuaranteedCompensation, withoutOneTimes.corporateGuaranteedCompensation);
+    });
   });
 
   group('illustrativeMilitaryProfiles', () {

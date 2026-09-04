@@ -46,6 +46,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
   late final TextEditingController _schoolCostComparableController;
   late final TextEditingController _schoolCostActualController;
   late final TextEditingController _medicalBenchmarkController;
+  late final TextEditingController _echsSubscriptionController;
   late final TextEditingController _csdSavingsController;
 
   late bool _drawsPension;
@@ -115,6 +116,8 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
         TextEditingController(text: _numOrEmpty(existing?.actualAnnualSchoolCostPaid ?? 0));
     _medicalBenchmarkController =
         TextEditingController(text: _numOrEmpty(existing?.privateMedicalBenchmarkAnnual ?? 0));
+    _echsSubscriptionController =
+        TextEditingController(text: _numOrEmpty(existing?.oneTimeEchsSubscription ?? 0));
     _csdSavingsController = TextEditingController(text: _numOrEmpty(existing?.annualCsdSavings ?? 0));
 
     if (existing != null) {
@@ -149,6 +152,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
     _schoolCostComparableController.dispose();
     _schoolCostActualController.dispose();
     _medicalBenchmarkController.dispose();
+    _echsSubscriptionController.dispose();
     _csdSavingsController.dispose();
     super.dispose();
   }
@@ -197,6 +201,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
       echsSpouseCovered: _echsSpouseCovered,
       echsChildrenCovered: _echsChildrenCovered,
       privateMedicalBenchmarkAnnual: _parse(_medicalBenchmarkController.text),
+      oneTimeEchsSubscription: _parse(_echsSubscriptionController.text),
       annualCsdSavings: _parse(_csdSavingsController.text),
     );
     setState(() => _result = calculateFinancialPlan(input));
@@ -330,6 +335,14 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
               ),
               const SizedBox(height: 24),
               _sectionHeader(context, 'Medical (ECHS)'),
+              Text(
+                'ECHS is not lost when you leave service. Pensioners keep full-family ECHS '
+                'automatically; SSCOs/ECOs can join after release too — officer + spouse only by '
+                'default, via a one-time subscription (amount varies — verify the current figure '
+                'with ECHS).',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
               SwitchListTile(
                 key: const Key('echsSpouseSwitch'),
                 contentPadding: EdgeInsets.zero,
@@ -356,8 +369,31 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                   labelText: 'Equivalent private family health cover, benchmarked (₹/year)',
                 ),
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                key: const Key('echsSubscriptionField'),
+                controller: _echsSubscriptionController,
+                keyboardType: const TextInputType.numberWithOptions(),
+                decoration: const InputDecoration(
+                  labelText: 'One-time ECHS subscription, if applicable (₹)',
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'Only for SSCOs/ECOs joining after release — pensioners get ECHS automatically, '
+                  'no subscription. Shown separately below, not annualised.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
               const SizedBox(height: 24),
               _sectionHeader(context, 'CSD & other savings'),
+              Text(
+                'Also not lost on leaving service — any ex-serviceman with 5+ years of physical '
+                'service keeps CSD canteen access.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 key: const Key('csdSavingsField'),
                 controller: _csdSavingsController,
@@ -486,7 +522,10 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 controller: _healthcareDeltaController,
                 keyboardType: const TextInputType.numberWithOptions(signed: true),
                 decoration: const InputDecoration(
-                  labelText: 'Extra monthly healthcare cost vs. ECHS/AFMS (₹)',
+                  labelText: 'Extra monthly healthcare cost beyond continuing ECHS (₹)',
+                  helperText: 'ECHS itself usually continues — only cost the gap: e.g. children not '
+                      'covered as an SSCO, or care you want outside the ECHS network.',
+                  helperMaxLines: 3,
                 ),
               ),
               const SizedBox(height: 16),
@@ -647,6 +686,31 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
             ),
           ),
         ),
+        if (result.oneTimeGratuityAndDsop != 0 ||
+            result.oneTimeJoiningBonus != 0 ||
+            result.oneTimeEchsSubscription != 0) ...[
+          const SizedBox(height: 16),
+          Card(
+            key: const Key('oneTimeAmountsCard'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('One-time amounts (not annualised)',
+                      style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 8),
+                  if (result.oneTimeGratuityAndDsop != 0)
+                    _AmountRow('Retirement gratuity + DSOP/AFPPF', result.oneTimeGratuityAndDsop),
+                  if (result.oneTimeJoiningBonus != 0)
+                    _AmountRow('Corporate joining bonus', result.oneTimeJoiningBonus),
+                  if (result.oneTimeEchsSubscription != 0)
+                    _AmountRow('ECHS subscription (cost)', -result.oneTimeEchsSubscription),
+                ],
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 16),
         Card(
           child: Padding(

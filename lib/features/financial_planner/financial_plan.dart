@@ -47,6 +47,7 @@ class FinancialPlanInput {
     this.echsSpouseCovered = true,
     this.echsChildrenCovered = true,
     this.privateMedicalBenchmarkAnnual = 0,
+    this.oneTimeEchsSubscription = 0,
     this.annualCsdSavings = 0,
   });
 
@@ -115,13 +116,28 @@ class FinancialPlanInput {
   final num annualSchoolCostPerChildComparable;
   final num actualAnnualSchoolCostPaid;
 
+  /// ECHS and CSD are not lost on leaving service — both continue into
+  /// civil street: ECHS for SSCOs/ECOs via a Cabinet-approved extension
+  /// (officer + spouse only, unlike full-family coverage for pensioners),
+  /// and CSD for any ex-serviceman with 5+ years of physical service.
+  /// These fields capture what actually continues, not what's given up.
   final bool echsSpouseCovered;
 
-  /// SSCOs' ECHS coverage is narrower than the general rule — it does not
-  /// extend to children/other dependants by default.
+  /// SSCOs' post-release ECHS coverage is narrower than the general
+  /// pensioner rule — it does not extend to children/other dependants by
+  /// default.
   final bool echsChildrenCovered;
 
   final num privateMedicalBenchmarkAnnual;
+
+  /// SSCOs/ECOs joining ECHS after release pay a one-time subscription
+  /// (pensioners get ECHS automatically, no subscription). The amount
+  /// varies by category and changes over time — enter your own verified
+  /// figure from ECHS rather than a guess. Zero if not applicable.
+  final num oneTimeEchsSubscription;
+
+  /// Continues after release for any ex-serviceman with 5+ years of
+  /// physical service — not exclusive to serving officers.
   final num annualCsdSavings;
 
   num get militaryMsp => rank?.drawsMsp == true ? militaryServicePay : 0;
@@ -156,6 +172,7 @@ class FinancialPlanInput {
         'echsSpouseCovered': echsSpouseCovered,
         'echsChildrenCovered': echsChildrenCovered,
         'privateMedicalBenchmarkAnnual': privateMedicalBenchmarkAnnual,
+        'oneTimeEchsSubscription': oneTimeEchsSubscription,
         'annualCsdSavings': annualCsdSavings,
       };
 
@@ -191,6 +208,7 @@ class FinancialPlanInput {
         echsSpouseCovered: json['echsSpouseCovered'] as bool? ?? true,
         echsChildrenCovered: json['echsChildrenCovered'] as bool? ?? true,
         privateMedicalBenchmarkAnnual: json['privateMedicalBenchmarkAnnual'] as num? ?? 0,
+        oneTimeEchsSubscription: json['oneTimeEchsSubscription'] as num? ?? 0,
         annualCsdSavings: json['annualCsdSavings'] as num? ?? 0,
       );
 }
@@ -214,6 +232,9 @@ class FinancialPlanResult {
     required this.breakEvenCorporateCompensation,
     required this.recommendedTargetCompensation,
     required this.economicGap,
+    required this.oneTimeGratuityAndDsop,
+    required this.oneTimeJoiningBonus,
+    required this.oneTimeEchsSubscription,
   });
 
   final num annualTaxGuaranteed;
@@ -238,7 +259,10 @@ class FinancialPlanResult {
   final num militaryCashCompensation;
 
   /// O-02: Cash + monetised current benefits (housing, education, medical,
-  /// CSD), ₹/year. Does not include pension or gratuity.
+  /// CSD), ₹/year. Does not include pension or gratuity. Note that ECHS
+  /// and CSD aren't unique to serving life — both continue after release
+  /// (ECHS narrower for SSCOs, CSD for 5+ years of physical service), so
+  /// this figure isn't automatically "lost" by leaving.
   final num militaryCurrentEconomicCompensation;
 
   /// O-03: Pension annualised, shown separately — never folded into
@@ -265,6 +289,14 @@ class FinancialPlanResult {
   /// O-09: Risk-adjusted corporate value minus military economic value
   /// minus transition costs. Positive = offer clears break-even.
   final num economicGap;
+
+  /// One-time amounts, passed through from the input for display —
+  /// deliberately never annualised or folded into any of the above.
+  final num oneTimeGratuityAndDsop;
+  final num oneTimeJoiningBonus;
+
+  /// The one-time ECHS subscription cost for SSCOs/ECOs, if entered.
+  final num oneTimeEchsSubscription;
 }
 
 const _slabBoundaries = [400000, 800000, 1200000, 1600000, 2000000, 2400000];
@@ -376,6 +408,9 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
     breakEvenCorporateCompensation: breakEvenCorporateCompensation,
     recommendedTargetCompensation: recommendedTargetCompensation,
     economicGap: economicGap,
+    oneTimeGratuityAndDsop: input.oneTimeGratuityAndDsop,
+    oneTimeJoiningBonus: input.joiningBonusOneTime,
+    oneTimeEchsSubscription: input.oneTimeEchsSubscription,
   );
 }
 

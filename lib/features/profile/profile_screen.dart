@@ -243,7 +243,7 @@ class ProfileScreen extends StatelessWidget {
             child: OutlinedButton(
               key: const Key('networkDirectoryButton'),
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.networkDirectory),
-              child: const Text('Networking Directory'),
+              child: const Text('Future Mentor Sign Up'),
             ),
           ),
           const SizedBox(height: 12),

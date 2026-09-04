@@ -78,7 +78,7 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Networking Directory')),
+      appBar: AppBar(title: const Text('Future Mentor Sign Up')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

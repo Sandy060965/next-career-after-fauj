@@ -5,6 +5,7 @@ import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/financial_planner/financial_plan.dart';
 import 'package:next_career_after_fauj/features/financial_planner/financial_planner_screen.dart';
+import 'package:next_career_after_fauj/features/financial_planner/military_pay_data.dart';
 import 'package:provider/provider.dart';
 
 OfficerProfile _profile({required OfficerSegment segment}) => OfficerProfile(
@@ -31,7 +32,7 @@ Widget _wrap(ProfileRepository repository) {
 }
 
 void _setTallViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(430, 3200);
+  tester.view.physicalSize = const Size(430, 9000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -123,6 +124,114 @@ void main() {
       expect(small.negotiationGuidance, isNot(contains('is not automatically a raise')));
       expect(large.negotiationGuidance, contains('is not automatically a raise'));
     });
+
+    test('military cash compensation adds MSP and DA only for ranks that draw MSP', () {
+      final major = calculateFinancialPlan(
+        FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 0,
+          rank: DefenceRank.major,
+          militaryBasicPay: 100000,
+          militaryDaPercent: 0.5,
+        ),
+      );
+      // (100000 + 15500) * 12 * 1.5 = 2,079,000
+      expect(major.militaryCashCompensation, 2079000);
+
+      final majGen = calculateFinancialPlan(
+        FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 0,
+          rank: DefenceRank.majGen,
+          militaryBasicPay: 200000,
+          militaryDaPercent: 0.5,
+        ),
+      );
+      // No MSP at Major General: 200000 * 12 * 1.5 = 3,600,000
+      expect(majGen.militaryCashCompensation, 3600000);
+    });
+
+    test('housing benefit only applies while in government accommodation', () {
+      final inQuarter = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 0,
+          inGovtAccommodation: true,
+          comparableMonthlyMarketRent: 50000,
+          actualMonthlyAccommodationCost: 5000,
+        ),
+      );
+      expect(inQuarter.militaryCurrentEconomicCompensation, 540000); // (50000-5000)*12
+
+      final notInQuarter = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 0,
+          comparableMonthlyMarketRent: 50000,
+          actualMonthlyAccommodationCost: 5000,
+        ),
+      );
+      expect(notInQuarter.militaryCurrentEconomicCompensation, 0);
+    });
+
+    test('deferred pension value is excluded from current economic compensation', () {
+      final result = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: true,
+          monthlyPension: 60000,
+          annualFixedPay: 0,
+          militaryBasicPay: 100000,
+        ),
+      );
+      // (100000 * 12) * (1 + 0.60 default DA) = 1,920,000 — no pension folded in.
+      expect(result.militaryCurrentEconomicCompensation, 1920000);
+      expect(result.militaryDeferredAnnualEquivalent, 720000);
+    });
+
+    test('break-even, recommended target and economic gap follow the officer-entered risk premium', () {
+      final result = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1500000,
+          monthlyRentDelta: 10000,
+          desiredRiskPremiumPercent: 20,
+        ),
+      );
+      expect(result.transitionCostAdjustmentAnnual, 120000);
+      expect(result.breakEvenCorporateCompensation, result.militaryCurrentEconomicCompensation + 120000);
+      expect(
+        result.recommendedTargetCompensation,
+        closeTo(result.breakEvenCorporateCompensation * 1.2, 0.01),
+      );
+      expect(
+        result.economicGap,
+        result.corporateRiskAdjustedCompensation -
+            result.militaryCurrentEconomicCompensation -
+            120000,
+      );
+    });
+  });
+
+  group('illustrativeMilitaryProfiles', () {
+    test('covers all 8 requested rank/tenure milestones for all three services', () {
+      expect(illustrativeMilitaryProfiles.length, 24);
+      for (final service in OfficerService.values) {
+        final years = illustrativeMilitaryProfiles
+            .where((p) => p.service == service)
+            .map((p) => p.yearsOfService)
+            .toList();
+        expect(years, containsAll([10, 14, 20, 25, 30, 35, 37, 39]));
+      }
+    });
+
+    test('basic pay uses real 7th CPC matrix figures and rises with the later milestone', () {
+      final major10 = illustrativeMilitaryProfiles
+          .firstWhere((p) => p.service == OfficerService.army && p.rank == DefenceRank.major && p.yearsOfService == 10);
+      final major14 = illustrativeMilitaryProfiles
+          .firstWhere((p) => p.service == OfficerService.army && p.rank == DefenceRank.major && p.yearsOfService == 14);
+      expect(major10.basicPay, 61300);
+      expect(major14.basicPay, greaterThan(major10.basicPay));
+    });
   });
 
   group('FinancialPlannerScreen', () {
@@ -154,6 +263,7 @@ void main() {
       await tester.pumpWidget(_wrap(repo));
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
       await tester.tap(find.byKey(const Key('calculateButton')));
       await tester.pumpAndSettle();
 
@@ -168,6 +278,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byKey(const Key('fixedPayField')), '1200000');
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
       await tester.tap(find.byKey(const Key('calculateButton')));
       await tester.pumpAndSettle();
 
@@ -175,6 +286,27 @@ void main() {
       expect(repo.lastFinancialPlanInput, isNotNull);
       expect(repo.lastFinancialPlanInput!.annualFixedPay, 1200000);
       expect(repo.lastFinancialPlanInput!.drawsPension, isFalse);
+    });
+
+    testWidgets('loading an illustrative example pre-fills rank, years and basic pay', (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.pmr));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('examplePickerDropdown')));
+      await tester.tap(find.byKey(const Key('examplePickerDropdown')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Major · 10 yrs service (SSC officer, early exit window)').first);
+      await tester.pumpAndSettle();
+
+      final basicPayField =
+          tester.widget<TextFormField>(find.byKey(const Key('militaryBasicPayField')));
+      expect(basicPayField.controller!.text, '61300');
+      final yearsField =
+          tester.widget<TextFormField>(find.byKey(const Key('yearsOfServiceField')));
+      expect(yearsField.controller!.text, '10');
     });
 
     testWidgets('re-opening with a saved plan pre-fills fields and shows the result immediately',

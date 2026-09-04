@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/services/pdf_export.dart';
 import 'fitment_result.dart';
 
 enum CvView { original, refined }
@@ -63,23 +64,38 @@ class _RefinedCvScreenState extends State<RefinedCvScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                key: const Key('copyCvButton'),
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: widget.result.refinedCv));
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        const SnackBar(content: Text('Refined CV copied to clipboard')),
-                      );
-                  }
-                },
-                icon: const Icon(Icons.copy_outlined),
-                label: const Text('Copy refined CV'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('copyCvButton'),
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: widget.result.refinedCv));
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            const SnackBar(content: Text('Refined CV copied to clipboard')),
+                          );
+                      }
+                    },
+                    icon: const Icon(Icons.copy_outlined),
+                    label: const Text('Copy refined CV'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('downloadCvButton'),
+                    onPressed: () => exportTextAsPdf(
+                      title: _view == CvView.original ? 'Original CV' : 'Refined CV',
+                      body: text,
+                    ),
+                    icon: const Icon(Icons.download_outlined),
+                    label: const Text('Download PDF'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

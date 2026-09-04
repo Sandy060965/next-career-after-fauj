@@ -127,7 +127,7 @@ void main() {
 
     test('military cash compensation adds MSP and DA only for ranks that draw MSP', () {
       final major = calculateFinancialPlan(
-        FinancialPlanInput(
+        const FinancialPlanInput(
           drawsPension: false,
           annualFixedPay: 0,
           rank: DefenceRank.major,
@@ -139,7 +139,7 @@ void main() {
       expect(major.militaryCashCompensation, 2079000);
 
       final majGen = calculateFinancialPlan(
-        FinancialPlanInput(
+        const FinancialPlanInput(
           drawsPension: false,
           annualFixedPay: 0,
           rank: DefenceRank.majGen,

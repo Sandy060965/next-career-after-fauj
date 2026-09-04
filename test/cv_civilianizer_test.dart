@@ -104,6 +104,13 @@ void main() {
     expect(find.text('CV copied to clipboard'), findsOneWidget);
   });
 
+  testWidgets('shows a download-PDF button alongside copy', (tester) async {
+    await tester.pumpWidget(_wrap(_repositoryWithProfile()));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('downloadCivilianizedCvButton')), findsOneWidget);
+  });
+
   testWidgets('regenerate button calls the service again even with a cached result',
       (tester) async {
     final repository = _repositoryWithProfile();

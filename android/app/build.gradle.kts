@@ -6,10 +6,10 @@ plugins {
 
 android {
     namespace = "com.example.next_career_after_fauj"
-    // flutter.compileSdkVersion (34) is behind what the file_picker plugin's
-    // transitive dependencies require; pinned explicitly until Flutter's own
-    // default catches up.
-    compileSdk = 36
+    // flutter.compileSdkVersion is behind what plugin dependencies require
+    // (file_picker needed 36; flutter_secure_storage now needs 37); pinned
+    // explicitly until Flutter's own default catches up.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

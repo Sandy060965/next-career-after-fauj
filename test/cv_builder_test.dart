@@ -228,5 +228,16 @@ void main() {
 
       expect(find.text('CV copied to clipboard'), findsOneWidget);
     });
+
+    testWidgets('shows a download-PDF button alongside copy', (tester) async {
+      final repo = ProfileRepository();
+      await repo.saveBuiltCv(const BuiltCv(cvText: 'Text to export.'));
+
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('downloadBuiltCvButton')));
+      expect(find.byKey(const Key('downloadBuiltCvButton')), findsOneWidget);
+    });
   });
 }

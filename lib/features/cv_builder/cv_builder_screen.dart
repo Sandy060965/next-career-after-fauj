@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
 import 'built_cv.dart';
 import 'cv_builder_intake.dart';
@@ -410,21 +411,33 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             const SizedBox(height: 8),
             Text(result.cvText, key: const Key('builtCvText')),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                key: const Key('copyBuiltCvButton'),
-                onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: result.cvText));
-                  if (mounted) {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(const SnackBar(content: Text('CV copied to clipboard')));
-                  }
-                },
-                icon: const Icon(Icons.copy_outlined),
-                label: const Text('Copy'),
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('copyBuiltCvButton'),
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: result.cvText));
+                      if (mounted) {
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(const SnackBar(content: Text('CV copied to clipboard')));
+                      }
+                    },
+                    icon: const Icon(Icons.copy_outlined),
+                    label: const Text('Copy'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('downloadBuiltCvButton'),
+                    onPressed: () => exportTextAsPdf(title: 'CV', body: result.cvText),
+                    icon: const Icon(Icons.download_outlined),
+                    label: const Text('Download PDF'),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -130,6 +130,12 @@ void main() {
       expect(find.text('Supply Chain & Operations Leader with proven logistics track record.'),
           findsNothing);
     });
+
+    testWidgets('shows a download-PDF button alongside copy', (tester) async {
+      await tester.pumpWidget(_wrap(const RefinedCvScreen(result: _result)));
+
+      expect(find.byKey(const Key('downloadCvButton')), findsOneWidget);
+    });
   });
 
   group('GapRoadmapScreen', () {

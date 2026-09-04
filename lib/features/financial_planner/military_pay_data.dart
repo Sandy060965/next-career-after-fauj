@@ -9,7 +9,7 @@ import '../../core/models/officer_profile.dart';
 enum DefenceRank {
   major('Major', 'Lieutenant Commander', 'Squadron Leader', _level10B, true),
   ltCol('Lieutenant Colonel', 'Commander', 'Wing Commander', _level12A, true),
-  col('Colonel', 'Captain', 'Group Captain', _level13, true),
+  col('Colonel', 'Capt (IN)', 'Group Captain', _level13, true),
   brig('Brigadier', 'Commodore', 'Air Commodore', _level13A, true),
   majGen('Major General', 'Rear Admiral', 'Air Vice Marshal', _level14, false),
   ltGen('Lieutenant General', 'Vice Admiral', 'Air Marshal', _level15, false);

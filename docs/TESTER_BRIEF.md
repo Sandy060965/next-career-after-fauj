@@ -25,7 +25,12 @@ you can ask for your data to be deleted at any time.
 
 ## How to access it
 
-*[Fill in once hosting is live — see README "Beta distribution."]*
+**Android:** you'll receive an APK directly (not via Play Store) — enable
+"install from unknown sources" for the download source when prompted, then
+install as usual.
+
+**Web / iOS:** *not yet available — a hosted web link is still pending;
+this section will be updated once it's live.*
 
 ## What to try
 

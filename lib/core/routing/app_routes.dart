@@ -30,4 +30,6 @@ class AppRoutes {
   static const String corporateLanguageGuide = '/corporate-language-guide';
   static const String readingProgramme = '/reading-programme';
   static const String aiAssistant = '/ai-assistant';
+  static const String supportTicket = '/support';
+  static const String admin = '/admin';
 }

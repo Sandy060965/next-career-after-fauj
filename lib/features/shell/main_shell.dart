@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
+import '../../core/services/officer_progress_sync.dart';
+import '../../core/services/profile_repository.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../profile/profile_screen.dart';
 import 'career_section_screen.dart';
@@ -23,6 +26,15 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fire-and-forget, once per app session — reports how far this officer
+    // has got for the admin dashboard. Never blocks or surfaces to the
+    // officer if it fails.
+    syncOfficerProgress(context.read<ProfileRepository>());
+  }
 
   static const _destinations = [
     (icon: Icons.home_outlined, selectedIcon: Icons.home, label: 'Home'),

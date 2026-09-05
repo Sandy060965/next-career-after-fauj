@@ -364,10 +364,7 @@ async function handleMe(request, env) {
 // wired in. Never called by the app itself — gated on a separate operator
 // secret, not the per-officer session token.
 async function handleGrantEntitlement(request, body, env) {
-  const adminKey = request.headers.get('x-admin-key');
-  if (!env.ADMIN_SECRET || adminKey !== env.ADMIN_SECRET) {
-    return json({ error: 'Unauthorized' }, 401);
-  }
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
 
   const mobileNumber = normalizeMobileNumber(body.mobileNumber);
   const tier = body.tier;
@@ -385,6 +382,164 @@ async function handleGrantEntitlement(request, body, env) {
   return json({ status: 'updated' });
 }
 
+function requireAdmin(request, env) {
+  const adminKey = request.headers.get('x-admin-key');
+  return Boolean(env.ADMIN_SECRET) && adminKey === env.ADMIN_SECRET;
+}
+
+// --- Onboarding progress (for the admin dashboard) -------------------------
+// A compact, officer-reported summary of how far they've got — never the
+// raw content of their CV/scores, just completion flags and the readiness
+// score itself, upserted whenever the app syncs. This is reported by the
+// officer's own session (an honest client), not independently verified —
+// good enough for "is anyone actually using this and getting stuck",
+// not a source of truth for anything security- or billing-relevant.
+async function handleSyncProgress(request, body, env) {
+  const payload = await verifyJwt(bearerToken(request), env.JWT_SECRET);
+  if (!payload) return json({ error: 'Unauthorized' }, 401);
+
+  const b = (value) => (value ? 1 : 0);
+  await env.DB.prepare(
+    `INSERT INTO officer_progress (
+       officer_id, rank, full_name, service, segment, readiness_score,
+       readiness_dimensions_completed, readiness_dimensions_total, cv_uploaded,
+       civilianized_cv_done, built_cv_done, jd_match_done, financial_plan_done,
+       target_role_strategy_done, applications_count, updated_at
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(officer_id) DO UPDATE SET
+       rank = excluded.rank, full_name = excluded.full_name, service = excluded.service,
+       segment = excluded.segment, readiness_score = excluded.readiness_score,
+       readiness_dimensions_completed = excluded.readiness_dimensions_completed,
+       readiness_dimensions_total = excluded.readiness_dimensions_total,
+       cv_uploaded = excluded.cv_uploaded, civilianized_cv_done = excluded.civilianized_cv_done,
+       built_cv_done = excluded.built_cv_done, jd_match_done = excluded.jd_match_done,
+       financial_plan_done = excluded.financial_plan_done,
+       target_role_strategy_done = excluded.target_role_strategy_done,
+       applications_count = excluded.applications_count, updated_at = excluded.updated_at`,
+  )
+    .bind(
+      payload.sub,
+      body.rank ?? null,
+      body.fullName ?? null,
+      body.service ?? null,
+      body.segment ?? null,
+      body.readinessScore ?? null,
+      body.readinessDimensionsCompleted ?? 0,
+      body.readinessDimensionsTotal ?? 0,
+      b(body.cvUploaded),
+      b(body.civilianizedCvDone),
+      b(body.builtCvDone),
+      b(body.jdMatchDone),
+      b(body.financialPlanDone),
+      b(body.targetRoleStrategyDone),
+      body.applicationsCount ?? 0,
+      new Date().toISOString(),
+    )
+    .run();
+  return json({ status: 'synced' });
+}
+
+// --- Support tickets ---------------------------------------------------
+async function handleSubmitSupportTicket(request, body, env) {
+  const payload = await verifyJwt(bearerToken(request), env.JWT_SECRET);
+  if (!payload) return json({ error: 'Unauthorized' }, 401);
+
+  const message = String(body.message ?? '').trim();
+  if (!message) return json({ error: 'message is required' }, 400);
+
+  const officer = await env.DB.prepare('SELECT mobile_number FROM officers WHERE id = ?')
+    .bind(payload.sub)
+    .first();
+
+  const id = crypto.randomUUID();
+  await env.DB.prepare(
+    'INSERT INTO support_tickets (id, officer_id, mobile_number, message, status, created_at) ' +
+      "VALUES (?, ?, ?, ?, 'open', ?)",
+  )
+    .bind(id, payload.sub, officer?.mobile_number ?? null, message, new Date().toISOString())
+    .run();
+  return json({ status: 'submitted', id });
+}
+
+async function handleAdminListOfficers(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const { results } = await env.DB.prepare(
+    `SELECT o.id, o.mobile_number, o.created_at, o.entitlement_tier, o.entitlement_expires_at,
+            p.rank, p.full_name, p.service, p.segment, p.readiness_score,
+            p.readiness_dimensions_completed, p.readiness_dimensions_total, p.cv_uploaded,
+            p.civilianized_cv_done, p.built_cv_done, p.jd_match_done, p.financial_plan_done,
+            p.target_role_strategy_done, p.applications_count, p.updated_at AS progress_updated_at
+     FROM officers o
+     LEFT JOIN officer_progress p ON p.officer_id = o.id
+     ORDER BY o.created_at DESC`,
+  ).all();
+
+  return json({
+    officers: results.map((r) => ({
+      id: r.id,
+      mobileNumber: r.mobile_number,
+      createdAt: r.created_at,
+      entitlementTier: r.entitlement_tier,
+      entitlementExpiresAt: r.entitlement_expires_at,
+      rank: r.rank,
+      fullName: r.full_name,
+      service: r.service,
+      segment: r.segment,
+      readinessScore: r.readiness_score,
+      readinessDimensionsCompleted: r.readiness_dimensions_completed ?? 0,
+      readinessDimensionsTotal: r.readiness_dimensions_total ?? 0,
+      cvUploaded: Boolean(r.cv_uploaded),
+      civilianizedCvDone: Boolean(r.civilianized_cv_done),
+      builtCvDone: Boolean(r.built_cv_done),
+      jdMatchDone: Boolean(r.jd_match_done),
+      financialPlanDone: Boolean(r.financial_plan_done),
+      targetRoleStrategyDone: Boolean(r.target_role_strategy_done),
+      applicationsCount: r.applications_count ?? 0,
+      progressUpdatedAt: r.progress_updated_at,
+    })),
+  });
+}
+
+async function handleAdminListSupportTickets(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const { results } = await env.DB.prepare(
+    `SELECT t.id, t.officer_id, t.mobile_number, t.message, t.status, t.created_at, t.resolved_at,
+            o.entitlement_tier
+     FROM support_tickets t
+     LEFT JOIN officers o ON o.id = t.officer_id
+     ORDER BY t.created_at DESC`,
+  ).all();
+
+  return json({
+    tickets: results.map((r) => ({
+      id: r.id,
+      officerId: r.officer_id,
+      mobileNumber: r.mobile_number,
+      message: r.message,
+      status: r.status,
+      createdAt: r.created_at,
+      resolvedAt: r.resolved_at,
+    })),
+  });
+}
+
+async function handleAdminResolveTicket(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const id = String(body.id ?? '');
+  if (!id) return json({ error: 'id is required' }, 400);
+
+  const result = await env.DB.prepare(
+    "UPDATE support_tickets SET status = 'resolved', resolved_at = ? WHERE id = ?",
+  )
+    .bind(new Date().toISOString(), id)
+    .run();
+  if (result.meta.changes === 0) return json({ error: 'No ticket found with that id' }, 404);
+  return json({ status: 'resolved' });
+}
+
 export {
   handleRequestOtp,
   handleVerifyOtp,
@@ -392,6 +547,11 @@ export {
   handleLogout,
   handleMe,
   handleGrantEntitlement,
+  handleSyncProgress,
+  handleSubmitSupportTicket,
+  handleAdminListOfficers,
+  handleAdminListSupportTickets,
+  handleAdminResolveTicket,
   verifyJwt,
   bearerToken,
 };

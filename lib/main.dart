@@ -39,6 +39,7 @@ import 'features/vertical_fit/vertical_fit_quiz_screen.dart';
 import 'features/jd_match/jd_match_screen.dart';
 import 'features/job_matches/job_matches_http_service.dart';
 import 'features/job_matches/job_matches_screen.dart';
+import 'features/admin/admin_login_screen.dart';
 import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
 import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/networking/network_directory_screen.dart';
@@ -46,6 +47,7 @@ import 'features/onboarding/onboarding_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/skill_equivalency/course_civilianization_http_service.dart';
 import 'features/skill_equivalency/skill_equivalency_screen.dart';
+import 'features/support/support_screen.dart';
 import 'features/transition_plan/transition_plan_screen.dart';
 
 // Debug-only escape hatch for local testing before Twilio is configured —
@@ -136,6 +138,8 @@ class NextCareerAfterFaujApp extends StatelessWidget {
           AppRoutes.financialPlanner: (_) => const FinancialPlannerScreen(),
           AppRoutes.targetRoleStrategy: (_) =>
               const TargetRoleStrategyScreen(generateStrategy: httpGenerateTargetRoleStrategy),
+          AppRoutes.supportTicket: (_) => const SupportScreen(),
+          AppRoutes.admin: (_) => const AdminLoginScreen(),
         },
       ),
     );

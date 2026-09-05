@@ -88,6 +88,15 @@ class ProfileScreen extends StatelessWidget {
               child: const Text('My Transition Plan'),
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('helpAndSupportButton'),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.supportTicket),
+              child: const Text('Help & Support'),
+            ),
+          ),
           const SizedBox(height: 24),
           Center(
             child: TextButton(

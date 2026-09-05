@@ -9,6 +9,11 @@ import {
   handleLogout,
   handleMe,
   handleGrantEntitlement,
+  handleSyncProgress,
+  handleSubmitSupportTicket,
+  handleAdminListOfficers,
+  handleAdminListSupportTickets,
+  handleAdminResolveTicket,
 } from './auth.js';
 import { handleOptIn, handleOptOut, handleMyListing } from './network.js';
 
@@ -1287,6 +1292,11 @@ export default {
     if (path === '/auth/logout') return handleLogout(body, env);
     if (path === '/me') return handleMe(request, env);
     if (path === '/admin/grant-entitlement') return handleGrantEntitlement(request, body, env);
+    if (path === '/officer-progress') return handleSyncProgress(request, body, env);
+    if (path === '/support-ticket') return handleSubmitSupportTicket(request, body, env);
+    if (path === '/admin/officers') return handleAdminListOfficers(request, env);
+    if (path === '/admin/support-tickets') return handleAdminListSupportTickets(request, env);
+    if (path === '/admin/resolve-ticket') return handleAdminResolveTicket(request, body, env);
     if (path === '/network/opt-in') return handleOptIn(request, body, env);
     if (path === '/network/opt-out') return handleOptOut(request, env);
     if (path === '/network/my-listing') return handleMyListing(request, env);

@@ -10,7 +10,13 @@ import 'package:provider/provider.dart';
 
 const _stubResult = CivilianizedCv(
   civilianizedCv: 'Operations Director with 14+ years leading large organisations.',
-  translationNotes: ['Rewrote command language as Operations Director.'],
+  translations: [
+    CvTranslation(
+      before: 'Commanding Officer of an 800-personnel unit.',
+      after: 'Operations Director leading an 800-person organisation.',
+      skillTags: ['Operations Leadership'],
+    ),
+  ],
 );
 
 int _callCount = 0;
@@ -63,8 +69,10 @@ void main() {
 
     expect(find.byKey(const Key('civilianizedCvText')), findsOneWidget);
     expect(find.text(_stubResult.civilianizedCv), findsOneWidget);
-    expect(find.textContaining('Rewrote command language as Operations Director.'),
+    expect(find.textContaining('Commanding Officer of an 800-personnel unit.'), findsOneWidget);
+    expect(find.textContaining('Operations Director leading an 800-person organisation.'),
         findsOneWidget);
+    expect(find.text('Operations Leadership'), findsOneWidget);
     expect(_callCount, 1);
   });
 

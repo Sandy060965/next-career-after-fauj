@@ -149,12 +149,21 @@ STRICT RULES:
   identifying details.
 - If the CV text is unavailable (only a filename, no real content), say so in
   "civilianized_cv" rather than inventing a profile, and leave
-  "translation_notes" empty.
+  "translations" empty.
+- For "translations": pick the 3-6 most significant lines/bullets you
+  reframed (not every minor wording tweak). Each "before" must be quoted or
+  closely paraphrased from the actual source CV — never a line that isn't
+  really there. Each "skill_tags" entry must be a short (1-3 word) civilian
+  skill or competency name that the "after" wording now surfaces (e.g.
+  "Stakeholder Management", "Crisis Response") — ground these in what the
+  line actually demonstrates, never generic filler tags.
 
 Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
 {
   "civilianized_cv": "<full CV text, rewritten>",
-  "translation_notes": ["<brief note on one key translation made, if any>"]
+  "translations": [
+    {"before": "<line from the source CV>", "after": "<the same line, reframed>", "skill_tags": ["<civilian skill this now demonstrates>"]}
+  ]
 }`;
 
 const TARGET_ROLE_SYSTEM_PROMPT = `You are helping an Indian Armed Forces officer choose which of three

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/analysis_loading_indicator.dart';
 import 'civilianized_cv.dart';
 import 'civilianizer_service.dart';
 
@@ -81,7 +82,15 @@ class _CivilianizerScreenState extends State<CivilianizerScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(
+        child: AnalysisLoadingIndicator(
+          messages: [
+            'Reading your CV...',
+            'Reframing military language into civilian terms...',
+            'Keeping every real detail, just rewritten...',
+          ],
+        ),
+      );
     }
     if (_error != null) {
       return Center(
@@ -148,14 +157,73 @@ class _CivilianizerScreenState extends State<CivilianizerScreen> {
             ),
           ),
         ),
-        if (result.translationNotes.isNotEmpty) ...[
+        if (result.translations.isNotEmpty) ...[
           const SizedBox(height: 20),
-          Text('What changed', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          for (final note in result.translationNotes)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Text('•  $note'),
+          Text('Military-to-corporate translation', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(
+            'What changed, and why it reads as corporate experience rather than a military '
+            'record.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          for (final translation in result.translations)
+            Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.close,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            translation.before,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  decoration: TextDecoration.lineThrough,
+                                  decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.check, size: 16, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(translation.after)),
+                      ],
+                    ),
+                    if (translation.skillTags.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          for (final tag in translation.skillTags)
+                            Chip(
+                              label: Text(tag, style: Theme.of(context).textTheme.labelSmall),
+                              visualDensity: VisualDensity.compact,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              padding: EdgeInsets.zero,
+                            ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
         ],
       ],

@@ -64,7 +64,14 @@ Future<CivilianizedCv> httpCivilianizeCv({
   final json = jsonDecode(response.body) as Map<String, dynamic>;
   return CivilianizedCv(
     civilianizedCv: json['civilianized_cv'] as String,
-    translationNotes:
-        (json['translation_notes'] as List? ?? const []).map((e) => e as String).toList(),
+    translations: (json['translations'] as List? ?? const [])
+        .map(
+          (e) => CvTranslation(
+            before: (e as Map<String, dynamic>)['before'] as String,
+            after: e['after'] as String,
+            skillTags: (e['skill_tags'] as List? ?? const []).map((s) => s as String).toList(),
+          ),
+        )
+        .toList(),
   );
 }

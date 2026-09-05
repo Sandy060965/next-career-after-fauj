@@ -8,6 +8,10 @@ import '../../core/services/authenticated_http.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
 
+/// The "Profile" tab root — account details and profile management only.
+/// The 25 feature modules themselves live under the Career, Jobs, and Learn
+/// tabs (see lib/features/shell/), reached through the app's persistent
+/// navigation rather than a flat button list here.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -32,7 +36,7 @@ class ProfileScreen extends StatelessWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
         children: [
           Wrap(
             spacing: 8,
@@ -84,231 +88,7 @@ class ProfileScreen extends StatelessWidget {
               child: const Text('My Transition Plan'),
             ),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('careerReadinessButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerReadiness),
-              child: const Text('Transition Readiness Index'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('verticalFitButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.verticalFit),
-              child: const Text('Career Vertical Fit'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('targetRoleStrategyButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.targetRoleStrategy),
-              child: const Text('Target Role Strategy'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('careerPathsButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerPaths),
-              child: const Text('Career Paths'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('careerHandbookButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.careerHandbook),
-              child: const Text('Career Vertical Handbook'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('corpsMatrixButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.corpsMatrix),
-              child: const Text('Corps/Arm/Branch Fit Matrix'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('skillEquivalencyButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.skillEquivalency),
-              child: const Text('Skill Equivalency Matrix'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('cvCivilianizerButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvCivilianizer),
-              child: const Text('Base CV, Civilianized'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('cvBuilderButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvBuilder),
-              child: const Text('Build My Civilian CV'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('cvWritingGuideButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvWritingGuide),
-              child: const Text('CV Writing Guide & Templates'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('corporateLanguageGuideButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.corporateLanguageGuide),
-              child: const Text('Corporate Language Guide'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('readingProgrammeButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.readingProgramme),
-              child: const Text('Corporate Transition - Reading Programme'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('jdMatchButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jdMatch),
-              child: const Text('JD Match'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('refinedCvButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.refinedCv),
-              child: const Text('Refined CV'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('gapRoadmapButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.gapRoadmap),
-              child: const Text('Gap Roadmap'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('jobMatchesButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.jobMatches),
-              child: const Text('Job Matches'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('applicationTrackerButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.applicationTracker),
-              child: const Text('Application Tracker'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('networkDirectoryButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.networkDirectory),
-              child: const Text('Future Mentor Sign Up'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('linkedinWriteupButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.linkedinWriteup),
-              child: const Text('LinkedIn Write-up'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('aiReadinessButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.aiReadiness),
-              child: const Text('AI Readiness'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('interviewPrepButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.interviewPrep),
-              child: const Text('Interview Prep'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('compensationButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.compensation),
-              child: const Text('Compensation Guidance'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('financialPlannerButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.financialPlanner),
-              child: const Text('Financial & Cost-of-Living Calculator'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: const Key('ninetyDayRoadmapButton'),
-              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.ninetyDayRoadmap),
-              child: const Text('Your First 90 Days'),
-            ),
-          ),
           const SizedBox(height: 24),
-          Text(
-            'More of the Transition Pass experience unlocks as this build progresses.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
           Center(
             child: TextButton(
               key: const Key('signOutButton'),

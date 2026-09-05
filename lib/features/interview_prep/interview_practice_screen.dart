@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'interview_question.dart';
-import 'voice_input_service.dart';
+import '../../core/services/voice_input_service.dart';
 
 class InterviewPracticeScreen extends StatefulWidget {
   InterviewPracticeScreen({super.key, required this.question, VoiceInputService? voiceInputService})

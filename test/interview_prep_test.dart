@@ -11,7 +11,7 @@ import 'package:next_career_after_fauj/features/interview_prep/interview_questio
 import 'package:next_career_after_fauj/features/interview_prep/jd_interview_question.dart';
 import 'package:next_career_after_fauj/features/interview_prep/mock_interview_feedback.dart';
 import 'package:next_career_after_fauj/features/interview_prep/mock_interview_screen.dart';
-import 'package:next_career_after_fauj/features/interview_prep/voice_input_service.dart';
+import 'package:next_career_after_fauj/core/services/voice_input_service.dart';
 import 'package:provider/provider.dart';
 
 const _stubFitmentResult = FitmentResult(

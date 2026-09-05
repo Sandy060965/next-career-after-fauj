@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'mock_interview_feedback.dart';
 import 'mock_interview_service.dart';
-import 'voice_input_service.dart';
+import '../../core/services/voice_input_service.dart';
 
 class MockInterviewScreen extends StatefulWidget {
   MockInterviewScreen({
@@ -133,6 +133,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
                   key: const Key('mockMicButton'),
                   icon: Icon(_isListening ? Icons.mic : Icons.mic_none_outlined),
                   color: _isListening ? Theme.of(context).colorScheme.error : null,
+                  tooltip: _isListening ? 'Stop listening' : 'Use microphone',
                   onPressed: _feedback == null ? _toggleListening : null,
                 ),
               ),

@@ -29,4 +29,5 @@ class AppRoutes {
   static const String corpsMatrix = '/corps-vertical-matrix';
   static const String corporateLanguageGuide = '/corporate-language-guide';
   static const String readingProgramme = '/reading-programme';
+  static const String aiAssistant = '/ai-assistant';
 }

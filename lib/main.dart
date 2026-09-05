@@ -7,6 +7,8 @@ import 'core/routing/app_routes.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/profile_repository.dart';
 import 'core/theme/app_theme.dart';
+import 'features/ai_assistant/ai_assistant_http_service.dart';
+import 'features/ai_assistant/ai_assistant_screen.dart';
 import 'features/ai_readiness/ai_readiness_http_service.dart';
 import 'features/ai_readiness/ai_readiness_quiz_screen.dart';
 import 'features/application_tracker/application_tracker_screen.dart';
@@ -41,7 +43,7 @@ import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
 import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/networking/network_directory_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
-import 'features/profile/profile_screen.dart';
+import 'features/shell/main_shell.dart';
 import 'features/skill_equivalency/course_civilianization_http_service.dart';
 import 'features/skill_equivalency/skill_equivalency_screen.dart';
 import 'features/transition_plan/transition_plan_screen.dart';
@@ -97,7 +99,8 @@ class NextCareerAfterFaujApp extends StatelessWidget {
         routes: {
           AppRoutes.phoneVerification: (_) => PhoneVerificationScreen(),
           AppRoutes.onboarding: (_) => const OnboardingScreen(),
-          AppRoutes.profile: (_) => const ProfileScreen(),
+          AppRoutes.profile: (_) => const MainShell(),
+          AppRoutes.aiAssistant: (_) => AiAssistantScreen(sendMessage: httpSendAssistantMessage),
           AppRoutes.careerReadiness: (_) => const CareerReadinessScreen(),
           AppRoutes.jdMatch: (_) => const JdMatchScreen(analyzeFitment: httpAnalyzeFitment),
           AppRoutes.verticalFit: (_) => const VerticalFitQuizScreen(),

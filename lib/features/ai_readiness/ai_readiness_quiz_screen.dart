@@ -11,22 +11,35 @@ class AiReadinessQuizScreen extends StatefulWidget {
   const AiReadinessQuizScreen({
     super.key,
     this.analyzeAiReadiness = mockAnalyzeAiReadiness,
+    this.questionsOverride,
   });
 
   /// Overridable for testing; defaults to sample data until the Cloudflare
   /// Worker backend is wired in.
   final AiReadinessAnalyzer analyzeAiReadiness;
 
+  /// Overridable for testing, so a test can assert against a known,
+  /// reproducible question set instead of a random per-attempt sample.
+  final List<ScenarioQuestion>? questionsOverride;
+
   @override
   State<AiReadinessQuizScreen> createState() => _AiReadinessQuizScreenState();
 }
 
 class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
-  final Map<String, int> _answers = {};
+  late final List<ScenarioQuestion> _questions =
+      widget.questionsOverride ?? sampleAiReadinessQuestions();
+  final Map<String, dynamic> _answers = {};
   bool _isAnalyzing = false;
 
+  bool _isAnswered(ScenarioQuestion q) {
+    final answer = _answers[q.id];
+    if (q.type == QuestionType.multipleChoice) return answer is int;
+    return answer is String && answer.trim().isNotEmpty;
+  }
+
   Future<void> _submit() async {
-    if (_answers.length < kAiReadinessQuestions.length) {
+    if (_questions.any((q) => !_isAnswered(q))) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(const SnackBar(content: Text('Answer every question to see your results')));
@@ -34,7 +47,8 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
     }
 
     setState(() => _isAnalyzing = true);
-    final assessment = AiScenarioAssessment(answers: Map.of(_answers));
+    final answersSnapshot = Map<String, dynamic>.of(_answers);
+    final assessment = AiScenarioAssessment(questions: _questions, answers: answersSnapshot);
     final profile = context.read<ProfileRepository>().profile;
     try {
       final result = await widget.analyzeAiReadiness(
@@ -48,7 +62,13 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
       context.read<ProfileRepository>().saveAiReadinessResult(result);
       setState(() => _isAnalyzing = false);
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => AiReadinessResultScreen(result: result)),
+        MaterialPageRoute(
+          builder: (_) => AiReadinessResultScreen(
+            result: result,
+            reviewQuestions: _questions,
+            reviewAnswers: answersSnapshot,
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -72,20 +92,21 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
             const SizedBox(height: 4),
             Text(
               'Short scenario questions, not a self-rating — your score reflects what you '
-              'actually know and how you\'d judge an AI\'s output, not just your confidence.',
+              'actually know and how you\'d judge an AI\'s output, not just your confidence. '
+              'Each attempt draws a fresh set of questions, so retaking it is a real retest.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            for (final tier in AiReadinessTier.values) ...[
-              Text(tier.label, style: Theme.of(context).textTheme.titleMedium),
-              Text(tier.description, style: Theme.of(context).textTheme.bodySmall),
+            for (final topic in AiReadinessTopic.values) ...[
+              Text(topic.label, style: Theme.of(context).textTheme.titleMedium),
+              Text(topic.description, style: Theme.of(context).textTheme.bodySmall),
               const SizedBox(height: 8),
-              for (final question in kAiReadinessQuestions.where((q) => q.tier == tier))
+              for (final question in _questions.where((q) => q.topic == topic))
                 _QuestionCard(
                   key: ValueKey(question.id),
                   question: question,
-                  selected: _answers[question.id],
-                  onChanged: (i) => setState(() => _answers[question.id] = i),
+                  answer: _answers[question.id],
+                  onChanged: (v) => setState(() => _answers[question.id] = v),
                 ),
               const SizedBox(height: 12),
             ],
@@ -111,11 +132,11 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
 }
 
 class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({super.key, required this.question, required this.selected, required this.onChanged});
+  const _QuestionCard({super.key, required this.question, required this.answer, required this.onChanged});
 
   final ScenarioQuestion question;
-  final int? selected;
-  final ValueChanged<int> onChanged;
+  final dynamic answer;
+  final ValueChanged<dynamic> onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -129,22 +150,33 @@ class _QuestionCard extends StatelessWidget {
           children: [
             Text(question.prompt, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 4),
-            RadioGroup<int>(
-              groupValue: selected,
-              onChanged: (v) => onChanged(v!),
-              child: Column(
-                children: [
-                  for (var i = 0; i < question.options.length; i++)
-                    RadioListTile<int>(
-                      key: ValueKey('option_${question.id}_$i'),
-                      value: i,
-                      contentPadding: EdgeInsets.zero,
-                      dense: true,
-                      title: Text(question.options[i]),
-                    ),
-                ],
+            if (question.type == QuestionType.multipleChoice)
+              RadioGroup<int>(
+                groupValue: answer is int ? answer as int : null,
+                onChanged: (v) => onChanged(v),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < question.options.length; i++)
+                      RadioListTile<int>(
+                        key: ValueKey('option_${question.id}_$i'),
+                        value: i,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                        title: Text(question.options[i]),
+                      ),
+                  ],
+                ),
+              )
+            else
+              TextField(
+                key: ValueKey('fillInBlank_${question.id}'),
+                decoration: const InputDecoration(
+                  hintText: 'Type your answer',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: onChanged,
               ),
-            ),
           ],
         ),
       ),

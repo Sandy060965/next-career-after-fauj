@@ -8,7 +8,23 @@ import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness_scenar
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness_service.dart';
 import 'package:provider/provider.dart';
 
-Widget _appUnderTest({dynamic analyzeAiReadiness = mockAnalyzeAiReadiness}) {
+/// A fixed (non-random) sample — 4 MCQ + 1 fill-in-blank per topic, taken in
+/// bank order — so tests get a reproducible question set instead of the
+/// random-per-attempt sample the real app uses.
+List<ScenarioQuestion> _fixedTestQuestions() {
+  final questions = <ScenarioQuestion>[];
+  for (final topic in AiReadinessTopic.values) {
+    final pool = kAiReadinessQuestionBank[topic]!;
+    questions.addAll(pool.where((q) => q.type == QuestionType.multipleChoice).take(4));
+    questions.addAll(pool.where((q) => q.type == QuestionType.fillInBlank).take(1));
+  }
+  return questions;
+}
+
+Widget _appUnderTest({
+  dynamic analyzeAiReadiness = mockAnalyzeAiReadiness,
+  List<ScenarioQuestion>? questions,
+}) {
   final repository = ProfileRepository()
     ..saveProfile(
       OfficerProfile(
@@ -31,39 +47,51 @@ Widget _appUnderTest({dynamic analyzeAiReadiness = mockAnalyzeAiReadiness}) {
     value: repository,
     child: MaterialApp(
       theme: AppTheme.light,
-      home: AiReadinessQuizScreen(analyzeAiReadiness: analyzeAiReadiness),
+      home: AiReadinessQuizScreen(
+        analyzeAiReadiness: analyzeAiReadiness,
+        questionsOverride: questions ?? _fixedTestQuestions(),
+      ),
     ),
   );
 }
 
 void _setTallViewport(WidgetTester tester) {
-  tester.view.physicalSize = const Size(430, 8500);
+  tester.view.physicalSize = const Size(430, 20000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 }
 
-/// Taps the given option index for every question — used to drive every
-/// question to either fully-correct or fully-incorrect for score checks.
-Future<void> _answerAll(WidgetTester tester, int Function(ScenarioQuestion q) pickIndex) async {
-  for (final q in kAiReadinessQuestions) {
-    final i = pickIndex(q);
-    await tester.tap(find.byKey(ValueKey('option_${q.id}_$i')));
+/// Answers every question in [questions] — MCQ via [pickIndex], fill-in-blank
+/// via [pickText] — to drive every question to either fully-correct or
+/// fully-incorrect for score checks.
+Future<void> _answerAll(
+  WidgetTester tester,
+  List<ScenarioQuestion> questions, {
+  required int Function(ScenarioQuestion q) pickIndex,
+  required String Function(ScenarioQuestion q) pickText,
+}) async {
+  for (final q in questions) {
+    if (q.type == QuestionType.multipleChoice) {
+      await tester.tap(find.byKey(ValueKey('option_${q.id}_${pickIndex(q)}')));
+    } else {
+      await tester.enterText(find.byKey(ValueKey('fillInBlank_${q.id}')), pickText(q));
+    }
   }
   await tester.pump();
 }
 
 void main() {
-  testWidgets('quiz shows one card per question, grouped by tier', (tester) async {
+  testWidgets('quiz shows one card per question, grouped by topic', (tester) async {
     _setTallViewport(tester);
-    await tester.pumpWidget(_appUnderTest());
+    final questions = _fixedTestQuestions();
+    await tester.pumpWidget(_appUnderTest(questions: questions));
     await tester.pumpAndSettle();
 
-    expect(find.text('Knowledge'), findsOneWidget);
-    expect(find.text('Application'), findsOneWidget);
-    expect(find.text('Judgment'), findsOneWidget);
-    expect(find.text('Governance'), findsOneWidget);
-    for (final q in kAiReadinessQuestions) {
+    for (final topic in AiReadinessTopic.values) {
+      expect(find.text(topic.label), findsOneWidget);
+    }
+    for (final q in questions) {
       expect(find.byKey(ValueKey('question_${q.id}')), findsOneWidget);
     }
     expect(find.byKey(const Key('submitAssessmentButton')), findsOneWidget);
@@ -102,12 +130,18 @@ void main() {
     expect(find.text('Answer every question to see your results'), findsOneWidget);
   });
 
-  testWidgets('answering every question correctly scores 100 on every tier', (tester) async {
+  testWidgets('answering every question correctly scores 100', (tester) async {
     _setTallViewport(tester);
-    await tester.pumpWidget(_appUnderTest());
+    final questions = _fixedTestQuestions();
+    await tester.pumpWidget(_appUnderTest(questions: questions));
     await tester.pumpAndSettle();
 
-    await _answerAll(tester, (q) => q.correctIndex);
+    await _answerAll(
+      tester,
+      questions,
+      pickIndex: (q) => q.correctIndex!,
+      pickText: (q) => q.acceptedAnswers.first,
+    );
     await tester.tap(find.byKey(const Key('submitAssessmentButton')));
     await tester.pumpAndSettle();
 
@@ -118,12 +152,15 @@ void main() {
 
   testWidgets('answering every question incorrectly scores 0', (tester) async {
     _setTallViewport(tester);
-    await tester.pumpWidget(_appUnderTest());
+    final questions = _fixedTestQuestions();
+    await tester.pumpWidget(_appUnderTest(questions: questions));
     await tester.pumpAndSettle();
 
     await _answerAll(
       tester,
-      (q) => q.correctIndex == 0 ? 1 : 0, // any wrong option
+      questions,
+      pickIndex: (q) => q.correctIndex == 0 ? 1 : 0, // any wrong option
+      pickText: (_) => 'definitely_the_wrong_answer',
     );
     await tester.tap(find.byKey(const Key('submitAssessmentButton')));
     await tester.pumpAndSettle();
@@ -132,18 +169,38 @@ void main() {
     expect(tester.widget<Text>(scoreFinder).data, '0');
   });
 
-  testWidgets('result screen shows the roadmap, skill gaps, and CV-AI bridge sections',
+  testWidgets('result screen shows the roadmap, skill gaps, CV-AI bridge, and a working answer review',
       (tester) async {
     _setTallViewport(tester);
-    await tester.pumpWidget(_appUnderTest());
+    final questions = _fixedTestQuestions();
+    await tester.pumpWidget(_appUnderTest(questions: questions));
     await tester.pumpAndSettle();
 
-    await _answerAll(tester, (q) => q.correctIndex);
+    await _answerAll(
+      tester,
+      questions,
+      pickIndex: (q) => q.correctIndex!,
+      pickText: (q) => q.acceptedAnswers.first,
+    );
     await tester.tap(find.byKey(const Key('submitAssessmentButton')));
     await tester.pumpAndSettle();
 
     expect(find.text('Priority gaps'), findsOneWidget);
     expect(find.byKey(const Key('cvAiBridgeCard')), findsOneWidget);
     expect(find.text('Your 90-day roadmap'), findsOneWidget);
+    expect(find.byKey(const Key('capabilitySummaryCard')), findsOneWidget);
+    for (final topic in AiReadinessTopic.values) {
+      expect(find.byKey(ValueKey('capabilityScore_${topic.name}')), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(ValueKey('capabilityScore_${topic.name}'))).data, '100/100');
+    }
+
+    await tester.tap(find.byKey(const Key('reviewAnswersButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Review Your Answers'), findsOneWidget);
+    for (final q in questions) {
+      expect(find.byKey(ValueKey('review_${q.id}')), findsOneWidget);
+    }
+    expect(find.textContaining('Correct answer:'), findsNothing);
   });
 }

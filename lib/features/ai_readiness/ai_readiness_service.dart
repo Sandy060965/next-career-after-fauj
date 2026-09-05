@@ -27,7 +27,7 @@ Future<AiReadinessResult> mockAnalyzeAiReadiness({
     scoreRationale:
         'Comfortable with everyday AI assistants and productivity use, but has not yet '
         'used AI for structured decision support or led an AI-enabled initiative.',
-    tierScores: assessment.tierScores,
+    topicScores: assessment.topicScores,
     skillGaps: const [
       SkillGap(
         competency: AiCompetency(

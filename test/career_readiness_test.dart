@@ -31,7 +31,7 @@ const _fitmentResult = FitmentResult(
 final _aiReadinessResult = AiReadinessResult(
   readinessScore: 60,
   scoreRationale: 'Moderate readiness.',
-  tierScores: {for (final t in AiReadinessTier.values) t: 60},
+  topicScores: {for (final t in AiReadinessTopic.values) t: 60},
   skillGaps: [
     SkillGap(competency: kAiCompetencies.first, severity: GapSeverity.high, reason: 'Needs practice.'),
   ],
@@ -142,7 +142,7 @@ void main() {
     repository.saveAiReadinessResult(AiReadinessResult(
       readinessScore: 20,
       scoreRationale: 'Low readiness.',
-      tierScores: {for (final t in AiReadinessTier.values) t: 20},
+      topicScores: {for (final t in AiReadinessTopic.values) t: 20},
       skillGaps: const [],
       cvAiBridge: 'Bridge text.',
       roadmap: const [],

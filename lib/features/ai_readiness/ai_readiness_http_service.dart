@@ -49,8 +49,8 @@ Future<AiReadinessResult> httpAnalyzeAiReadiness({
 }) async {
   final body = <String, dynamic>{
     'readinessScore': assessment.readinessScore,
-    'dimensionScores': assessment.tierScores.map(
-      (tier, score) => MapEntry(tier.name, score),
+    'dimensionScores': assessment.topicScores.map(
+      (topic, score) => MapEntry(topic.name, score),
     ),
     if (releaseDate != null) 'releaseDate': releaseDate.toIso8601String(),
   };
@@ -121,7 +121,7 @@ Future<AiReadinessResult> httpAnalyzeAiReadiness({
   return AiReadinessResult(
     readinessScore: (json['readiness_score'] as num?)?.toInt() ?? assessment.readinessScore,
     scoreRationale: json['score_rationale'] as String,
-    tierScores: assessment.tierScores,
+    topicScores: assessment.topicScores,
     skillGaps: skillGaps,
     cvAiBridge: json['cv_ai_bridge'] as String,
     roadmap: roadmap,

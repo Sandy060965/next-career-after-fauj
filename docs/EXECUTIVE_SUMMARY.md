@@ -13,8 +13,11 @@ officers (typically 40–60, pensioned, longer service record to translate).
 **How it's organized.** Everything below sits behind a one-time,
 phone-verified sign-up (Service, Rank, Name, DOB, work experience, release
 date, and — deliberately — no ACR or unit-identifying information, ever).
-From there, a Profile screen and a Transition Readiness Index dashboard
-link out to every module. The modules fall into seven natural groups:
+From there, a Home dashboard (Transition Readiness score, next 3
+recommended actions) and a bottom navigation bar — Home / Career / Jobs /
+Learn / Profile — link out to every module, plus an AI Assistant (typed or
+spoken) reachable from any screen for open-ended questions. The modules
+themselves fall into seven natural groups:
 
 ---
 
@@ -114,10 +117,19 @@ link out to every module. The modules fall into seven natural groups:
 
 ## The dashboard
 
-**Transition Readiness Index** (Career Readiness screen) — a composite
-view across the modules above that produce a score (JD Match, Vertical
-Fit, AI Readiness, etc.), showing what's been completed and what's still
-worth doing, rather than a single opaque number.
+**Home** — a greeting, the Transition Readiness score, and a deterministic
+"next 3 actions" list built from the officer's actual state (never a
+fabricated recommendation).
+
+**Transition Readiness Index** — the full breakdown behind that score: a
+composite across the modules that produce one (JD Match, Vertical Fit, AI
+Readiness), showing what's been completed and what's still worth doing,
+rather than a single opaque number.
+
+**AI Assistant** — a chat-style entry point (typed or spoken) for
+open-ended questions — "explain this corporate term," "help me prepare for
+an interview" — grounded only in the officer's own real, already-computed
+data; it never invents a score or CV detail it wasn't given.
 
 ---
 

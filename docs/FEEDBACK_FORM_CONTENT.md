@@ -1,58 +1,82 @@
-# Beta Feedback Form — ready to paste into Google Forms
+# Beta Feedback Form — content record
 
-I don't have a way to create a Google Form directly (no Google account
-access), but here's the exact content — paste this into a new form at
-forms.google.com and it should take under two minutes to set up. An
-Artifact-based alternative (a page I build and host myself, with a
-built-in response log) is also on offer if you'd rather skip the manual
-setup — just ask.
+This mirrors the live, published Google Form exactly (last synced against
+the published form content). The form itself is the source of truth going
+forward — update it there first, then reflect the change here so this
+record doesn't drift.
+
+Live form: https://docs.google.com/forms/d/156ACNLSnSme1JKLjJTn__KK05wxHFdtxuqCNlaWADec/edit
 
 ---
 
-**Form title:** Next Career After Fauj — Beta Feedback
+**Form title:** Next Career After Fauj - Beta Feedback
 
-**Form description:** Thanks for trying the beta. This should take 3–5
+**Form description:** Thanks for trying the beta. This should take 3 - 5
 minutes. Every response is read — be as specific as you can, especially
 for bugs (what you tapped, what you expected, what happened instead).
 
 ---
 
-**Q1. Name** — Short answer, required.
+**Q1. Rank** — Short answer, required.
 
-**Q2. Which modules did you actually use?** — Checkboxes, required.
-Options: JD Match / Refined CV / CV Civilianizer / CV Builder / CV Writing
-Guide / Career Paths / Career Vertical Handbook / Corps-Arm Fit Matrix /
-Vertical Fit Quiz / Target Role Strategy / Job Matches / Compensation
-Guidance / Financial Planner / Skill Equivalency / AI Readiness /
-Interview Prep / Transition Plan / 90-Day Roadmap / Application Tracker /
-LinkedIn Writeup / Corporate Language Guide / Reading Programme / Future
-Mentor Sign Up / Other (please specify)
+**Q2. Name** — Short answer, required.
 
-**Q3. Overall, how useful was what you tried?** — Linear scale 1–5
-(1 = not useful, 5 = very useful), required.
+**Q3. Date of Commission** — Date, required.
 
-**Q4. Did anything crash, error, or look visually broken?** — Paragraph,
+**Q4. Which modules did you actually use?** — Checkboxes, required.
+Listed in the app's own navigation order (Home / Career / Jobs / Learn /
+Profile tabs):
+Options: My Transition Plan / Career Paths / Career Vertical Handbook /
+Corps/Arm/Branch Fit Matrix / Skill Equivalency Matrix / Transition
+Readiness Index / AI Readiness / Career Vertical Fit / Target Role
+Strategy / JD Match / Refined CV / Gap Roadmap / Base CV, Civilianized /
+Build My Civilian CV / CV Writing Guide & Templates / Corporate Language
+Guide / Corporate Transition - Reading Programme / Interview Prep / Job
+Matches / Application Tracker / Future Mentor Sign Up / LinkedIn Write-up
+/ Compensation Guidance / Financial & Cost-of-Living Calculator / Your
+First 90 Days / AI Assistant / Other (please specify)
+
+**Q5. Overall, how useful was what you tried?** — Linear scale 1–5
+(1 = Not Useful, 5 = Very Useful), required.
+
+**Q6. Did anything crash, error, or look visually broken?** — Paragraph,
 optional. *Please include which screen and what you were doing when it
 happened.*
 
-**Q5. Was anything factually wrong or off?** — Paragraph, optional.
-*Especially for the Financial Planner or Compensation Guidance — if a
-number looked wrong, what would you have expected instead?*
+**Q7. Was anything factually wrong or off?** — Paragraph, optional.
+*Please specify module(s) and provide details.*
 
-**Q6. Was anything confusing — a field, a button, a result you weren't
-sure how to read?** — Paragraph, optional.
+**Q8. Was anything confusing — a field, a button, a result you weren't
+sure how to read?** — Paragraph, optional. *Please specify the module(s)
+and provide details.*
 
-**Q7. What's missing?** — Paragraph, optional. *A module, a feature, a
-piece of guidance you expected and didn't find.*
+**Q9. What's missing?** — Paragraph, optional. *Any additional
+information / functionality / feature.*
 
-**Q8. Which module was most valuable to you, and why?** — Paragraph,
-optional.
+**Q10. Which module was most valuable to you, and why?** — Paragraph,
+optional. *Please specify module and reasons / logic.*
 
-**Q9. Would you recommend this to another transitioning officer as-is?**
-— Multiple choice, required. Options: Yes / Not yet, needs work / No
+**Q11. Would you recommend this to another transitioning officer as-is?**
+— Multiple choice, required. Options: Yes / Not Yet / Needs Work / No
 
-**Q10. Anything else?** — Paragraph, optional.
+**Q12. How long would you subscribe to this app?** — Multiple choice,
+required. Options: One month / Two months / Three months / Six months /
+One year / More than one year
 
-**Q11. Can we follow up with you if we have questions about your
-feedback?** — Multiple choice: Yes, here's my number/email (short answer
-follow-up) / No, that's all
+**Q13. Have you come across any similar app?** — Paragraph, optional.
+*Please provide name / details.*
+
+**Q14. Anything else?** — Paragraph, optional. *Please provide details
+and relevant context.*
+
+**Q15. Can we follow up with you if we have questions about your
+feedback?** — Multiple choice, required. Options: Yes, provide your
+mobile number and/or email in the next question / No, that's all
+
+**Q16. If yes, provide your mobile number and/or email** — Short answer,
+conditional on Q15.
+
+---
+
+Re-verified against the live published form — content above is an exact
+match, no open wording issues.

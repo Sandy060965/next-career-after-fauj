@@ -17,6 +17,7 @@ class ApplicationTrackerScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Application Tracker')),
       floatingActionButton: FloatingActionButton(
         key: const Key('addApplicationFab'),
+        tooltip: 'Log a new application',
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const AddEditApplicationScreen()),
         ),

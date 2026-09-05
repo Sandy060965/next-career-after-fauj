@@ -293,6 +293,7 @@ void main() {
     });
 
     testWidgets('picking and clearing a joining date works', (tester) async {
+      _setTallViewport(tester);
       final fake = _FakeNetworkService();
       await tester.pumpWidget(_wrap(NetworkOptInScreen(networkService: fake)));
 

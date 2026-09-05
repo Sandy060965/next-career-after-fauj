@@ -239,7 +239,7 @@ class _DateField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           suffixIcon: value != null
-              ? IconButton(icon: const Icon(Icons.clear), onPressed: onClear)
+              ? IconButton(icon: const Icon(Icons.clear), tooltip: 'Clear date', onPressed: onClear)
               : const Icon(Icons.calendar_today_outlined),
         ),
         child: Text(value == null ? 'Not set' : formatDate(value!)),

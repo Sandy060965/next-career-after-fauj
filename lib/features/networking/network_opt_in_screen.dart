@@ -173,6 +173,7 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
                         : IconButton(
                             key: const Key('clearJoiningDateButton'),
                             icon: const Icon(Icons.clear),
+                            tooltip: 'Clear date',
                             onPressed: () => setState(() => _joiningDate = null),
                           ),
                   ),

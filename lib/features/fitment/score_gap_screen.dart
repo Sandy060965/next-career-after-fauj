@@ -28,6 +28,10 @@ class ScoreGapScreen extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          const SizedBox(height: 16),
+          _RecommendationCard(gapCount: result.requirementBreakdown
+              .where((item) => item.status == RequirementStatus.gap)
+              .length),
           const SizedBox(height: 24),
           Text('Requirement breakdown', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -100,6 +104,63 @@ class _ScoreDial extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A deterministic, gap-count-driven recommendation — never AI-generated,
+/// so it's always consistent with the requirement breakdown shown right
+/// below it.
+class _RecommendationCard extends StatelessWidget {
+  const _RecommendationCard({required this.gapCount});
+
+  final int gapCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final (icon, title, detail) = switch (gapCount) {
+      0 => (
+          Icons.check_circle_outline,
+          'Recommendation: Apply',
+          "You meet or partially meet every requirement identified — this role is worth applying to as-is.",
+        ),
+      1 || 2 => (
+          Icons.info_outline,
+          'Recommendation: Apply',
+          'Worth applying now — be ready to address $gapCount priority gap${gapCount > 1 ? 's' : ''} '
+              'if it comes up at interview. See the requirement breakdown below.',
+        ),
+      _ => (
+          Icons.flag_outlined,
+          'Recommendation: Apply after addressing your priority gaps',
+          '$gapCount gaps were identified against this role\'s requirements. Review the Gap '
+              'Roadmap below before applying, so your application reflects your strongest case.',
+        ),
+    };
+    return Card(
+      key: const Key('recommendationCard'),
+      color: colorScheme.secondaryContainer.withValues(alpha: 0.35),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 4),
+                  Text(detail, style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

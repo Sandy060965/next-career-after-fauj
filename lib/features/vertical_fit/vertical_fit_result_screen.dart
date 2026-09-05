@@ -260,6 +260,17 @@ class _DimensionBar extends StatelessWidget {
   }
 }
 
+/// A qualitative read on the 0-100 fit score, shown alongside the number so
+/// it's interpretable at a glance. "Current" is deliberate throughout —
+/// this describes the officer's present profile, not a ceiling on what
+/// they could become with the right preparation.
+String _fitBandLabel(int score) {
+  if (score >= 80) return 'Strong current fit';
+  if (score >= 65) return 'Good potential';
+  if (score >= 50) return 'Development area';
+  return 'Limited current fit';
+}
+
 class _VerticalFitCard extends StatelessWidget {
   const _VerticalFitCard({
     required this.rank,
@@ -328,7 +339,19 @@ class _VerticalFitCard extends StatelessWidget {
                 Expanded(
                   child: Text(fit.vertical.name, style: Theme.of(context).textTheme.titleMedium),
                 ),
-                Text('${fit.fitScore}/100', style: Theme.of(context).textTheme.titleSmall),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('${fit.fitScore}/100', style: Theme.of(context).textTheme.titleSmall),
+                    Text(
+                      _fitBandLabel(fit.fitScore),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 8),

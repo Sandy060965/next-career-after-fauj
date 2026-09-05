@@ -127,6 +127,18 @@ can get past the login wall, regardless of who has the link. To add or
 remove a tester, edit that policy's email list directly in the Cloudflare
 dashboard.
 
+### Admin dashboard
+
+Reached at `/admin` on the live web app (e.g.
+`https://nextcareerafterfauj.com/#/admin`) — not linked from anywhere in
+the app's own navigation. Gated on the `ADMIN_SECRET` Worker secret (`npx
+wrangler secret put ADMIN_SECRET` to set/rotate it); the key is entered
+once per visit and held in memory only, never persisted to disk. Shows
+every signed-up officer with a self-reported onboarding-progress snapshot
+(Transition Readiness score, which modules they've completed, applications
+tracked), and a Support Tickets tab for messages officers submit in-app via
+Profile → Help & Support.
+
 ## What's not built yet
 
 - **Subscription/paywall** — no payment gateway; the only entitlement
@@ -136,7 +148,6 @@ dashboard.
   web build above works fine on iOS in the meantime, just not as an
   installed app).
 - **CI/CD** — no automated test/build/deploy pipeline.
-- Real app icon (currently the default Flutter template icon).
 
 ## Beta distribution
 

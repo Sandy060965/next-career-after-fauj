@@ -1162,9 +1162,18 @@ exists, etc.) and, where relevant, their CV text or PDF. Only the fields
 actually present in that context are real — never invent a score, a
 module result, or CV content that isn't given to you.
 
+The officer may also attach a document for the conversation (e.g. a job
+description or offer letter they're asking you to compare against). When
+one is attached, treat it as authoritative for this conversation — never
+ask the officer to repaste content that's already attached, and ground any
+comparison (e.g. "how well does my profile match it") strictly in what that
+document actually says.
+
 STRICT RULES:
 - Never invent or restate a score, competency, course, or CV detail that
   isn't explicitly present in the provided context or CV.
+- Never invent a requirement, responsibility, or detail in an attached
+  document that isn't actually there.
 - If the officer asks about something that depends on a module they
   haven't completed yet (e.g. "explain my JD match gaps" with no JD Match
   on file), say so plainly and name the exact module to complete first —
@@ -1184,7 +1193,7 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
 }`;
 
 async function handleAssistant(body, env) {
-  const { message, history, profileContext, cvText, cvPdfBase64 } = body;
+  const { message, history, profileContext, cvText, cvPdfBase64, attachmentName, attachmentText, attachmentPdfBase64 } = body;
   if (!message || typeof message !== 'string' || !message.trim()) {
     return json({ error: 'message is required' }, 400);
   }
@@ -1195,16 +1204,33 @@ async function handleAssistant(body, env) {
         .join('\n')}\n\n`
     : '';
   const contextText = profileContext ? `Profile context:\n${profileContext}\n\n` : '';
+  const attachmentLabel = attachmentName
+    ? `The officer has attached a document named "${attachmentName}" for this conversation (e.g. a ` +
+      `job description or offer letter) — reference it directly where relevant.\n\n`
+    : '';
 
   let userContent;
-  if (cvPdfBase64) {
-    userContent = [
-      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: cvPdfBase64 } },
-      { type: 'text', text: `${contextText}${historyText}The officer's new message: ${message}` },
-    ];
+  if (cvPdfBase64 || attachmentPdfBase64) {
+    const blocks = [];
+    if (cvPdfBase64) {
+      blocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: cvPdfBase64 } });
+    }
+    if (attachmentPdfBase64) {
+      blocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: attachmentPdfBase64 } });
+    }
+    const cvSection = !cvPdfBase64 && cvText ? `CV:\n${cvText}\n\n` : '';
+    const attachmentSection = !attachmentPdfBase64 && attachmentText
+      ? `Attached document ("${attachmentName}"):\n${attachmentText}\n\n`
+      : '';
+    blocks.push({
+      type: 'text',
+      text: `${attachmentLabel}${contextText}${cvSection}${attachmentSection}${historyText}The officer's new message: ${message}`,
+    });
+    userContent = blocks;
   } else {
     const cvSection = cvText ? `CV:\n${cvText}\n\n` : '';
-    userContent = `${contextText}${cvSection}${historyText}The officer's new message: ${message}`;
+    const attachmentSection = attachmentText ? `Attached document ("${attachmentName}"):\n${attachmentText}\n\n` : '';
+    userContent = `${attachmentLabel}${contextText}${cvSection}${attachmentSection}${historyText}The officer's new message: ${message}`;
   }
 
   try {

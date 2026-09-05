@@ -27,6 +27,9 @@ typedef SendAssistantMessage = Future<String> Function({
   String? profileContext,
   String? cvText,
   Uint8List? cvPdfBytes,
+  String? attachmentName,
+  String? attachmentText,
+  Uint8List? attachmentPdfBytes,
 });
 
 Future<String> httpSendAssistantMessage({
@@ -35,6 +38,9 @@ Future<String> httpSendAssistantMessage({
   String? profileContext,
   String? cvText,
   Uint8List? cvPdfBytes,
+  String? attachmentName,
+  String? attachmentText,
+  Uint8List? attachmentPdfBytes,
 }) async {
   final body = <String, dynamic>{
     'message': message,
@@ -48,6 +54,14 @@ Future<String> httpSendAssistantMessage({
     body['cvPdfBase64'] = base64Encode(cvPdfBytes);
   } else if (cvText != null) {
     body['cvText'] = cvText;
+  }
+  if (attachmentName != null) {
+    body['attachmentName'] = attachmentName;
+    if (attachmentPdfBytes != null) {
+      body['attachmentPdfBase64'] = base64Encode(attachmentPdfBytes);
+    } else if (attachmentText != null) {
+      body['attachmentText'] = attachmentText;
+    }
   }
   final encodedBody = jsonEncode(body);
 

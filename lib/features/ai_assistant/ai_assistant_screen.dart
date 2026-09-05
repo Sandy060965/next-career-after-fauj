@@ -1,12 +1,23 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/services/document_text_extractor.dart';
+import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/services/transition_readiness.dart';
 import '../../core/services/voice_input_service.dart';
 import 'ai_assistant_http_service.dart';
 import 'ai_assistant_service.dart';
 import 'assistant_message.dart';
+
+// PDF is included alongside DOCX/TXT: Claude reads PDF bytes natively (same
+// as the CV upload), so no client-side extraction is needed for it — see
+// _pickAttachment.
+Future<PickedFile?> _defaultPickAttachment() =>
+    pickFileWithBytes(allowedExtensions: const ['pdf', 'docx', 'txt']);
 
 class _QuickAction {
   const _QuickAction({required this.label, required this.icon, required this.prompt, this.sendImmediately = true});
@@ -91,12 +102,17 @@ class AiAssistantScreen extends StatefulWidget {
   AiAssistantScreen({
     super.key,
     this.sendMessage = mockSendAssistantMessage,
+    this.pickFile = _defaultPickAttachment,
     VoiceInputService? voiceInputService,
   }) : voiceInputService = voiceInputService ?? SpeechToTextVoiceInputService();
 
   /// Overridable for testing; defaults to sample data until the Cloudflare
   /// Worker backend is wired in.
   final SendAssistantMessage sendMessage;
+
+  /// Overridable for testing so the native file-picker channel never needs
+  /// to be invoked.
+  final Future<PickedFile?> Function() pickFile;
 
   /// Overridable for testing so the native speech-recognition channel never
   /// needs to be invoked. Transcription happens entirely on-device via the
@@ -117,6 +133,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   bool _isListening = false;
   String? _voiceError;
   String? _error;
+
+  String? _attachmentName;
+  String? _attachmentText;
+  Uint8List? _attachmentPdfBytes;
+  bool _isProcessingAttachment = false;
+  String? _attachmentError;
 
   @override
   void dispose() {
@@ -152,6 +174,66 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         });
       },
     );
+  }
+
+  Future<void> _pickAttachment() async {
+    final file = await widget.pickFile();
+    if (file == null) return;
+
+    setState(() {
+      _attachmentName = file.name;
+      _attachmentText = null;
+      _attachmentPdfBytes = null;
+      _attachmentError = null;
+    });
+
+    final extension = file.name.split('.').last.toLowerCase();
+    if (extension == 'pdf') {
+      // A very large PDF can take long enough to base64-encode client-side
+      // before the request that the chat looks stuck rather than just slow.
+      if (file.bytes.lengthInBytes > kMaxUploadPdfBytes) {
+        setState(() {
+          _attachmentName = null;
+          _attachmentError =
+              'This PDF is larger than $kMaxUploadPdfMb MB, which can make the assistant hang. '
+              'Try a smaller/compressed PDF, or paste the text into your message instead.';
+        });
+        return;
+      }
+      // Claude reads PDFs natively — no client-side extraction needed.
+      setState(() => _attachmentPdfBytes = file.bytes);
+      return;
+    }
+    if (extension == 'txt') {
+      setState(() => _attachmentText = utf8.decode(file.bytes, allowMalformed: true));
+      return;
+    }
+
+    setState(() => _isProcessingAttachment = true);
+    try {
+      final text = await extractDocxText(file.bytes);
+      if (!mounted) return;
+      setState(() {
+        _attachmentText = text;
+        _isProcessingAttachment = false;
+      });
+    } on DocxExtractionException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isProcessingAttachment = false;
+        _attachmentName = null;
+        _attachmentError = "Couldn't read this file's text ($e). Try a different file instead.";
+      });
+    }
+  }
+
+  void _removeAttachment() {
+    setState(() {
+      _attachmentName = null;
+      _attachmentText = null;
+      _attachmentPdfBytes = null;
+      _attachmentError = null;
+    });
   }
 
   void _applyQuickAction(_QuickAction action) {
@@ -193,6 +275,9 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         profileContext: _buildProfileContext(repo),
         cvText: profile?.cvExtractedText,
         cvPdfBytes: profile?.cvPdfBytes,
+        attachmentName: _attachmentName,
+        attachmentText: _attachmentText,
+        attachmentPdfBytes: _attachmentPdfBytes,
       );
       if (!mounted) return;
       setState(() {
@@ -262,12 +347,46 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
               ),
             ),
+          if (_attachmentError != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                _attachmentError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
+              ),
+            ),
+          if (_attachmentName != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Chip(
+                  key: const Key('assistantAttachmentChip'),
+                  avatar: const Icon(Icons.attach_file, size: 16),
+                  label: Text(_attachmentName!),
+                  onDeleted: _removeAttachment,
+                  deleteIconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
           SafeArea(
             top: false,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
+                  IconButton(
+                    key: const Key('assistantAttachButton'),
+                    icon: _isProcessingAttachment
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.attach_file_outlined),
+                    tooltip: 'Attach a document (e.g. a job description)',
+                    onPressed: _isSending || _isProcessingAttachment ? null : _pickAttachment,
+                  ),
                   Expanded(
                     child: TextField(
                       key: const Key('assistantInputField'),
@@ -318,7 +437,8 @@ class _QuickActionsPanel extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           'Ask about your CV, a job description, a corporate term, or how to prepare for '
-          'what comes next.',
+          'what comes next. Use the paperclip below to attach a document (or paste its text '
+          'straight into your message) — either way works.',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 20),

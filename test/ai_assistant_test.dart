@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
+import 'package:next_career_after_fauj/core/services/file_picker_service.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/services/voice_input_service.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
@@ -83,7 +87,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: _FakeVoiceInputService(),
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async {
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async {
             capturedMessage = message;
             capturedContext = profileContext;
             return 'Your CV shows strong leadership experience.';
@@ -112,7 +116,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: _FakeVoiceInputService(),
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async {
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async {
             called = true;
             return 'reply';
           },
@@ -138,7 +142,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: _FakeVoiceInputService(),
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async {
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async {
             return 'Here is my answer.';
           },
         ),
@@ -163,7 +167,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: _FakeVoiceInputService(),
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async {
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async {
             receivedHistories.add(history);
             return 'reply $message';
           },
@@ -194,7 +198,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: _FakeVoiceInputService(),
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async {
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async {
             throw Exception('network down');
           },
         ),
@@ -219,7 +223,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: fakeVoice,
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async =>
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async =>
               'reply',
         ),
       ),
@@ -270,7 +274,7 @@ void main() {
         repository: repo,
         child: AiAssistantScreen(
           voiceInputService: fakeVoice,
-          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes}) async =>
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async =>
               'reply',
         ),
       ),
@@ -286,5 +290,129 @@ void main() {
 
     expect(fakeVoice.stopListeningCalled, isTrue);
     expect(fakeVoice.isListening, isFalse);
+  });
+
+  testWidgets('attaching a txt file shows a chip and sends its text with the message',
+      (tester) async {
+    String? capturedAttachmentName;
+    String? capturedAttachmentText;
+    final repo = ProfileRepository();
+
+    await tester.pumpWidget(
+      _wrap(
+        repository: repo,
+        child: AiAssistantScreen(
+          voiceInputService: _FakeVoiceInputService(),
+          pickFile: () async => PickedFile(
+            name: 'job-description.txt',
+            bytes: Uint8List.fromList(utf8.encode('We need a Senior Ops Manager.')),
+          ),
+          sendMessage: ({
+            required message,
+            required history,
+            profileContext,
+            cvText,
+            cvPdfBytes,
+            attachmentName,
+            attachmentText,
+            attachmentPdfBytes,
+          }) async {
+            capturedAttachmentName = attachmentName;
+            capturedAttachmentText = attachmentText;
+            return 'It looks like a strong match.';
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('assistantAttachButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('assistantAttachmentChip')), findsOneWidget);
+    expect(find.text('job-description.txt'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('assistantInputField')),
+      'How well does my profile match this?',
+    );
+    await tester.tap(find.byKey(const Key('assistantSendButton')));
+    await tester.pumpAndSettle();
+
+    expect(capturedAttachmentName, 'job-description.txt');
+    expect(capturedAttachmentText, 'We need a Senior Ops Manager.');
+    // The chip stays for follow-up questions in the same conversation.
+    expect(find.byKey(const Key('assistantAttachmentChip')), findsOneWidget);
+  });
+
+  testWidgets('removing an attachment clears it from the next message', (tester) async {
+    String? capturedAttachmentName = 'not sent yet';
+    final repo = ProfileRepository();
+
+    await tester.pumpWidget(
+      _wrap(
+        repository: repo,
+        child: AiAssistantScreen(
+          voiceInputService: _FakeVoiceInputService(),
+          pickFile: () async => PickedFile(
+            name: 'job-description.txt',
+            bytes: Uint8List.fromList(utf8.encode('We need a Senior Ops Manager.')),
+          ),
+          sendMessage: ({
+            required message,
+            required history,
+            profileContext,
+            cvText,
+            cvPdfBytes,
+            attachmentName,
+            attachmentText,
+            attachmentPdfBytes,
+          }) async {
+            capturedAttachmentName = attachmentName;
+            return 'reply';
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('assistantAttachButton')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('assistantAttachmentChip')), findsOneWidget);
+
+    await tester.tap(find.descendant(
+      of: find.byKey(const Key('assistantAttachmentChip')),
+      matching: find.byIcon(Icons.cancel),
+    ));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('assistantAttachmentChip')), findsNothing);
+
+    await tester.enterText(find.byKey(const Key('assistantInputField')), 'hello');
+    await tester.tap(find.byKey(const Key('assistantSendButton')));
+    await tester.pumpAndSettle();
+
+    expect(capturedAttachmentName, isNull);
+  });
+
+  testWidgets('an oversized PDF attachment is rejected with a clear reason', (tester) async {
+    final repo = ProfileRepository();
+    final oversized = Uint8List(kMaxUploadPdfBytes + 1);
+
+    await tester.pumpWidget(
+      _wrap(
+        repository: repo,
+        child: AiAssistantScreen(
+          voiceInputService: _FakeVoiceInputService(),
+          pickFile: () async => PickedFile(name: 'huge-jd.pdf', bytes: oversized),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('assistantAttachButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('assistantAttachmentChip')), findsNothing);
+    expect(find.textContaining('larger than $kMaxUploadPdfMb MB'), findsOneWidget);
   });
 }

@@ -1148,6 +1148,77 @@ async function handleCompensation(body, env) {
   });
 }
 
+const AI_ASSISTANT_SYSTEM_PROMPT = `You are a conversational assistant embedded in "Next Career After Fauj", an
+app helping Indian Armed Forces officers transition to civilian careers.
+You answer questions about the officer's own transition, explain corporate
+terms, and point the officer to the right in-app module — you do not
+replace the app's dedicated modules (CV matching, financial planning,
+interview prep), you help the officer use them and understand their
+results.
+
+You are given a "profile context" summary describing what the officer has
+already completed in the app (scores, whether a JD Match or financial plan
+exists, etc.) and, where relevant, their CV text or PDF. Only the fields
+actually present in that context are real — never invent a score, a
+module result, or CV content that isn't given to you.
+
+STRICT RULES:
+- Never invent or restate a score, competency, course, or CV detail that
+  isn't explicitly present in the provided context or CV.
+- If the officer asks about something that depends on a module they
+  haven't completed yet (e.g. "explain my JD match gaps" with no JD Match
+  on file), say so plainly and name the exact module to complete first —
+  never fabricate a plausible-sounding answer to fill the gap.
+- Never reference military rank progression, ACRs, or classified/unit-
+  identifying details, even if asked.
+- Keep replies conversational and concise — a chat answer (typically 2-6
+  sentences), not a report. Use a short list only if the officer's
+  question genuinely calls for one.
+- If asked something with no connection to career transition, corporate
+  concepts, or this app, say that's outside what you can help with here
+  rather than answering as a general-purpose assistant.
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
+{
+  "reply": "<your conversational response>"
+}`;
+
+async function handleAssistant(body, env) {
+  const { message, history, profileContext, cvText, cvPdfBase64 } = body;
+  if (!message || typeof message !== 'string' || !message.trim()) {
+    return json({ error: 'message is required' }, 400);
+  }
+
+  const historyText = Array.isArray(history) && history.length > 0
+    ? `Conversation so far:\n${history
+        .map((turn) => `${turn.role === 'assistant' ? 'Assistant' : 'Officer'}: ${turn.content}`)
+        .join('\n')}\n\n`
+    : '';
+  const contextText = profileContext ? `Profile context:\n${profileContext}\n\n` : '';
+
+  let userContent;
+  if (cvPdfBase64) {
+    userContent = [
+      { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: cvPdfBase64 } },
+      { type: 'text', text: `${contextText}${historyText}The officer's new message: ${message}` },
+    ];
+  } else {
+    const cvSection = cvText ? `CV:\n${cvText}\n\n` : '';
+    userContent = `${contextText}${cvSection}${historyText}The officer's new message: ${message}`;
+  }
+
+  try {
+    const parsed = await callClaude(env, {
+      system: AI_ASSISTANT_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 1024,
+    });
+    return json({ reply: parsed.reply });
+  } catch (e) {
+    return json({ error: 'Could not reach the assistant', detail: `${e}` }, 502);
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -1183,6 +1254,7 @@ export default {
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);
     if (path === '/compensation') return handleCompensation(body, env);
+    if (path === '/assistant') return handleAssistant(body, env);
     if (path === '/auth/request-otp') return handleRequestOtp(body, env);
     if (path === '/auth/verify-otp') return handleVerifyOtp(body, env);
     if (path === '/auth/refresh') return handleRefreshToken(body, env);

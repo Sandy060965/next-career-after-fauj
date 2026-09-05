@@ -365,7 +365,7 @@ class _DimensionCard extends StatelessWidget {
               children: [
                 Expanded(child: Text(dimension.label, style: Theme.of(context).textTheme.titleMedium)),
                 if (score != null)
-                  Text('$score', style: Theme.of(context).textTheme.titleMedium),
+                  Text('$score/100', style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: 4),

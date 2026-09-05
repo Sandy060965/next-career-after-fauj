@@ -85,10 +85,13 @@ void main() {
     expect(find.byKey(const Key('readinessAction_CV & JD Fit')), findsNothing);
     expect(find.byKey(const Key('readinessAction_AI Readiness')), findsNothing);
 
-    // 63 falls in the 60-69 "Moderate fitment" band.
+    // 63 falls in the 60-69 "Moderately prepared" band.
     expect(find.byKey(const Key('readinessBandCard')), findsOneWidget);
     expect(find.byKey(const Key('readinessBandLabel')), findsOneWidget);
-    expect(tester.widget<Text>(find.byKey(const Key('readinessBandLabel'))).data, 'Moderate fitment');
+    expect(
+      tester.widget<Text>(find.byKey(const Key('readinessBandLabel'))).data,
+      'Moderately prepared',
+    );
     // Career Fit (60) and AI Readiness (60) tie for lowest; either is a
     // correct answer for reduce()'s <= tie-break, so just check the score.
     expect(find.textContaining('/100) — this is the single biggest lever'), findsOneWidget);
@@ -98,12 +101,12 @@ void main() {
     for (final band in [
       'Early stage',
       'Developing',
-      'Fair fitment',
-      'Moderate fitment',
-      'Good fitment',
-      'Excellent fitment',
+      'Fair foundation',
+      'Moderately prepared',
+      'Well positioned',
+      'Highly prepared',
     ]) {
-      // "Moderate fitment" legitimately appears twice — once in the band
+      // "Moderately prepared" legitimately appears twice — once in the band
       // callout, once in the legend row — everything else appears once.
       expect(find.text(band), findsWidgets);
     }

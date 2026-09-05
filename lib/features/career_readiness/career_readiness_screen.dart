@@ -153,37 +153,40 @@ const _readinessBands = [
   _ReadinessBand(
     label: 'Early stage',
     range: 'Below 40',
-    description: 'Sizeable gaps across more than one dimension — worth focusing on the '
-        'fundamentals before actively applying.',
+    description: "You're at the start of the transition journey, with meaningful gaps across "
+        'more than one dimension. Focus on the fundamentals — understanding your options and '
+        'building a baseline — before applying in earnest.',
   ),
   _ReadinessBand(
     label: 'Developing',
     range: '40–49',
-    description: 'Meaningful gaps remain in at least one dimension — worth closing before '
-        'applying in earnest.',
+    description: 'Some transferable strengths are showing, but real gaps remain in your '
+        'positioning and readiness. Worth closing these before applying broadly.',
   ),
   _ReadinessBand(
-    label: 'Fair fitment',
+    label: 'Fair foundation',
     range: '50–59',
-    description: 'A workable foundation, but noticeable gaps remain — expect real preparation '
-        'before you\'re competitive.',
+    description: 'A workable base to build from, though noticeable gaps remain. You can start '
+        'exploring roles while you keep closing them.',
   ),
   _ReadinessBand(
-    label: 'Moderate fitment',
+    label: 'Moderately prepared',
     range: '60–69',
-    description: 'Reasonably well positioned overall, with a few gaps worth addressing first.',
+    description: 'Good overall progress, with a few gaps still worth addressing before you '
+        'lean heavily on this profile in the job market.',
   ),
   _ReadinessBand(
-    label: 'Good fitment',
+    label: 'Well positioned',
     range: '70–79',
-    description: 'Strong overall positioning — a few minor gaps to address before you\'re '
-        'fully ready.',
+    description: "A strong foundation with a few identifiable gaps. You're ready to actively "
+        'pursue opportunities — closing your lowest-scoring area will sharpen your '
+        'competitiveness further.',
   ),
   _ReadinessBand(
-    label: 'Excellent fitment',
+    label: 'Highly prepared',
     range: '80 and above',
-    description: 'Very strong positioning across the board — at most 2-3 minor gaps left to '
-        'round out your profile.',
+    description: 'Well prepared across the board. The focus now shifts from closing gaps to '
+        'targeting the right roles and converting opportunities into offers.',
   ),
 ];
 
@@ -265,7 +268,7 @@ class _ReadinessBandLegend extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('What your score means', style: Theme.of(context).textTheme.titleSmall),
+            Text('Where you stand in your transition', style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             for (final band in _readinessBands)
               Padding(

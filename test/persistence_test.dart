@@ -5,6 +5,7 @@ import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness_scenario.dart';
+import 'package:next_career_after_fauj/features/cv_builder/built_cv.dart';
 import 'package:next_career_after_fauj/features/cv_civilianizer/civilianized_cv.dart';
 import 'package:next_career_after_fauj/features/financial_planner/financial_plan.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
@@ -62,7 +63,7 @@ const _verticalFit = VerticalFitAssessment(ratings: {'ops-1': 4, 'people-1': 2})
 final _aiReadiness = AiReadinessResult(
   readinessScore: 60,
   scoreRationale: 'Moderate readiness.',
-  tierScores: {for (final t in AiReadinessTier.values) t: 60},
+  topicScores: {for (final t in AiReadinessTopic.values) t: 60},
   skillGaps: [
     SkillGap(competency: kAiCompetencies.first, severity: GapSeverity.high, reason: 'Needs practice.'),
   ],
@@ -92,7 +93,13 @@ final _application = JobApplication(
 
 const _civilianizedCv = CivilianizedCv(
   civilianizedCv: 'Operations Director with 14+ years leading large organisations.',
-  translationNotes: ['Rewrote command language as Operations Director.'],
+  translations: [
+    CvTranslation(
+      before: 'Commanding Officer of an 800-personnel unit.',
+      after: 'Operations Director leading an 800-person organisation.',
+      skillTags: ['Operations Leadership'],
+    ),
+  ],
 );
 
 void main() {
@@ -142,7 +149,7 @@ void main() {
       final restored = AiReadinessResult.fromJson(_aiReadiness.toJson());
 
       expect(restored.readinessScore, 60);
-      expect(restored.tierScores[AiReadinessTier.knowledge], 60);
+      expect(restored.topicScores[AiReadinessTopic.fundamentals], 60);
       expect(restored.skillGaps.single.competency.id, kAiCompetencies.first.id);
       expect(restored.skillGaps.single.severity, GapSeverity.high);
       expect(restored.cvAiBridge, _aiReadiness.cvAiBridge);
@@ -167,7 +174,10 @@ void main() {
       final restored = CivilianizedCv.fromJson(_civilianizedCv.toJson());
 
       expect(restored.civilianizedCv, _civilianizedCv.civilianizedCv);
-      expect(restored.translationNotes, _civilianizedCv.translationNotes);
+      expect(restored.translations.length, _civilianizedCv.translations.length);
+      expect(restored.translations.first.before, _civilianizedCv.translations.first.before);
+      expect(restored.translations.first.after, _civilianizedCv.translations.first.after);
+      expect(restored.translations.first.skillTags, _civilianizedCv.translations.first.skillTags);
     });
   });
 
@@ -271,6 +281,55 @@ void main() {
       expect(reader.applications, isEmpty);
       expect(reader.lastCivilianizedCv, isNull);
       expect(reader.lastFinancialPlanInput, isNull);
+    });
+  });
+
+  group('ProfileRepository.preferredCivilianCvText', () {
+    test('is null when neither Base CV Civilianized nor Build My Civilian CV has been done', () {
+      final repo = ProfileRepository();
+      expect(repo.preferredCivilianCvText, isNull);
+    });
+
+    test('returns the civilianized CV when only that one exists', () async {
+      final repo = ProfileRepository();
+      await repo.saveCivilianizedCv(
+        const CivilianizedCv(civilianizedCv: 'Civilianized text', translations: []),
+      );
+      expect(repo.preferredCivilianCvText, 'Civilianized text');
+    });
+
+    test('returns the built CV when only that one exists', () async {
+      final repo = ProfileRepository();
+      await repo.saveBuiltCv(const BuiltCv(cvText: 'Built text'));
+      expect(repo.preferredCivilianCvText, 'Built text');
+    });
+
+    test('prefers whichever of the two was completed most recently', () async {
+      final repo = ProfileRepository();
+      await repo.saveCivilianizedCv(
+        const CivilianizedCv(civilianizedCv: 'Civilianized text', translations: []),
+      );
+      await repo.saveBuiltCv(const BuiltCv(cvText: 'Built text'));
+      // Built CV was saved after the civilianized CV, so it wins.
+      expect(repo.preferredCivilianCvText, 'Built text');
+
+      await repo.saveCivilianizedCv(
+        const CivilianizedCv(civilianizedCv: 'Newer civilianized text', translations: []),
+      );
+      // Now the civilianized CV is the more recent one.
+      expect(repo.preferredCivilianCvText, 'Newer civilianized text');
+    });
+
+    test('the preference survives a reload from storage', () async {
+      final writer = ProfileRepository();
+      await writer.saveCivilianizedCv(
+        const CivilianizedCv(civilianizedCv: 'Civilianized text', translations: []),
+      );
+      await writer.saveBuiltCv(const BuiltCv(cvText: 'Built text'));
+
+      final reader = ProfileRepository();
+      await reader.loadFromStorage();
+      expect(reader.preferredCivilianCvText, 'Built text');
     });
   });
 }

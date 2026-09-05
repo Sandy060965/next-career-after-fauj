@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/analysis_loading_indicator.dart';
 import '../fitment/fitment_service.dart';
 import '../fitment/score_gap_screen.dart';
 
@@ -83,6 +84,17 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
 
     final extension = file.name.split('.').last.toLowerCase();
     if (extension == 'pdf') {
+      // A very large PDF can take long enough to base64-encode client-side
+      // before the request that "Check match" looks permanently stuck
+      // rather than just slow — reject it up front with a clear reason.
+      if (file.bytes.lengthInBytes > kMaxUploadPdfBytes) {
+        setState(() {
+          _uploadedFileName = null;
+          _error = 'This PDF is larger than $kMaxUploadPdfMb MB, which can make analysis '
+              'hang. Try a smaller/compressed PDF, or paste the text instead.';
+        });
+        return;
+      }
       // Claude reads PDFs natively — no client-side extraction needed.
       setState(() => _uploadedJdPdfBytes = file.bytes);
       return;
@@ -142,24 +154,36 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
       _isAnalyzing = true;
     });
 
-    final profile = context.read<ProfileRepository>().profile;
+    final repo = context.read<ProfileRepository>();
+    final profile = repo.profile;
+    // Prefer a civilian-ready CV the officer has already produced (Base CV
+    // Civilianized or Build My Civilian CV, whichever is more recent) over
+    // the raw military-language CV from onboarding — matching it against
+    // the JD is more useful once it's actually written in civilian terms.
+    // That also means sending plain text rather than the original PDF
+    // bytes, since both civilian-CV sources are text-only outputs.
+    final preferredCv = repo.preferredCivilianCvText;
+    final effectiveCvText = preferredCv ?? profile?.cvExtractedText;
+    final effectiveCvPdfBytes = preferredCv == null ? profile?.cvPdfBytes : null;
     try {
       final result = await widget.analyzeFitment(
         jdText: jdSource,
         jdPdfBytes: jdPdfBytes,
         cvFileName: profile?.cvFileName ?? 'uploaded CV',
-        cvExtractedText: profile?.cvExtractedText,
-        cvPdfBytes: profile?.cvPdfBytes,
+        cvExtractedText: effectiveCvText,
+        cvPdfBytes: effectiveCvPdfBytes,
       );
       if (!mounted) return;
-      await context
-          .read<ProfileRepository>()
-          .saveFitmentResult(result, jdText: jdPdfBytes == null ? jdSource : null, jdPdfBytes: jdPdfBytes);
+      await repo.saveFitmentResult(
+        result,
+        jdText: jdPdfBytes == null ? jdSource : null,
+        jdPdfBytes: jdPdfBytes,
+      );
       if (!mounted) return;
       setState(() => _isAnalyzing = false);
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => ScoreGapScreen(result: result, originalCvText: profile?.cvExtractedText),
+          builder: (_) => ScoreGapScreen(result: result, originalCvText: effectiveCvText),
         ),
       );
     } catch (e) {
@@ -257,6 +281,19 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
                     : const Text('Check match'),
               ),
             ),
+            if (_isAnalyzing) ...[
+              const SizedBox(height: 16),
+              const Center(
+                child: AnalysisLoadingIndicator(
+                  messages: [
+                    'Reading your CV and this job description...',
+                    'Mapping your experience to its requirements...',
+                    'Identifying where you already meet the bar...',
+                    'Working out the gaps worth closing...',
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

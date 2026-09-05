@@ -106,7 +106,7 @@ void main() {
   testWidgets(
     'CV-upload onboarding flow creates a profile and lands on Profile screen',
     (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
+      tester.view.physicalSize = const Size(430, 2000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -208,7 +208,7 @@ void main() {
     'pressing Continue with required fields empty shows a visible SnackBar, '
     'not just an off-screen inline error',
     (tester) async {
-      tester.view.physicalSize = const Size(430, 1400);
+      tester.view.physicalSize = const Size(430, 2000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -371,6 +371,26 @@ void main() {
     await tester.pump(const Duration(seconds: 6));
 
     expect(repository.profile?.corpsOrArm, isNull);
+  });
+
+  testWidgets('a PDF larger than the size limit is rejected with a clear reason', (tester) async {
+    tester.view.physicalSize = const Size(430, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final oversized = Uint8List(kMaxUploadPdfBytes + 1);
+    await tester.pumpWidget(
+      _appUnderTest(pickFile: () async => PickedFile(name: 'huge-scan.pdf', bytes: oversized)),
+    );
+    await _completeStepsUpToCvUpload(tester);
+
+    await tester.tap(find.byKey(const Key('browseButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('larger than $kMaxUploadPdfMb MB'), findsOneWidget);
+    // Rejected — no filename should be shown as if the upload succeeded.
+    expect(find.text('huge-scan.pdf'), findsNothing);
   });
 
   testWidgets(

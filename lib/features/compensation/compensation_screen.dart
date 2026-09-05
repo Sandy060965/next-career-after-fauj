@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/analysis_loading_indicator.dart';
 import 'compensation_estimate.dart';
 import 'compensation_service.dart';
 
@@ -77,7 +78,15 @@ class _CompensationScreenState extends State<CompensationScreen> {
             if (!hasJdText)
               _buildNoJdCard(context)
             else if (_isLoading)
-              const Center(child: CircularProgressIndicator())
+              const Center(
+                child: AnalysisLoadingIndicator(
+                  messages: [
+                    'Reading the job description...',
+                    'Finding comparable India-market compensation data...',
+                    'Working out where your military package stands against it...',
+                  ],
+                ),
+              )
             else if (_error != null)
               Padding(
                 padding: const EdgeInsets.all(24),

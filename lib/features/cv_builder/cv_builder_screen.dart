@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/analysis_loading_indicator.dart';
 import 'built_cv.dart';
 import 'cv_builder_intake.dart';
 import 'cv_builder_service.dart';
@@ -247,6 +248,18 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                     : const Text('Build my CV'),
               ),
             ),
+            if (_isBuilding) ...[
+              const SizedBox(height: 16),
+              const Center(
+                child: AnalysisLoadingIndicator(
+                  messages: [
+                    'Reading through what you entered...',
+                    'Writing it up in clean, corporate CV language...',
+                    'Formatting your sections...',
+                  ],
+                ),
+              ),
+            ],
             if (_error != null) ...[
               const SizedBox(height: 16),
               Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -278,6 +291,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                   IconButton(
                     key: ValueKey('removeWorkExperienceButton_$index'),
                     icon: const Icon(Icons.delete_outline),
+                    tooltip: 'Remove this role',
                     onPressed: () => setState(() {
                       _workExperience.removeAt(index).dispose();
                     }),
@@ -332,6 +346,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 IconButton(
                   key: ValueKey('removeEducationButton_$index'),
                   icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Remove this education entry',
                   onPressed: () => setState(() {
                     _education.removeAt(index).dispose();
                   }),
@@ -389,6 +404,7 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             IconButton(
               key: ValueKey('removeCertificationButton_$index'),
               icon: const Icon(Icons.delete_outline),
+              tooltip: 'Remove this certification',
               onPressed: () => setState(() {
                 _certifications.removeAt(index).dispose();
               }),

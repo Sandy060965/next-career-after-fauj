@@ -4,9 +4,11 @@ import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/file_picker_service.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
+import 'package:next_career_after_fauj/features/cv_civilianizer/civilianized_cv.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_service.dart';
 import 'package:next_career_after_fauj/features/jd_match/jd_match_screen.dart';
@@ -205,6 +207,90 @@ void main() {
     // string under lastJdText.
     expect(repository.lastJdPdfBytes, pdfBytes);
     expect(repository.lastJdText, isNull);
+  });
+
+  testWidgets('a JD PDF larger than the size limit is rejected with a clear reason', (tester) async {
+    final oversized = Uint8List(kMaxUploadPdfBytes + 1);
+
+    await tester.pumpWidget(
+      _appUnderTest(pickFile: () async => PickedFile(name: 'huge-jd.pdf', bytes: oversized)),
+    );
+
+    await tester.tap(find.byKey(const Key('jdInput_upload')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('jdBrowseButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('larger than $kMaxUploadPdfMb MB'), findsOneWidget);
+    expect(find.text('huge-jd.pdf'), findsNothing);
+  });
+
+  testWidgets(
+      'prefers a civilianized/built CV over the raw uploaded CV when the officer has completed one',
+      (tester) async {
+    String? capturedCvText;
+    Uint8List? capturedCvPdfBytes;
+    Future<FitmentResult> capturingAnalyzeFitment({
+      required String jdText,
+      Uint8List? jdPdfBytes,
+      required String cvFileName,
+      String? cvExtractedText,
+      Uint8List? cvPdfBytes,
+    }) async {
+      capturedCvText = cvExtractedText;
+      capturedCvPdfBytes = cvPdfBytes;
+      return _stubResult;
+    }
+
+    final repository = ProfileRepository()
+      ..saveProfile(
+        OfficerProfile(
+          rank: 'Lt Col',
+          fullName: 'Lt Col A Verma',
+          dateOfBirth: DateTime(1978, 5, 10),
+          workExperienceYears: 18,
+          workExperienceMonths: 2,
+          releaseStatus: ReleaseStatus.tentative,
+          releaseDate: DateTime(2027, 6, 30),
+          service: OfficerService.army,
+          mobileNumber: '9876543210',
+          email: 'a.verma@example.com',
+          segment: OfficerSegment.pmr,
+          cvFileName: 'resume.pdf',
+          cvExtractedText: 'Raw military-language CV text',
+        ),
+      );
+    await repository.saveCivilianizedCv(
+      const CivilianizedCv(civilianizedCv: 'Civilian-ready CV text', translations: []),
+    );
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ProfileRepository>.value(
+        value: repository,
+        child: MaterialApp(
+          theme: AppTheme.light,
+          home: JdMatchScreen(
+            pickFile: () async => null,
+            analyzeFitment: capturingAnalyzeFitment,
+          ),
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byKey(const Key('jdTextField')),
+      'Looking for a logistics manager with 10 years experience.',
+    );
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
+    await tester.tap(find.byKey(const Key('checkMatchButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Fitment Score'), findsOneWidget);
+    expect(capturedCvText, 'Civilian-ready CV text');
+    // The civilianized CV is text-only — the original PDF bytes must not
+    // be sent alongside it, or the backend would analyse the raw CV instead.
+    expect(capturedCvPdfBytes, isNull);
   });
 
   testWidgets('a .docx that fails to extract shows an error instead of silently using the filename',

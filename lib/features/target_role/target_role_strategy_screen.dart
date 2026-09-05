@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/analysis_loading_indicator.dart';
 import '../career_paths/corps_affinity.dart';
 import '../vertical_fit/vertical_fit.dart';
 import 'target_role_service.dart';
@@ -120,7 +121,15 @@ class _TargetRoleStrategyScreenState extends State<TargetRoleStrategyScreen> {
       body: !hasAssessment
           ? _buildNoAssessmentCard(context)
           : _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                  child: AnalysisLoadingIndicator(
+                    messages: [
+                      'Reading your Career Vertical Fit results...',
+                      'Shortlisting target roles that match your top verticals...',
+                      'Building your role-by-role strategy...',
+                    ],
+                  ),
+                )
               : _error != null
                   ? Center(
                       child: Padding(

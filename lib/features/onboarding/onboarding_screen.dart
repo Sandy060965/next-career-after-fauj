@@ -198,6 +198,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
 
     if (extension == 'pdf') {
+      // A very large PDF (e.g. a high-resolution scan) can take long enough
+      // to base64-encode client-side that the "Check match"/analysis screen
+      // looks permanently stuck rather than just slow — reject it up front
+      // with a clear reason instead of letting that happen silently.
+      if (file.bytes.lengthInBytes > kMaxUploadPdfBytes) {
+        setState(() {
+          _uploadedFileName = null;
+          _cvError = 'This PDF is larger than $kMaxUploadPdfMb MB, which can make analysis '
+              'hang. Try a smaller/compressed PDF, or a Word (.docx) version instead.';
+        });
+        return;
+      }
       // Claude reads PDFs natively — no client-side extraction needed.
       setState(() => _cvPdfBytes = file.bytes);
       return;
@@ -286,6 +298,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         leading: _step > 0
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back',
                 onPressed: () => _goToStep(_step - 1),
               )
             : null,

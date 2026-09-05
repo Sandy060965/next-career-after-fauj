@@ -32,6 +32,8 @@ const _targetRoleStrategyKey = 'last_target_role_strategy_v1';
 const _cvEvidenceKey = 'last_cv_evidence_v1';
 const _cvBuilderIntakeKey = 'last_cv_builder_intake_v1';
 const _builtCvKey = 'last_built_cv_v1';
+const _civilianizedCvSavedAtKey = 'last_civilianized_cv_saved_at_v1';
+const _builtCvSavedAtKey = 'last_built_cv_saved_at_v1';
 const _cvFileName = 'officer_cv';
 const _jdFileName = 'last_jd';
 
@@ -62,6 +64,8 @@ class ProfileRepository extends ChangeNotifier {
   CvEvidenceResult? _lastCvEvidenceResult;
   CvBuilderIntake? _lastCvBuilderIntake;
   BuiltCv? _lastBuiltCv;
+  DateTime? _civilianizedCvSavedAt;
+  DateTime? _builtCvSavedAt;
 
   OfficerProfile? get profile => _profile;
 
@@ -108,6 +112,22 @@ class ProfileRepository extends ChangeNotifier {
   CvBuilderIntake? get lastCvBuilderIntake => _lastCvBuilderIntake;
 
   BuiltCv? get lastBuiltCv => _lastBuiltCv;
+
+  /// The officer's most recently completed civilian-ready CV text —
+  /// whichever of "Base CV, Civilianized" or "Build My Civilian CV" was
+  /// completed more recently — for JD Match to analyse instead of the raw
+  /// military-language CV from onboarding. Null if neither has been done
+  /// yet, in which case callers should fall back to the raw CV.
+  String? get preferredCivilianCvText {
+    final civilianized = _lastCivilianizedCv;
+    final built = _lastBuiltCv;
+    if (civilianized == null && built == null) return null;
+    if (civilianized == null) return built!.cvText;
+    if (built == null) return civilianized.civilianizedCv;
+    final civilianizedAt = _civilianizedCvSavedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+    final builtAt = _builtCvSavedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+    return builtAt.isAfter(civilianizedAt) ? built.cvText : civilianized.civilianizedCv;
+  }
 
   /// Loads previously persisted state from disk. Call once, before
   /// runApp, so the UI never flashes an empty state that then repopulates.
@@ -159,6 +179,7 @@ class ProfileRepository extends ChangeNotifier {
       if (civilianizedCvJson != null) {
         _lastCivilianizedCv =
             CivilianizedCv.fromJson(jsonDecode(civilianizedCvJson) as Map<String, dynamic>);
+        _civilianizedCvSavedAt = DateTime.tryParse(prefs.getString(_civilianizedCvSavedAtKey) ?? '');
       }
 
       final financialPlanJson = prefs.getString(_financialPlanKey);
@@ -188,6 +209,7 @@ class ProfileRepository extends ChangeNotifier {
       final builtCvJson = prefs.getString(_builtCvKey);
       if (builtCvJson != null) {
         _lastBuiltCv = BuiltCv.fromJson(jsonDecode(builtCvJson) as Map<String, dynamic>);
+        _builtCvSavedAt = DateTime.tryParse(prefs.getString(_builtCvSavedAtKey) ?? '');
       }
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
@@ -311,10 +333,12 @@ class ProfileRepository extends ChangeNotifier {
 
   Future<void> saveCivilianizedCv(CivilianizedCv result) async {
     _lastCivilianizedCv = result;
+    _civilianizedCvSavedAt = DateTime.now();
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_civilianizedCvKey, jsonEncode(result.toJson()));
+      await prefs.setString(_civilianizedCvSavedAtKey, _civilianizedCvSavedAt!.toIso8601String());
     } catch (e) {
       debugPrint('ProfileRepository.saveCivilianizedCv persistence failed: $e');
     }
@@ -366,10 +390,12 @@ class ProfileRepository extends ChangeNotifier {
 
   Future<void> saveBuiltCv(BuiltCv result) async {
     _lastBuiltCv = result;
+    _builtCvSavedAt = DateTime.now();
     notifyListeners();
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_builtCvKey, jsonEncode(result.toJson()));
+      await prefs.setString(_builtCvSavedAtKey, _builtCvSavedAt!.toIso8601String());
     } catch (e) {
       debugPrint('ProfileRepository.saveBuiltCv persistence failed: $e');
     }

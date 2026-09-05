@@ -16,9 +16,13 @@ import 'learn_section_screen.dart';
 /// Each of the 25 feature screens is unchanged internally — they're reached
 /// by pushing on top of whichever tab is active, exactly as before.
 class MainShell extends StatefulWidget {
-  const MainShell({super.key});
+  const MainShell({super.key, this.syncProgress = syncOfficerProgress});
 
   static const _wideBreakpoint = 900.0;
+
+  /// Overridable for testing so a widget test never makes a real network
+  /// call just by mounting this screen.
+  final Future<void> Function(ProfileRepository repo) syncProgress;
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -33,7 +37,7 @@ class _MainShellState extends State<MainShell> {
     // Fire-and-forget, once per app session — reports how far this officer
     // has got for the admin dashboard. Never blocks or surfaces to the
     // officer if it fails.
-    syncOfficerProgress(context.read<ProfileRepository>());
+    widget.syncProgress(context.read<ProfileRepository>());
   }
 
   static const _destinations = [

@@ -10,13 +10,13 @@ showing what a fair compensation package looks like, and helping you plan
 the transition itself. See the [Executive Summary](EXECUTIVE_SUMMARY.md)
 for what every module does.
 
-**New since the last round:** a Home dashboard (your Transition Readiness
-score and next 3 recommended actions, right when you open the app), a
-bottom navigation bar — **Home / Career / Jobs / Learn / Profile** — that
-replaces the old single scrolling list of buttons, and an **AI Assistant**
-(the sparkle button, bottom-right of every screen) you can ask questions
-like "explain this corporate term" or "help me prepare for an interview" —
-by typing or speaking.
+When you open it, you'll land on a **Home dashboard** showing your
+Transition Readiness score and the next 3 recommended actions, with a
+bottom navigation bar — **Home / Career / Jobs / Learn / Profile** — to get
+to every module. There's also an **AI Assistant** (the sparkle button,
+bottom-right of every screen) you can ask questions like "explain this
+corporate term" or "help me prepare for an interview" — by typing or
+speaking.
 
 This is **real**, not a demo — your CV, profile, and inputs go through
 the actual backend and a real AI analysis, the same as it would for a
@@ -105,10 +105,9 @@ nothing gets lost in a chat thread: https://forms.gle/oGXMjQRVmaqUo5sq6
 
 ## What's not there yet
 
-No payment/subscription system, no native app or App/Play Store listing
-(this beta is deliberately web-only, see above), and the browser tab icon
-is still the default placeholder — none of that is what we need feedback
-on right now.
+No payment/subscription system and no native app or App/Play Store listing
+(this beta is deliberately web-only, see above) — none of that is what we
+need feedback on right now.
 
 Thank you again — this round of feedback directly shapes what gets built
 next.

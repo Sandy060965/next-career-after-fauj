@@ -261,6 +261,29 @@ async function handleRequestOtp(body, env) {
   const mobileNumber = normalizeMobileNumber(body.mobileNumber);
   if (!mobileNumber) return json({ error: 'A valid 10-digit mobile number is required' }, 400);
 
+  // Beta gate: an already-registered officer can always request a fresh
+  // code (e.g. a new device), but a genuinely new number must be on the
+  // beta allowlist first — closes the gap where a shared Cloudflare Access
+  // email alone would otherwise let an uninvited person sign up with their
+  // own number. Checked before the rate limit / Twilio call so an
+  // unapproved number never actually gets an SMS sent to it.
+  const existingOfficer = await env.DB.prepare('SELECT id FROM officers WHERE mobile_number = ?')
+    .bind(mobileNumber)
+    .first();
+  if (!existingOfficer) {
+    const allowlisted = await env.DB.prepare(
+      'SELECT mobile_number FROM phone_allowlist WHERE mobile_number = ?',
+    )
+      .bind(mobileNumber)
+      .first();
+    if (!allowlisted) {
+      return json(
+        { error: "This mobile number isn't on the beta tester list yet. Contact the app admin to be added." },
+        403,
+      );
+    }
+  }
+
   const allowed = await checkAndRecordOtpRequest(env, mobileNumber);
   if (!allowed) {
     return json(
@@ -540,6 +563,49 @@ async function handleAdminResolveTicket(request, body, env) {
   return json({ status: 'resolved' });
 }
 
+// --- Phone allowlist (beta gate) --------------------------------------
+async function handleAdminListAllowedPhones(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const { results } = await env.DB.prepare(
+    'SELECT mobile_number, note, added_at FROM phone_allowlist ORDER BY added_at DESC',
+  ).all();
+  return json({
+    phones: results.map((r) => ({
+      mobileNumber: r.mobile_number,
+      note: r.note,
+      addedAt: r.added_at,
+    })),
+  });
+}
+
+async function handleAdminAddAllowedPhone(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const mobileNumber = normalizeMobileNumber(body.mobileNumber);
+  if (!mobileNumber) return json({ error: 'A valid 10-digit mobile number is required' }, 400);
+
+  await env.DB.prepare(
+    'INSERT INTO phone_allowlist (mobile_number, note, added_at) VALUES (?, ?, ?) ' +
+      'ON CONFLICT(mobile_number) DO UPDATE SET note = excluded.note',
+  )
+    .bind(mobileNumber, body.note ?? null, new Date().toISOString())
+    .run();
+  return json({ status: 'added' });
+}
+
+async function handleAdminRemoveAllowedPhone(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const mobileNumber = normalizeMobileNumber(body.mobileNumber);
+  if (!mobileNumber) return json({ error: 'A valid 10-digit mobile number is required' }, 400);
+
+  await env.DB.prepare('DELETE FROM phone_allowlist WHERE mobile_number = ?')
+    .bind(mobileNumber)
+    .run();
+  return json({ status: 'removed' });
+}
+
 export {
   handleRequestOtp,
   handleVerifyOtp,
@@ -552,6 +618,9 @@ export {
   handleAdminListOfficers,
   handleAdminListSupportTickets,
   handleAdminResolveTicket,
+  handleAdminListAllowedPhones,
+  handleAdminAddAllowedPhone,
+  handleAdminRemoveAllowedPhone,
   verifyJwt,
   bearerToken,
 };

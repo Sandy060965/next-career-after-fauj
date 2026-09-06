@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'admin_http_service.dart';
 import 'admin_officer_summary.dart';
+import 'allowed_phone_summary.dart';
 import 'support_ticket_summary.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -11,12 +12,18 @@ class AdminDashboardScreen extends StatefulWidget {
     this.fetchOfficers = httpFetchAdminOfficers,
     this.fetchSupportTickets = httpFetchAdminSupportTickets,
     this.resolveTicket = httpResolveSupportTicket,
+    this.fetchAllowedPhones = httpFetchAllowedPhones,
+    this.addAllowedPhone = httpAddAllowedPhone,
+    this.removeAllowedPhone = httpRemoveAllowedPhone,
   });
 
   final String adminKey;
   final FetchAdminOfficers fetchOfficers;
   final FetchAdminSupportTickets fetchSupportTickets;
   final ResolveSupportTicket resolveTicket;
+  final FetchAllowedPhones fetchAllowedPhones;
+  final AddAllowedPhone addAllowedPhone;
+  final RemoveAllowedPhone removeAllowedPhone;
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -27,6 +34,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   String? _error;
   List<AdminOfficerSummary> _officers = const [];
   List<SupportTicketSummary> _tickets = const [];
+  List<AllowedPhoneSummary> _allowedPhones = const [];
 
   @override
   void initState() {
@@ -43,11 +51,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       final results = await Future.wait([
         widget.fetchOfficers(widget.adminKey),
         widget.fetchSupportTickets(widget.adminKey),
+        widget.fetchAllowedPhones(widget.adminKey),
       ]);
       if (!mounted) return;
       setState(() {
         _officers = results[0] as List<AdminOfficerSummary>;
         _tickets = results[1] as List<SupportTicketSummary>;
+        _allowedPhones = results[2] as List<AllowedPhoneSummary>;
         _isLoading = false;
       });
     } catch (e) {
@@ -72,11 +82,37 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
+  Future<void> _addPhone(String mobileNumber, String? note) async {
+    try {
+      await widget.addAllowedPhone(widget.adminKey, mobileNumber, note);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  Future<void> _removePhone(String mobileNumber) async {
+    try {
+      await widget.removeAllowedPhone(widget.adminKey, mobileNumber);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final openTickets = _tickets.where((t) => !t.isResolved).length;
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Admin Dashboard'),
@@ -89,9 +125,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ],
           bottom: TabBar(
+            isScrollable: true,
             tabs: [
               Tab(text: 'Officers (${_officers.length})'),
               Tab(text: 'Support Tickets ($openTickets open)'),
+              Tab(text: 'Allowed Numbers (${_allowedPhones.length})'),
             ],
           ),
         ),
@@ -108,6 +146,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       _OfficersTab(officers: _officers),
                       _SupportTicketsTab(tickets: _tickets, onResolve: _resolve),
+                      _AllowedPhonesTab(
+                        phones: _allowedPhones,
+                        onAdd: _addPhone,
+                        onRemove: _removePhone,
+                      ),
                     ],
                   ),
       ),
@@ -298,6 +341,139 @@ class _SupportTicketsTab extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _AllowedPhonesTab extends StatefulWidget {
+  const _AllowedPhonesTab({required this.phones, required this.onAdd, required this.onRemove});
+
+  final List<AllowedPhoneSummary> phones;
+  final Future<void> Function(String mobileNumber, String? note) onAdd;
+  final ValueChanged<String> onRemove;
+
+  @override
+  State<_AllowedPhonesTab> createState() => _AllowedPhonesTabState();
+}
+
+class _AllowedPhonesTabState extends State<_AllowedPhonesTab> {
+  final _numberController = TextEditingController();
+  final _noteController = TextEditingController();
+  bool _isAdding = false;
+
+  @override
+  void dispose() {
+    _numberController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final number = _numberController.text.trim();
+    if (number.length != 10) return;
+    setState(() => _isAdding = true);
+    await widget.onAdd(number, _noteController.text.trim());
+    if (!mounted) return;
+    setState(() {
+      _isAdding = false;
+      _numberController.clear();
+      _noteController.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'A brand-new mobile number must be on this list before it can complete '
+                    'sign-up — closes the gap where a shared Cloudflare email alone would '
+                    "otherwise let an uninvited person in. Officers who've already signed up "
+                    "aren't affected.",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          key: const Key('newAllowedPhoneField'),
+                          controller: _numberController,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(labelText: '10-digit mobile number'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          key: const Key('newAllowedPhoneNoteField'),
+                          controller: _noteController,
+                          decoration: const InputDecoration(labelText: 'Note (optional)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      key: const Key('addAllowedPhoneButton'),
+                      onPressed: _isAdding ? null : _submit,
+                      child: _isAdding
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Add'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: widget.phones.isEmpty
+              ? const Center(child: Text('No numbers added yet — every new signup is blocked.'))
+              : ListView.builder(
+                  key: const Key('adminAllowedPhonesList'),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: widget.phones.length,
+                  itemBuilder: (context, index) {
+                    final phone = widget.phones[index];
+                    return Card(
+                      key: ValueKey('allowedPhoneCard_${phone.mobileNumber}'),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        title: Text(phone.mobileNumber),
+                        subtitle: Text(
+                          [
+                            if (phone.note != null && phone.note!.isNotEmpty) phone.note,
+                            'added ${_formatDate(phone.addedAt)}',
+                          ].join(' • '),
+                        ),
+                        trailing: IconButton(
+                          key: ValueKey('removeAllowedPhoneButton_${phone.mobileNumber}'),
+                          icon: const Icon(Icons.delete_outline),
+                          tooltip: 'Remove',
+                          onPressed: () => widget.onRemove(phone.mobileNumber),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 }

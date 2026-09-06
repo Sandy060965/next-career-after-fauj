@@ -4,6 +4,7 @@ import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/admin/admin_dashboard_screen.dart';
 import 'package:next_career_after_fauj/features/admin/admin_login_screen.dart';
 import 'package:next_career_after_fauj/features/admin/admin_officer_summary.dart';
+import 'package:next_career_after_fauj/features/admin/allowed_phone_summary.dart';
 import 'package:next_career_after_fauj/features/admin/support_ticket_summary.dart';
 
 final _officer = AdminOfficerSummary(
@@ -53,6 +54,20 @@ final _openTicket = SupportTicketSummary(
   createdAt: DateTime(2026, 1, 16),
 );
 
+final _allowedPhone = AllowedPhoneSummary(
+  mobileNumber: '9876543210',
+  note: 'Cousin',
+  addedAt: DateTime(2026, 1, 5),
+);
+
+// Never actually called by these tests, but AdminDashboardScreen/AdminLoginScreen
+// default fetchAllowedPhones/addAllowedPhone/removeAllowedPhone to the real HTTP
+// functions — every test must override them to a no-op, or it'll fire a real
+// network call against the live backend and hang the test sandbox.
+Future<List<AllowedPhoneSummary>> _noAllowedPhones(String key) async => [];
+Future<void> _noopAdd(String key, String number, String? note) async {}
+Future<void> _noopRemove(String key, String number) async {}
+
 Widget _wrap(Widget child) => MaterialApp(theme: AppTheme.light, home: child);
 
 void main() {
@@ -63,6 +78,9 @@ void main() {
           fetchOfficers: (key) async => [_officer],
           fetchSupportTickets: (key) async => [_openTicket],
           resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
         )),
       );
 
@@ -80,6 +98,9 @@ void main() {
           fetchOfficers: (key) async => throw Exception('Incorrect admin key.'),
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
         )),
       );
 
@@ -101,6 +122,9 @@ void main() {
           },
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
         )),
       );
 
@@ -120,6 +144,9 @@ void main() {
           fetchOfficers: (key) async => [_officer, _neverOpenedOfficer],
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
         )),
       );
       await tester.pumpAndSettle();
@@ -142,6 +169,9 @@ void main() {
             return fetchCount == 1 ? [_openTicket] : [];
           },
           resolveTicket: (key, id) async => resolvedId = id,
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
         )),
       );
       await tester.pumpAndSettle();
@@ -165,11 +195,78 @@ void main() {
           fetchOfficers: (key) async => throw Exception('network down'),
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
         )),
       );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('network down'), findsOneWidget);
+    });
+
+    testWidgets('shows allowed numbers and adding one calls the service and refreshes',
+        (tester) async {
+      String? capturedNumber;
+      String? capturedNote;
+      var fetchCount = 0;
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async => [],
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: (key) async {
+            fetchCount++;
+            return fetchCount == 1 ? [_allowedPhone] : [_allowedPhone, _allowedPhone];
+          },
+          addAllowedPhone: (key, number, note) async {
+            capturedNumber = number;
+            capturedNote = note;
+          },
+          removeAllowedPhone: _noopRemove,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Allowed Numbers (1)'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('9876543210'), findsWidgets);
+      expect(find.textContaining('Cousin'), findsOneWidget);
+
+      await tester.enterText(find.byKey(const Key('newAllowedPhoneField')), '9998887777');
+      await tester.enterText(find.byKey(const Key('newAllowedPhoneNoteField')), 'Friend');
+      await tester.tap(find.byKey(const Key('addAllowedPhoneButton')));
+      await tester.pumpAndSettle();
+
+      expect(capturedNumber, '9998887777');
+      expect(capturedNote, 'Friend');
+      expect(fetchCount, 2);
+    });
+
+    testWidgets('removing an allowed number calls the service', (tester) async {
+      String? removedNumber;
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async => [],
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: (key) async => [_allowedPhone],
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: (key, number) async => removedNumber = number,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Allowed Numbers (1)'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('removeAllowedPhoneButton_9876543210')));
+      await tester.pumpAndSettle();
+
+      expect(removedNumber, '9876543210');
     });
   });
 }

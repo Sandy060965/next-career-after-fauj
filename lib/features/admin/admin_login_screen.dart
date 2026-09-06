@@ -13,11 +13,17 @@ class AdminLoginScreen extends StatefulWidget {
     this.fetchOfficers = httpFetchAdminOfficers,
     this.fetchSupportTickets = httpFetchAdminSupportTickets,
     this.resolveTicket = httpResolveSupportTicket,
+    this.fetchAllowedPhones = httpFetchAllowedPhones,
+    this.addAllowedPhone = httpAddAllowedPhone,
+    this.removeAllowedPhone = httpRemoveAllowedPhone,
   });
 
   final FetchAdminOfficers fetchOfficers;
   final FetchAdminSupportTickets fetchSupportTickets;
   final ResolveSupportTicket resolveTicket;
+  final FetchAllowedPhones fetchAllowedPhones;
+  final AddAllowedPhone addAllowedPhone;
+  final RemoveAllowedPhone removeAllowedPhone;
 
   @override
   State<AdminLoginScreen> createState() => _AdminLoginScreenState();
@@ -56,6 +62,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             fetchOfficers: widget.fetchOfficers,
             fetchSupportTickets: widget.fetchSupportTickets,
             resolveTicket: widget.resolveTicket,
+            fetchAllowedPhones: widget.fetchAllowedPhones,
+            addAllowedPhone: widget.addAllowedPhone,
+            removeAllowedPhone: widget.removeAllowedPhone,
           ),
         ),
       );

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'admin_officer_summary.dart';
+import 'allowed_phone_summary.dart';
 import 'support_ticket_summary.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
@@ -65,5 +66,41 @@ Future<void> httpResolveSupportTicket(String adminKey, String ticketId) async {
   final response = await _post('/admin/resolve-ticket', adminKey, {'id': ticketId});
   if (response.statusCode != 200) {
     throw AdminException('Could not resolve this ticket (${response.statusCode}).');
+  }
+}
+
+typedef FetchAllowedPhones = Future<List<AllowedPhoneSummary>> Function(String adminKey);
+typedef AddAllowedPhone = Future<void> Function(String adminKey, String mobileNumber, String? note);
+typedef RemoveAllowedPhone = Future<void> Function(String adminKey, String mobileNumber);
+
+Future<List<AllowedPhoneSummary>> httpFetchAllowedPhones(String adminKey) async {
+  final response = await _post('/admin/allowed-phones', adminKey);
+  if (response.statusCode == 401) {
+    throw AdminException('Incorrect admin key.');
+  }
+  if (response.statusCode != 200) {
+    throw AdminException('Could not load allowed numbers (${response.statusCode}).');
+  }
+  final json = jsonDecode(response.body) as Map<String, dynamic>;
+  return (json['phones'] as List)
+      .map((e) => AllowedPhoneSummary.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+Future<void> httpAddAllowedPhone(String adminKey, String mobileNumber, String? note) async {
+  final response = await _post('/admin/add-allowed-phone', adminKey, {
+    'mobileNumber': mobileNumber,
+    if (note != null && note.isNotEmpty) 'note': note,
+  });
+  if (response.statusCode != 200) {
+    throw AdminException('Could not add this number (${response.statusCode}).');
+  }
+}
+
+Future<void> httpRemoveAllowedPhone(String adminKey, String mobileNumber) async {
+  final response =
+      await _post('/admin/remove-allowed-phone', adminKey, {'mobileNumber': mobileNumber});
+  if (response.statusCode != 200) {
+    throw AdminException('Could not remove this number (${response.statusCode}).');
   }
 }

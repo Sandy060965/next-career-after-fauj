@@ -14,6 +14,9 @@ import {
   handleAdminListOfficers,
   handleAdminListSupportTickets,
   handleAdminResolveTicket,
+  handleAdminListAllowedPhones,
+  handleAdminAddAllowedPhone,
+  handleAdminRemoveAllowedPhone,
 } from './auth.js';
 import { handleOptIn, handleOptOut, handleMyListing } from './network.js';
 
@@ -1297,6 +1300,10 @@ export default {
     if (path === '/admin/officers') return handleAdminListOfficers(request, env);
     if (path === '/admin/support-tickets') return handleAdminListSupportTickets(request, env);
     if (path === '/admin/resolve-ticket') return handleAdminResolveTicket(request, body, env);
+    if (path === '/admin/allowed-phones') return handleAdminListAllowedPhones(request, env);
+    if (path === '/admin/add-allowed-phone') return handleAdminAddAllowedPhone(request, body, env);
+    if (path === '/admin/remove-allowed-phone')
+      return handleAdminRemoveAllowedPhone(request, body, env);
     if (path === '/network/opt-in') return handleOptIn(request, body, env);
     if (path === '/network/opt-out') return handleOptOut(request, env);
     if (path === '/network/my-listing') return handleMyListing(request, env);

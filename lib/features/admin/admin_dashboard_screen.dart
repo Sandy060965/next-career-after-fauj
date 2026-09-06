@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'admin_http_service.dart';
 import 'admin_officer_summary.dart';
 import 'allowed_phone_summary.dart';
+import 'login_event.dart';
 import 'support_ticket_summary.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class AdminDashboardScreen extends StatefulWidget {
     this.fetchAllowedPhones = httpFetchAllowedPhones,
     this.addAllowedPhone = httpAddAllowedPhone,
     this.removeAllowedPhone = httpRemoveAllowedPhone,
+    this.fetchLoginHistory = httpFetchLoginHistory,
   });
 
   final String adminKey;
@@ -24,6 +26,7 @@ class AdminDashboardScreen extends StatefulWidget {
   final FetchAllowedPhones fetchAllowedPhones;
   final AddAllowedPhone addAllowedPhone;
   final RemoveAllowedPhone removeAllowedPhone;
+  final FetchLoginHistory fetchLoginHistory;
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -35,6 +38,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   List<AdminOfficerSummary> _officers = const [];
   List<SupportTicketSummary> _tickets = const [];
   List<AllowedPhoneSummary> _allowedPhones = const [];
+  List<LoginEvent> _logins = const [];
 
   @override
   void initState() {
@@ -52,12 +56,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         widget.fetchOfficers(widget.adminKey),
         widget.fetchSupportTickets(widget.adminKey),
         widget.fetchAllowedPhones(widget.adminKey),
+        widget.fetchLoginHistory(widget.adminKey),
       ]);
       if (!mounted) return;
       setState(() {
         _officers = results[0] as List<AdminOfficerSummary>;
         _tickets = results[1] as List<SupportTicketSummary>;
         _allowedPhones = results[2] as List<AllowedPhoneSummary>;
+        _logins = results[3] as List<LoginEvent>;
         _isLoading = false;
       });
     } catch (e) {
@@ -144,7 +150,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   )
                 : TabBarView(
                     children: [
-                      _OfficersTab(officers: _officers),
+                      _OfficersTab(officers: _officers, logins: _logins),
                       _SupportTicketsTab(tickets: _tickets, onResolve: _resolve),
                       _AllowedPhonesTab(
                         phones: _allowedPhones,
@@ -159,9 +165,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 }
 
 class _OfficersTab extends StatelessWidget {
-  const _OfficersTab({required this.officers});
+  const _OfficersTab({required this.officers, required this.logins});
 
   final List<AdminOfficerSummary> officers;
+  final List<LoginEvent> logins;
 
   @override
   Widget build(BuildContext context) {
@@ -172,15 +179,20 @@ class _OfficersTab extends StatelessWidget {
       key: const Key('adminOfficersList'),
       padding: const EdgeInsets.all(16),
       itemCount: officers.length,
-      itemBuilder: (context, index) => _OfficerCard(officer: officers[index]),
+      itemBuilder: (context, index) {
+        final officer = officers[index];
+        final officerLogins = logins.where((l) => l.officerId == officer.id).toList();
+        return _OfficerCard(officer: officer, logins: officerLogins);
+      },
     );
   }
 }
 
 class _OfficerCard extends StatelessWidget {
-  const _OfficerCard({required this.officer});
+  const _OfficerCard({required this.officer, required this.logins});
 
   final AdminOfficerSummary officer;
+  final List<LoginEvent> logins;
 
   @override
   Widget build(BuildContext context) {
@@ -248,9 +260,66 @@ class _OfficerCard extends StatelessWidget {
                 ],
               ),
             ],
+            if (logins.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              _LoginHistorySection(logins: logins),
+            ],
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LoginHistorySection extends StatelessWidget {
+  const _LoginHistorySection({required this.logins});
+
+  final List<LoginEvent> logins;
+
+  @override
+  Widget build(BuildContext context) {
+    final distinctDevices = logins.map((l) => l.deviceLabel).toSet().length;
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              distinctDevices > 2 ? Icons.warning_amber : Icons.devices_outlined,
+              size: 16,
+              color: distinctDevices > 2 ? colorScheme.error : colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '${logins.length} login(s) from $distinctDevices distinct device(s)',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: distinctDevices > 2 ? colorScheme.error : colorScheme.onSurfaceVariant,
+                    fontWeight: distinctDevices > 2 ? FontWeight.bold : null,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        for (final login in logins.take(5))
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '${_formatDate(login.loggedInAt)} — ${login.deviceLabel} • ${login.locationLabel}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+        if (logins.length > 5)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              '+ ${logins.length - 5} more',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+      ],
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:next_career_after_fauj/features/admin/admin_dashboard_screen.dar
 import 'package:next_career_after_fauj/features/admin/admin_login_screen.dart';
 import 'package:next_career_after_fauj/features/admin/admin_officer_summary.dart';
 import 'package:next_career_after_fauj/features/admin/allowed_phone_summary.dart';
+import 'package:next_career_after_fauj/features/admin/login_event.dart';
 import 'package:next_career_after_fauj/features/admin/support_ticket_summary.dart';
 
 final _officer = AdminOfficerSummary(
@@ -67,6 +68,7 @@ final _allowedPhone = AllowedPhoneSummary(
 Future<List<AllowedPhoneSummary>> _noAllowedPhones(String key) async => [];
 Future<void> _noopAdd(String key, String number, String? note) async {}
 Future<void> _noopRemove(String key, String number) async {}
+Future<List<LoginEvent>> _noLogins(String key) async => [];
 
 Widget _wrap(Widget child) => MaterialApp(theme: AppTheme.light, home: child);
 
@@ -81,6 +83,7 @@ void main() {
           fetchAllowedPhones: _noAllowedPhones,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
 
@@ -101,6 +104,7 @@ void main() {
           fetchAllowedPhones: _noAllowedPhones,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
 
@@ -125,6 +129,7 @@ void main() {
           fetchAllowedPhones: _noAllowedPhones,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
 
@@ -147,6 +152,7 @@ void main() {
           fetchAllowedPhones: _noAllowedPhones,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
       await tester.pumpAndSettle();
@@ -172,6 +178,7 @@ void main() {
           fetchAllowedPhones: _noAllowedPhones,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
       await tester.pumpAndSettle();
@@ -198,6 +205,7 @@ void main() {
           fetchAllowedPhones: _noAllowedPhones,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
       await tester.pumpAndSettle();
@@ -225,6 +233,7 @@ void main() {
             capturedNote = note;
           },
           removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
         )),
       );
       await tester.pumpAndSettle();
@@ -256,6 +265,7 @@ void main() {
           fetchAllowedPhones: (key) async => [_allowedPhone],
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: (key, number) async => removedNumber = number,
+          fetchLoginHistory: _noLogins,
         )),
       );
       await tester.pumpAndSettle();
@@ -267,6 +277,56 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(removedNumber, '9876543210');
+    });
+
+    testWidgets('shows login history under the matching officer, flagging many distinct devices',
+        (tester) async {
+      final logins = [
+        LoginEvent(
+          officerId: 'officer-1',
+          mobileNumber: '9876543210',
+          userAgent:
+              'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36',
+          country: 'IN',
+          city: 'Delhi',
+          loggedInAt: DateTime(2026, 1, 10, 9),
+        ),
+        LoginEvent(
+          officerId: 'officer-1',
+          mobileNumber: '9876543210',
+          userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) AppleWebKit/605.1.15 Safari/604.1',
+          country: 'CA',
+          city: 'Toronto',
+          loggedInAt: DateTime(2026, 1, 12, 14),
+        ),
+        LoginEvent(
+          officerId: 'officer-1',
+          mobileNumber: '9876543210',
+          userAgent: 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120',
+          country: 'US',
+          city: 'Boston',
+          loggedInAt: DateTime(2026, 1, 13, 8),
+        ),
+      ];
+
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async => [_officer],
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: (key) async => logins,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('3 login(s) from 3 distinct device(s)'), findsOneWidget);
+      expect(find.textContaining('Chrome on Windows'), findsOneWidget);
+      expect(find.textContaining('Safari on iOS'), findsOneWidget);
+      expect(find.textContaining('Toronto, CA'), findsOneWidget);
     });
   });
 }

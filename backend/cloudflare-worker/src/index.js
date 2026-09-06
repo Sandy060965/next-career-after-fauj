@@ -17,6 +17,7 @@ import {
   handleAdminListAllowedPhones,
   handleAdminAddAllowedPhone,
   handleAdminRemoveAllowedPhone,
+  handleAdminListLoginHistory,
 } from './auth.js';
 import { handleOptIn, handleOptOut, handleMyListing } from './network.js';
 
@@ -1290,7 +1291,7 @@ export default {
     if (path === '/compensation') return handleCompensation(body, env);
     if (path === '/assistant') return handleAssistant(body, env);
     if (path === '/auth/request-otp') return handleRequestOtp(body, env);
-    if (path === '/auth/verify-otp') return handleVerifyOtp(body, env);
+    if (path === '/auth/verify-otp') return handleVerifyOtp(request, body, env);
     if (path === '/auth/refresh') return handleRefreshToken(body, env);
     if (path === '/auth/logout') return handleLogout(body, env);
     if (path === '/me') return handleMe(request, env);
@@ -1304,6 +1305,7 @@ export default {
     if (path === '/admin/add-allowed-phone') return handleAdminAddAllowedPhone(request, body, env);
     if (path === '/admin/remove-allowed-phone')
       return handleAdminRemoveAllowedPhone(request, body, env);
+    if (path === '/admin/login-history') return handleAdminListLoginHistory(request, env);
     if (path === '/network/opt-in') return handleOptIn(request, body, env);
     if (path === '/network/opt-out') return handleOptOut(request, env);
     if (path === '/network/my-listing') return handleMyListing(request, env);

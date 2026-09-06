@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'admin_officer_summary.dart';
 import 'allowed_phone_summary.dart';
+import 'login_event.dart';
 import 'support_ticket_summary.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
@@ -103,4 +104,20 @@ Future<void> httpRemoveAllowedPhone(String adminKey, String mobileNumber) async 
   if (response.statusCode != 200) {
     throw AdminException('Could not remove this number (${response.statusCode}).');
   }
+}
+
+typedef FetchLoginHistory = Future<List<LoginEvent>> Function(String adminKey);
+
+Future<List<LoginEvent>> httpFetchLoginHistory(String adminKey) async {
+  final response = await _post('/admin/login-history', adminKey);
+  if (response.statusCode == 401) {
+    throw AdminException('Incorrect admin key.');
+  }
+  if (response.statusCode != 200) {
+    throw AdminException('Could not load login history (${response.statusCode}).');
+  }
+  final json = jsonDecode(response.body) as Map<String, dynamic>;
+  return (json['logins'] as List)
+      .map((e) => LoginEvent.fromJson(e as Map<String, dynamic>))
+      .toList();
 }

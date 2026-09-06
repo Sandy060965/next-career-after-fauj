@@ -301,7 +301,7 @@ async function handleRequestOtp(body, env) {
   return json({ status: 'sent' });
 }
 
-async function handleVerifyOtp(body, env) {
+async function handleVerifyOtp(request, body, env) {
   const mobileNumber = normalizeMobileNumber(body.mobileNumber);
   const code = String(body.code ?? '').trim();
   if (!mobileNumber || !code) {
@@ -315,7 +315,33 @@ async function handleVerifyOtp(body, env) {
 
   const officer = await findOrCreateOfficer(env, mobileNumber);
   const { accessToken, refreshToken } = await issueSession(env, officer);
+  await recordLogin(request, env, officer);
   return json({ token: accessToken, refreshToken, officer: officerResponseBody(officer) });
+}
+
+// Best-effort, never blocks or fails the login itself — just a signal for
+// the admin dashboard to spot an account being used from unexpectedly many
+// different devices/locations (a possible sign of shared credentials).
+async function recordLogin(request, env, officer) {
+  try {
+    const cf = request.cf ?? {};
+    await env.DB.prepare(
+      'INSERT INTO login_history (id, officer_id, mobile_number, user_agent, country, city, logged_in_at) ' +
+        'VALUES (?, ?, ?, ?, ?, ?, ?)',
+    )
+      .bind(
+        crypto.randomUUID(),
+        officer.id,
+        officer.mobile_number,
+        request.headers.get('user-agent') ?? null,
+        cf.country ?? null,
+        cf.city ?? null,
+        new Date().toISOString(),
+      )
+      .run();
+  } catch (e) {
+    console.error('recordLogin failed:', e.message);
+  }
 }
 
 async function handleRefreshToken(body, env) {
@@ -606,6 +632,26 @@ async function handleAdminRemoveAllowedPhone(request, body, env) {
   return json({ status: 'removed' });
 }
 
+// --- Login history (admin visibility into device/location diversity) -----
+async function handleAdminListLoginHistory(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const { results } = await env.DB.prepare(
+    'SELECT officer_id, mobile_number, user_agent, country, city, logged_in_at ' +
+      'FROM login_history ORDER BY logged_in_at DESC LIMIT 300',
+  ).all();
+  return json({
+    logins: results.map((r) => ({
+      officerId: r.officer_id,
+      mobileNumber: r.mobile_number,
+      userAgent: r.user_agent,
+      country: r.country,
+      city: r.city,
+      loggedInAt: r.logged_in_at,
+    })),
+  });
+}
+
 export {
   handleRequestOtp,
   handleVerifyOtp,
@@ -621,6 +667,7 @@ export {
   handleAdminListAllowedPhones,
   handleAdminAddAllowedPhone,
   handleAdminRemoveAllowedPhone,
+  handleAdminListLoginHistory,
   verifyJwt,
   bearerToken,
 };

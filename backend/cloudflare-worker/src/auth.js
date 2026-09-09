@@ -652,6 +652,81 @@ async function handleAdminListLoginHistory(request, env) {
   });
 }
 
+// --- Course submissions review (grows the Skill Equivalency Matrix) -------
+async function handleAdminListCourseSubmissions(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const { results } = await env.DB.prepare(
+    'SELECT id, mobile_number, course_name, course_description, civilian_equivalent, ' +
+      'civilian_description, verified, source_note, status, submitted_at, reviewed_at ' +
+      'FROM course_submissions ORDER BY submitted_at DESC LIMIT 300',
+  ).all();
+  return json({
+    submissions: results.map((r) => ({
+      id: r.id,
+      mobileNumber: r.mobile_number,
+      courseName: r.course_name,
+      courseDescription: r.course_description,
+      civilianEquivalent: r.civilian_equivalent,
+      civilianDescription: r.civilian_description,
+      verified: Boolean(r.verified),
+      sourceNote: r.source_note,
+      status: r.status,
+      submittedAt: r.submitted_at,
+      reviewedAt: r.reviewed_at,
+    })),
+  });
+}
+
+async function handleAdminApproveCourseSubmission(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const id = String(body.id ?? '');
+  if (!id) return json({ error: 'id is required' }, 400);
+
+  const submission = await env.DB.prepare('SELECT * FROM course_submissions WHERE id = ?')
+    .bind(id)
+    .first();
+  if (!submission) return json({ error: 'No submission found with that id' }, 404);
+
+  const now = new Date().toISOString();
+  await env.DB.prepare("UPDATE course_submissions SET status = 'approved', reviewed_at = ? WHERE id = ?")
+    .bind(now, id)
+    .run();
+
+  await env.DB.prepare(
+    'INSERT INTO approved_equivalencies (id, military_term, civilian_equivalent, description, ' +
+      'verified, source_note, approved_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+  )
+    .bind(
+      crypto.randomUUID(),
+      submission.course_name,
+      submission.civilian_equivalent ?? submission.course_name,
+      submission.civilian_description ?? '',
+      submission.verified,
+      submission.source_note,
+      now,
+    )
+    .run();
+
+  return json({ status: 'approved' });
+}
+
+async function handleAdminRejectCourseSubmission(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const id = String(body.id ?? '');
+  if (!id) return json({ error: 'id is required' }, 400);
+
+  const result = await env.DB.prepare(
+    "UPDATE course_submissions SET status = 'rejected', reviewed_at = ? WHERE id = ?",
+  )
+    .bind(new Date().toISOString(), id)
+    .run();
+  if (result.meta.changes === 0) return json({ error: 'No submission found with that id' }, 404);
+  return json({ status: 'rejected' });
+}
+
 export {
   handleRequestOtp,
   handleVerifyOtp,
@@ -668,6 +743,9 @@ export {
   handleAdminAddAllowedPhone,
   handleAdminRemoveAllowedPhone,
   handleAdminListLoginHistory,
+  handleAdminListCourseSubmissions,
+  handleAdminApproveCourseSubmission,
+  handleAdminRejectCourseSubmission,
   verifyJwt,
   bearerToken,
 };

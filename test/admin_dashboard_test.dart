@@ -5,6 +5,7 @@ import 'package:next_career_after_fauj/features/admin/admin_dashboard_screen.dar
 import 'package:next_career_after_fauj/features/admin/admin_login_screen.dart';
 import 'package:next_career_after_fauj/features/admin/admin_officer_summary.dart';
 import 'package:next_career_after_fauj/features/admin/allowed_phone_summary.dart';
+import 'package:next_career_after_fauj/features/admin/course_submission_summary.dart';
 import 'package:next_career_after_fauj/features/admin/login_event.dart';
 import 'package:next_career_after_fauj/features/admin/support_ticket_summary.dart';
 
@@ -69,6 +70,9 @@ Future<List<AllowedPhoneSummary>> _noAllowedPhones(String key) async => [];
 Future<void> _noopAdd(String key, String number, String? note) async {}
 Future<void> _noopRemove(String key, String number) async {}
 Future<List<LoginEvent>> _noLogins(String key) async => [];
+Future<List<CourseSubmissionSummary>> _noCourseSubmissions(String key) async => [];
+Future<void> _noopApprove(String key, String id) async {}
+Future<void> _noopReject(String key, String id) async {}
 
 Widget _wrap(Widget child) => MaterialApp(theme: AppTheme.light, home: child);
 
@@ -84,6 +88,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
 
@@ -105,6 +112,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
 
@@ -130,6 +140,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
 
@@ -153,6 +166,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
       await tester.pumpAndSettle();
@@ -179,6 +195,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
       await tester.pumpAndSettle();
@@ -206,6 +225,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
       await tester.pumpAndSettle();
@@ -234,6 +256,9 @@ void main() {
           },
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
       await tester.pumpAndSettle();
@@ -266,6 +291,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: (key, number) async => removedNumber = number,
           fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
       await tester.pumpAndSettle();
@@ -319,6 +347,9 @@ void main() {
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: (key) async => logins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
         )),
       );
       await tester.pumpAndSettle();
@@ -327,6 +358,103 @@ void main() {
       expect(find.textContaining('Chrome on Windows'), findsOneWidget);
       expect(find.textContaining('Safari on iOS'), findsOneWidget);
       expect(find.textContaining('Toronto, CA'), findsOneWidget);
+    });
+
+    testWidgets('approving a pending course submission calls the service and refreshes',
+        (tester) async {
+      // The scrollable TabBar's 4th tab sits past the default 800px test
+      // window at this label length — widen the window so it's reachable.
+      tester.view.physicalSize = const Size(1400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      String? approvedId;
+      var fetchCount = 0;
+      final pending = CourseSubmissionSummary(
+        id: 'sub-1',
+        mobileNumber: '9876543210',
+        courseName: 'Long Gunnery Staff Course',
+        civilianEquivalent: 'Advanced Technical Specialist Programme',
+        civilianDescription: 'Deep technical specialisation, comparable to an advanced cert.',
+        verified: true,
+        sourceNote: 'Found on the official Navy website.',
+        status: 'pending',
+        submittedAt: DateTime(2026, 1, 20),
+      );
+
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async => [],
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: (key) async {
+            fetchCount++;
+            return fetchCount == 1 ? [pending] : [];
+          },
+          approveCourseSubmission: (key, id) async => approvedId = id,
+          rejectCourseSubmission: _noopReject,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Course Submissions (1 pending)'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Long Gunnery Staff Course'), findsOneWidget);
+      expect(find.textContaining('Advanced Technical Specialist Programme'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('approveCourseButton_sub-1')));
+      await tester.pumpAndSettle();
+
+      expect(approvedId, 'sub-1');
+      expect(fetchCount, 2);
+    });
+
+    testWidgets('rejecting a pending course submission calls the service', (tester) async {
+      tester.view.physicalSize = const Size(1400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      String? rejectedId;
+      final pending = CourseSubmissionSummary(
+        id: 'sub-2',
+        courseName: 'Some Obscure Course',
+        verified: false,
+        status: 'pending',
+        submittedAt: DateTime(2026, 1, 21),
+      );
+
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async => [],
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: (key) async => [pending],
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: (key, id) async => rejectedId = id,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Course Submissions (1 pending)'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('rejectCourseButton_sub-2')));
+      await tester.pumpAndSettle();
+
+      expect(rejectedId, 'sub-2');
     });
   });
 }

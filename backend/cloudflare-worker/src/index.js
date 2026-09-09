@@ -18,6 +18,9 @@ import {
   handleAdminAddAllowedPhone,
   handleAdminRemoveAllowedPhone,
   handleAdminListLoginHistory,
+  handleAdminListCourseSubmissions,
+  handleAdminApproveCourseSubmission,
+  handleAdminRejectCourseSubmission,
 } from './auth.js';
 import { handleOptIn, handleOptOut, handleMyListing } from './network.js';
 
@@ -838,6 +841,29 @@ async function handleCivilianizeCourse(body, env) {
   return json(parsed);
 }
 
+// Admin-approved course submissions that have grown the curated skill-
+// equivalency list since the app was last released — merged client-side
+// with the static kSkillEquivalencies list. Public to any authenticated
+// app instance (no admin key needed), same as the rest of the app's
+// content endpoints.
+async function handleListApprovedEquivalencies(env) {
+  const { results } = await env.DB.prepare(
+    'SELECT id, military_term, civilian_equivalent, description, verified, source_note, approved_at ' +
+      'FROM approved_equivalencies ORDER BY approved_at DESC',
+  ).all();
+  return json({
+    equivalencies: results.map((r) => ({
+      id: r.id,
+      militaryTerm: r.military_term,
+      civilianEquivalent: r.civilian_equivalent,
+      description: r.description,
+      verified: Boolean(r.verified),
+      sourceNote: r.source_note,
+      approvedAt: r.approved_at,
+    })),
+  });
+}
+
 async function handleCivilianizeCv(body, env) {
   const { cvText, cvPdfBase64 } = body;
   if (!cvText && !cvPdfBase64) {
@@ -1282,6 +1308,7 @@ export default {
     if (path === '/linkedin-writeup') return handleLinkedInWriteup(body, env);
     if (path === '/civilianize-cv') return handleCivilianizeCv(body, env);
     if (path === '/civilianize-course') return handleCivilianizeCourse(body, env);
+    if (path === '/skill-equivalencies') return handleListApprovedEquivalencies(env);
     if (path === '/target-role-strategy') return handleTargetRoleStrategy(body, env);
     if (path === '/cv-evidence') return handleCvEvidence(body, env);
     if (path === '/build-cv') return handleBuildCv(body, env);
@@ -1306,6 +1333,11 @@ export default {
     if (path === '/admin/remove-allowed-phone')
       return handleAdminRemoveAllowedPhone(request, body, env);
     if (path === '/admin/login-history') return handleAdminListLoginHistory(request, env);
+    if (path === '/admin/course-submissions') return handleAdminListCourseSubmissions(request, env);
+    if (path === '/admin/approve-course-submission')
+      return handleAdminApproveCourseSubmission(request, body, env);
+    if (path === '/admin/reject-course-submission')
+      return handleAdminRejectCourseSubmission(request, body, env);
     if (path === '/network/opt-in') return handleOptIn(request, body, env);
     if (path === '/network/opt-out') return handleOptOut(request, env);
     if (path === '/network/my-listing') return handleMyListing(request, env);

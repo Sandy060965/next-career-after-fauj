@@ -5,15 +5,25 @@ import '../../core/services/cv_redaction_scanner.dart';
 import '../../core/services/profile_repository.dart';
 import '../onboarding/cv_redaction_review_sheet.dart';
 import 'course_civilianization.dart';
+import 'course_civilianization_http_service.dart';
 import 'course_civilianization_service.dart';
 import 'skill_equivalency.dart';
 
 class SkillEquivalencyScreen extends StatefulWidget {
-  const SkillEquivalencyScreen({super.key, this.civilianizeCourse = mockCivilianizeCourse});
+  const SkillEquivalencyScreen({
+    super.key,
+    this.civilianizeCourse = mockCivilianizeCourse,
+    this.fetchApprovedEquivalencies = httpFetchApprovedEquivalencies,
+  });
 
   /// Overridable for testing; defaults to sample data until the Worker's
   /// /civilianize-course endpoint is wired in.
   final CourseCivilianizer civilianizeCourse;
+
+  /// Overridable for testing; defaults to the real backend call. Courses
+  /// admin-approved from officer submissions, fetched fresh so the list
+  /// grows over time without needing a new app release.
+  final Future<List<SkillEquivalency>> Function() fetchApprovedEquivalencies;
 
   @override
   State<SkillEquivalencyScreen> createState() => _SkillEquivalencyScreenState();
@@ -22,17 +32,75 @@ class SkillEquivalencyScreen extends StatefulWidget {
 class _SkillEquivalencyScreenState extends State<SkillEquivalencyScreen> {
   final _courseNameController = TextEditingController();
   final _courseDescController = TextEditingController();
+  final _searchController = TextEditingController();
 
   bool _isSubmitting = false;
   String? _error;
   CourseCivilianizationResult? _result;
   String? _submittedCourseName;
+  String _searchQuery = '';
+  List<SkillEquivalency> _approvedEquivalencies = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => _searchQuery = _searchController.text);
+    });
+    _loadApprovedEquivalencies();
+  }
+
+  Future<void> _loadApprovedEquivalencies() async {
+    try {
+      final approved = await widget.fetchApprovedEquivalencies();
+      if (!mounted) return;
+      setState(() => _approvedEquivalencies = approved);
+    } catch (_) {
+      // Best-effort — the curated list on its own is still a complete,
+      // useful screen without these.
+    }
+  }
 
   @override
   void dispose() {
     _courseNameController.dispose();
     _courseDescController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  List<SkillEquivalency> get _allEntries => [...kSkillEquivalencies, ..._approvedEquivalencies];
+
+  /// A simple, fast keyword match rather than an AI call on every screen
+  /// load — catches most real cases (the course name, or a common short
+  /// form of it, actually appearing in the CV text) without the latency or
+  /// cost of a semantic match for something that should feel instant.
+  bool _mentionedInCv(SkillEquivalency entry, String? cvText) {
+    if (cvText == null || cvText.isEmpty) return false;
+    return cvText.toLowerCase().contains(entry.militaryTerm.toLowerCase());
+  }
+
+  List<SkillEquivalency> _visibleEntries(String? cvText) {
+    final query = _searchQuery.trim().toLowerCase();
+    final entries = query.isEmpty
+        ? _allEntries
+        : _allEntries
+            .where(
+              (e) =>
+                  e.militaryTerm.toLowerCase().contains(query) ||
+                  e.civilianEquivalent.toLowerCase().contains(query),
+            )
+            .toList();
+    // Courses mentioned in the officer's own CV surface first, so the ones
+    // actually relevant to them don't require scrolling or searching.
+    final sorted = [...entries];
+    sorted.sort((a, b) {
+      final aIn = _mentionedInCv(a, cvText);
+      final bIn = _mentionedInCv(b, cvText);
+      if (aIn == bIn) return 0;
+      return aIn ? -1 : 1;
+    });
+    return sorted;
   }
 
   Future<void> _submitCourse() async {
@@ -101,6 +169,9 @@ class _SkillEquivalencyScreenState extends State<SkillEquivalencyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cvText = context.watch<ProfileRepository>().profile?.cvExtractedText;
+    final visibleEntries = _visibleEntries(cvText);
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Skill Equivalency Matrix')),
       body: ListView(
@@ -112,18 +183,45 @@ class _SkillEquivalencyScreenState extends State<SkillEquivalencyScreen> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          for (final entry in kSkillEquivalencies)
-            _EquivalencyCard(
-              entry: entry,
-              // Only ever flags a caution (verified: false) — a genuinely
-              // verified curated entry shows no badge at all, since the
-              // whole curated list already implies it's been vetted.
-              verified: entry.verified ? null : false,
-              sourceNote: entry.verified
+          TextField(
+            key: const Key('skillEquivalencySearchField'),
+            controller: _searchController,
+            decoration: InputDecoration(
+              labelText: 'Search a course, institution, or civilian role',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.isEmpty
                   ? null
-                  : 'A real, named course/institution, but resting on a single non-official '
-                      'source rather than multiple corroborating sources.',
+                  : IconButton(
+                      icon: const Icon(Icons.clear),
+                      tooltip: 'Clear search',
+                      onPressed: () => _searchController.clear(),
+                    ),
+              border: const OutlineInputBorder(),
             ),
+          ),
+          const SizedBox(height: 16),
+          if (visibleEntries.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                "No match in the list — name it below and we'll look it up for you.",
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
+              ),
+            )
+          else
+            for (final entry in visibleEntries)
+              _EquivalencyCard(
+                entry: entry,
+                // Only ever flags a caution (verified: false) — a genuinely
+                // verified entry shows no badge at all, since being in this
+                // list at all already implies it's been vetted.
+                verified: entry.verified ? null : false,
+                sourceNote: entry.verified
+                    ? null
+                    : 'A real, named course/institution, but resting on a single non-official '
+                        'source rather than multiple corroborating sources.',
+                inCv: _mentionedInCv(entry, cvText),
+              ),
           const SizedBox(height: 12),
           _buildNotListedSection(context),
         ],
@@ -216,7 +314,7 @@ class _SkillEquivalencyScreenState extends State<SkillEquivalencyScreen> {
 }
 
 class _EquivalencyCard extends StatelessWidget {
-  const _EquivalencyCard({required this.entry, this.verified, this.sourceNote});
+  const _EquivalencyCard({required this.entry, this.verified, this.sourceNote, this.inCv = false});
 
   final SkillEquivalency entry;
 
@@ -227,17 +325,40 @@ class _EquivalencyCard extends StatelessWidget {
   final bool? verified;
   final String? sourceNote;
 
+  /// True when this course appears to be mentioned in the officer's own CV
+  /// (a plain keyword match, not an AI judgement) — highlighted so the
+  /// entries actually relevant to them don't require searching or
+  /// scrolling to find.
+  final bool inCv;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Card(
       key: ValueKey('equivalency_${entry.militaryTerm}'),
       margin: const EdgeInsets.only(bottom: 12),
+      shape: inCv
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: colorScheme.primary, width: 1.5),
+            )
+          : null,
+      color: inCv ? colorScheme.primaryContainer.withValues(alpha: 0.25) : null,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (inCv) ...[
+              Chip(
+                key: const Key('inCvBadge'),
+                avatar: Icon(Icons.check_circle, size: 16, color: colorScheme.primary),
+                label: const Text('In your CV'),
+                visualDensity: VisualDensity.compact,
+                backgroundColor: colorScheme.primaryContainer,
+              ),
+              const SizedBox(height: 8),
+            ],
             Text(entry.militaryTerm, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 6),
             Row(

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'admin_officer_summary.dart';
 import 'allowed_phone_summary.dart';
+import 'course_submission_summary.dart';
 import 'login_event.dart';
 import 'support_ticket_summary.dart';
 
@@ -120,4 +121,36 @@ Future<List<LoginEvent>> httpFetchLoginHistory(String adminKey) async {
   return (json['logins'] as List)
       .map((e) => LoginEvent.fromJson(e as Map<String, dynamic>))
       .toList();
+}
+
+typedef FetchCourseSubmissions = Future<List<CourseSubmissionSummary>> Function(String adminKey);
+typedef ApproveCourseSubmission = Future<void> Function(String adminKey, String id);
+typedef RejectCourseSubmission = Future<void> Function(String adminKey, String id);
+
+Future<List<CourseSubmissionSummary>> httpFetchCourseSubmissions(String adminKey) async {
+  final response = await _post('/admin/course-submissions', adminKey);
+  if (response.statusCode == 401) {
+    throw AdminException('Incorrect admin key.');
+  }
+  if (response.statusCode != 200) {
+    throw AdminException('Could not load course submissions (${response.statusCode}).');
+  }
+  final json = jsonDecode(response.body) as Map<String, dynamic>;
+  return (json['submissions'] as List)
+      .map((e) => CourseSubmissionSummary.fromJson(e as Map<String, dynamic>))
+      .toList();
+}
+
+Future<void> httpApproveCourseSubmission(String adminKey, String id) async {
+  final response = await _post('/admin/approve-course-submission', adminKey, {'id': id});
+  if (response.statusCode != 200) {
+    throw AdminException('Could not approve this submission (${response.statusCode}).');
+  }
+}
+
+Future<void> httpRejectCourseSubmission(String adminKey, String id) async {
+  final response = await _post('/admin/reject-course-submission', adminKey, {'id': id});
+  if (response.statusCode != 200) {
+    throw AdminException('Could not reject this submission (${response.statusCode}).');
+  }
 }

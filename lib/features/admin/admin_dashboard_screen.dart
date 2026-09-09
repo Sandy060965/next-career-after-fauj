@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'admin_http_service.dart';
 import 'admin_officer_summary.dart';
 import 'allowed_phone_summary.dart';
+import 'course_submission_summary.dart';
 import 'login_event.dart';
 import 'support_ticket_summary.dart';
 
@@ -17,6 +18,9 @@ class AdminDashboardScreen extends StatefulWidget {
     this.addAllowedPhone = httpAddAllowedPhone,
     this.removeAllowedPhone = httpRemoveAllowedPhone,
     this.fetchLoginHistory = httpFetchLoginHistory,
+    this.fetchCourseSubmissions = httpFetchCourseSubmissions,
+    this.approveCourseSubmission = httpApproveCourseSubmission,
+    this.rejectCourseSubmission = httpRejectCourseSubmission,
   });
 
   final String adminKey;
@@ -27,6 +31,9 @@ class AdminDashboardScreen extends StatefulWidget {
   final AddAllowedPhone addAllowedPhone;
   final RemoveAllowedPhone removeAllowedPhone;
   final FetchLoginHistory fetchLoginHistory;
+  final FetchCourseSubmissions fetchCourseSubmissions;
+  final ApproveCourseSubmission approveCourseSubmission;
+  final RejectCourseSubmission rejectCourseSubmission;
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -39,6 +46,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   List<SupportTicketSummary> _tickets = const [];
   List<AllowedPhoneSummary> _allowedPhones = const [];
   List<LoginEvent> _logins = const [];
+  List<CourseSubmissionSummary> _courseSubmissions = const [];
 
   @override
   void initState() {
@@ -57,6 +65,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         widget.fetchSupportTickets(widget.adminKey),
         widget.fetchAllowedPhones(widget.adminKey),
         widget.fetchLoginHistory(widget.adminKey),
+        widget.fetchCourseSubmissions(widget.adminKey),
       ]);
       if (!mounted) return;
       setState(() {
@@ -64,6 +73,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         _tickets = results[1] as List<SupportTicketSummary>;
         _allowedPhones = results[2] as List<AllowedPhoneSummary>;
         _logins = results[3] as List<LoginEvent>;
+        _courseSubmissions = results[4] as List<CourseSubmissionSummary>;
         _isLoading = false;
       });
     } catch (e) {
@@ -114,11 +124,38 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
+  Future<void> _approveCourse(String id) async {
+    try {
+      await widget.approveCourseSubmission(widget.adminKey, id);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  Future<void> _rejectCourse(String id) async {
+    try {
+      await widget.rejectCourseSubmission(widget.adminKey, id);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final openTickets = _tickets.where((t) => !t.isResolved).length;
+    final pendingCourses = _courseSubmissions.where((s) => s.isPending).length;
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Admin Dashboard'),
@@ -136,6 +173,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Tab(text: 'Officers (${_officers.length})'),
               Tab(text: 'Support Tickets ($openTickets open)'),
               Tab(text: 'Allowed Numbers (${_allowedPhones.length})'),
+              Tab(text: 'Course Submissions ($pendingCourses pending)'),
             ],
           ),
         ),
@@ -156,6 +194,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         phones: _allowedPhones,
                         onAdd: _addPhone,
                         onRemove: _removePhone,
+                      ),
+                      _CourseSubmissionsTab(
+                        submissions: _courseSubmissions,
+                        onApprove: _approveCourse,
+                        onReject: _rejectCourse,
                       ),
                     ],
                   ),
@@ -543,6 +586,144 @@ class _AllowedPhonesTabState extends State<_AllowedPhonesTab> {
                 ),
         ),
       ],
+    );
+  }
+}
+
+class _CourseSubmissionsTab extends StatelessWidget {
+  const _CourseSubmissionsTab({
+    required this.submissions,
+    required this.onApprove,
+    required this.onReject,
+  });
+
+  final List<CourseSubmissionSummary> submissions;
+  final ValueChanged<String> onApprove;
+  final ValueChanged<String> onReject;
+
+  @override
+  Widget build(BuildContext context) {
+    if (submissions.isEmpty) {
+      return const Center(child: Text('No course lookups submitted by officers yet.'));
+    }
+    // Pending first — that's the actual work queue; already-reviewed
+    // entries stay visible below for reference, not left to accumulate
+    // invisibly.
+    final sorted = [...submissions]..sort((a, b) {
+        if (a.isPending == b.isPending) return b.submittedAt.compareTo(a.submittedAt);
+        return a.isPending ? -1 : 1;
+      });
+    return ListView.builder(
+      key: const Key('adminCourseSubmissionsList'),
+      padding: const EdgeInsets.all(16),
+      itemCount: sorted.length,
+      itemBuilder: (context, index) {
+        final submission = sorted[index];
+        final colorScheme = Theme.of(context).colorScheme;
+        return Card(
+          key: ValueKey('courseSubmissionCard_${submission.id}'),
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        submission.courseName,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                    Chip(
+                      label: Text(submission.status),
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: switch (submission.status) {
+                        'approved' => colorScheme.primaryContainer,
+                        'rejected' => colorScheme.surfaceContainerHighest,
+                        _ => colorScheme.tertiaryContainer,
+                      },
+                    ),
+                  ],
+                ),
+                Text(
+                  '${submission.mobileNumber ?? 'Unknown officer'} • '
+                  '${_formatDate(submission.submittedAt)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                if (submission.civilianEquivalent != null) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.arrow_downward, size: 16, color: colorScheme.primary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          submission.civilianEquivalent!,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                ],
+                if (submission.civilianDescription != null)
+                  Text(submission.civilianDescription!, style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: 6),
+                Chip(
+                  label: Text(
+                    submission.verified ? 'Verified via web search' : 'Not independently verified',
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor:
+                      submission.verified ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
+                ),
+                if (submission.sourceNote != null && submission.sourceNote!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    submission.sourceNote!,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontStyle: FontStyle.italic, color: colorScheme.onSurfaceVariant),
+                  ),
+                ],
+                if (submission.courseDescription != null && submission.courseDescription!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    "Officer's own description: ${submission.courseDescription}",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+                if (submission.isPending) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        key: ValueKey('rejectCourseButton_${submission.id}'),
+                        onPressed: () => onReject(submission.id),
+                        child: const Text('Reject'),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton(
+                        key: ValueKey('approveCourseButton_${submission.id}'),
+                        onPressed: () => onApprove(submission.id),
+                        child: const Text('Approve & add to list'),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -403,7 +403,18 @@ const CORS_HEADERS = {
 function stripCodeFence(text) {
   const trimmed = text.trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
-  return fenced ? fenced[1] : trimmed;
+  if (fenced) return fenced[1];
+  // Every prompt using this instructs "ONLY valid JSON, no commentary" —
+  // but with a tool (web search) in play, the model sometimes still wraps
+  // the JSON in a sentence or two of commentary anyway (e.g. "Perfect! I
+  // found details on...{...}"). Rather than fail outright, fall back to
+  // extracting the first balanced-looking {...} object from the text.
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1);
+  }
+  return trimmed;
 }
 
 function json(body, status = 200) {

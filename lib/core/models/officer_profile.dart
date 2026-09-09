@@ -1,9 +1,27 @@
 import 'dart:typed_data';
 
+// Deliberately no age ranges in these labels — retirement age isn't uniform
+// across services or even across ranks within a service (e.g. Army Colonel
+// retires at 54 vs Navy/Air Force Colonel-equivalent at 57), so a single
+// number here would be wrong for a large share of officers. Each label
+// instead describes what actually distinguishes the category, which holds
+// regardless of the officer's specific due age.
 enum OfficerSegment {
-  ssc('SSC', 'Short Service Commission (31–39 yrs)'),
-  pmr('PMR', 'Premature Retirement (40–53 yrs)'),
-  superannuation('Superannuation', 'Superannuation (54–60 yrs)');
+  ssc(
+    'SSC',
+    'Short Service Commission — an initial short-tenure commission, released by 14 years of '
+        'service at the latest.',
+  ),
+  pmr(
+    'PMR',
+    "Premature Retirement — you're retiring voluntarily, ahead of your due retirement age as "
+        'per your rank and service.',
+  ),
+  superannuation(
+    'Superannuation',
+    "Superannuation — you're retiring on reaching the due/mandatory retirement age as per your "
+        'rank and service.',
+  );
 
   const OfficerSegment(this.shortLabel, this.fullLabel);
 

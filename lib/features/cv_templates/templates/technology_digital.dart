@@ -8,9 +8,11 @@ import '../cv_template_theme.dart';
 
 /// A dark tech-toned header band with photo and role-focus tags, on a
 /// light body — Professional Experience, then Education & Certifications.
-pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildTechnologyDigital(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
-  final tagStyle = pw.TextStyle(font: fonts.interMedium, fontSize: 8, color: PdfColors.white);
+  final tagStyle = pw.TextStyle(
+      font: fonts.interMedium, fontSize: 8, color: PdfColors.white);
 
   final doc = pw.Document();
   doc.addPage(
@@ -26,13 +28,22 @@ pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemp
           child: pw.Row(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              cvAvatar(data: data, theme: theme, fonts: fonts, size: 58, initialsBackground: theme.accent),
+              cvAvatar(
+                  data: data,
+                  theme: theme,
+                  fonts: fonts,
+                  size: 58,
+                  initialsBackground: theme.accent),
               pw.SizedBox(width: 16),
               pw.Expanded(
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(data.titleLine, style: pw.TextStyle(font: fonts.interBold, fontSize: 19, color: PdfColors.white)),
+                    pw.Text(data.titleLine,
+                        style: pw.TextStyle(
+                            font: fonts.interBold,
+                            fontSize: 19,
+                            color: PdfColors.white)),
                     pw.SizedBox(height: 5),
                     if (data.skills.isNotEmpty)
                       pw.Wrap(
@@ -41,10 +52,12 @@ pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemp
                         children: [
                           for (final s in data.skills.take(6))
                             pw.Container(
-                              padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              padding: const pw.EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
                               decoration: pw.BoxDecoration(
                                 color: theme.accent,
-                                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
+                                borderRadius: const pw.BorderRadius.all(
+                                    pw.Radius.circular(3)),
                               ),
                               child: pw.Text(s, style: tagStyle),
                             ),
@@ -52,7 +65,11 @@ pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemp
                       ),
                     if (cvContactLine(data).isNotEmpty) ...[
                       pw.SizedBox(height: 6),
-                      pw.Text(cvContactLine(data), style: pw.TextStyle(font: fonts.interRegular, fontSize: 8.5, color: PdfColor.fromHex('#FFFFFFCC'))),
+                      pw.Text(cvContactLine(data),
+                          style: pw.TextStyle(
+                              font: fonts.interRegular,
+                              fontSize: 8.5,
+                              color: PdfColor.fromHex('#FFFFFFCC'))),
                     ],
                   ],
                 ),
@@ -68,6 +85,11 @@ pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemp
               if (data.summary.trim().isNotEmpty) ...[
                 cvSectionHeading('Digital Leadership Profile', styles),
                 pw.Text(data.summary, style: styles.body),
+                pw.SizedBox(height: 14),
+              ],
+              if (data.careerHighlights.isNotEmpty) ...[
+                cvSectionHeading('Career Highlights', styles),
+                cvBulletList(data.careerHighlights.join('\n'), styles),
                 pw.SizedBox(height: 14),
               ],
               if (data.workExperience.isNotEmpty) ...[
@@ -90,7 +112,9 @@ pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemp
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           cvSectionHeading('Education', styles),
-                          for (final ed in data.education) cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
+                          for (final ed in data.education)
+                            cvSimpleLine('${ed.degree}, ${ed.institution}',
+                                ed.year, styles),
                         ],
                       ),
                     ),
@@ -101,7 +125,8 @@ pw.Document buildTechnologyDigital(CvTemplateData data, CvPdfFonts fonts, CvTemp
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           cvSectionHeading('Certifications', styles),
-                          for (final c in data.certifications) cvSimpleLine(c.name, c.year, styles),
+                          for (final c in data.certifications)
+                            cvSimpleLine(c.name, c.year, styles),
                         ],
                       ),
                     ),

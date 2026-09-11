@@ -141,5 +141,49 @@ void main() {
       final bytes = await template.build(dense, fonts).save();
       expect(bytes, isNotEmpty);
     });
+
+    // Every one of the 20 templates against Lieutenant General-scale data —
+    // 13 appointments (3 detailed + 10 brief) and 9 courses, the densest the
+    // CV Examples Library actually produces. Regression guard for the same
+    // "Row can't paginate vertically" bug above, now checked across all 20
+    // template IDs rather than just business_leader/executive_navy — found
+    // to affect 13 of the 20 while rolling Career Highlights out further:
+    // executive_sidebar's 5 colour IDs, modern_split, consultant,
+    // corporate_banner's 4 colour IDs, modern_grid and strategist.
+    test('every template accommodates Lieutenant General-scale density without throwing', () async {
+      final fonts = await CvPdfFonts.load();
+      final dense = CvTemplateData(
+        fullName: 'A K Sharma',
+        rank: 'Lieutenant General',
+        serviceLabel: 'Army',
+        summary: List.filled(3, _sampleData().summary).join(' '),
+        skills: List.generate(10, (i) => 'Competency Area $i'),
+        careerHighlights: List.generate(6, (i) => 'A detailed, sentence-length career highlight number $i.'),
+        workExperience: [
+          for (var i = 0; i < 3; i++)
+            WorkExperienceEntry(
+              roleTitle: 'Senior Appointment $i',
+              organizationType: '',
+              duration: 'Jul 20${10 + i} – Jun 20${13 + i}',
+              responsibilities: List.generate(5, (j) => 'A detailed responsibility bullet number $j.').join('\n'),
+            ),
+          for (var i = 3; i < 13; i++)
+            WorkExperienceEntry(
+              roleTitle: 'Earlier Appointment $i',
+              organizationType: '',
+              duration: 'Jul 19${80 + i} – Jun 19${82 + i}',
+              responsibilities: '',
+            ),
+        ],
+        education: List.generate(4, (i) => EducationEntry(degree: 'Degree $i', institution: 'Institution $i', year: '20$i')),
+        courses: List.generate(9, (i) => CourseEntry(name: 'Course $i', year: '20$i')),
+        honoursAwards: List.generate(4, (i) => AwardEntry(name: 'Award $i', year: '20$i')),
+      );
+
+      for (final template in kCvPdfTemplates) {
+        final bytes = await template.build(dense, fonts).save();
+        expect(bytes, isNotEmpty, reason: template.id);
+      }
+    });
   });
 }

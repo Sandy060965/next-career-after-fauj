@@ -8,16 +8,22 @@ import '../cv_template_theme.dart';
 
 /// Clean and minimal, numbered milestone badges (not plain dots) marking
 /// each role — distinct from Corporate Modern's timeline-dot treatment.
-pw.Document buildProgrammeOperations(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildProgrammeOperations(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
 
   pw.Widget milestoneBadge(int n) => pw.Container(
         width: 18,
         height: 18,
         margin: const pw.EdgeInsets.only(top: 2, right: 10),
-        decoration: pw.BoxDecoration(shape: pw.BoxShape.circle, color: theme.primary),
+        decoration:
+            pw.BoxDecoration(shape: pw.BoxShape.circle, color: theme.primary),
         alignment: pw.Alignment.center,
-        child: pw.Text('$n', style: pw.TextStyle(font: fonts.interSemiBold, fontSize: 8.5, color: PdfColors.white)),
+        child: pw.Text('$n',
+            style: pw.TextStyle(
+                font: fonts.interSemiBold,
+                fontSize: 8.5,
+                color: PdfColors.white)),
       );
 
   final doc = pw.Document();
@@ -30,7 +36,10 @@ pw.Document buildProgrammeOperations(CvTemplateData data, CvPdfFonts fonts, CvTe
         pw.Text(data.titleLine, style: styles.name),
         pw.SizedBox(height: 2),
         pw.Text(
-          [data.serviceLabel, data.corpsOrArm].whereType<String>().where((s) => s.isNotEmpty).join(' • '),
+          [data.serviceLabel, data.corpsOrArm]
+              .whereType<String>()
+              .where((s) => s.isNotEmpty)
+              .join(' • '),
           style: styles.rankTitle,
         ),
         if (cvContactLine(data).isNotEmpty) ...[
@@ -43,6 +52,11 @@ pw.Document buildProgrammeOperations(CvTemplateData data, CvPdfFonts fonts, CvTe
         if (data.summary.trim().isNotEmpty) ...[
           cvSectionHeading('Profile', styles),
           pw.Text(data.summary, style: styles.body),
+          pw.SizedBox(height: 14),
+        ],
+        if (data.careerHighlights.isNotEmpty) ...[
+          cvSectionHeading('Career Highlights', styles),
+          cvBulletList(data.careerHighlights.join('\n'), styles),
           pw.SizedBox(height: 14),
         ],
         if (data.workExperience.isNotEmpty) ...[
@@ -81,7 +95,9 @@ pw.Document buildProgrammeOperations(CvTemplateData data, CvPdfFonts fonts, CvTe
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     cvSectionHeading('Education', styles),
-                    for (final ed in data.education) cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
+                    for (final ed in data.education)
+                      cvSimpleLine(
+                          '${ed.degree}, ${ed.institution}', ed.year, styles),
                   ],
                 ),
               ),
@@ -92,7 +108,8 @@ pw.Document buildProgrammeOperations(CvTemplateData data, CvPdfFonts fonts, CvTe
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     cvSectionHeading('Certifications', styles),
-                    for (final c in data.certifications) cvSimpleLine(c.name, c.year, styles),
+                    for (final c in data.certifications)
+                      cvSimpleLine(c.name, c.year, styles),
                   ],
                 ),
               ),

@@ -42,23 +42,30 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Leadership Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Jan 2022 – Jun 2024',
           responsibilities:
               'Directly commanded a team of 30-80 personnel, personally planning and executing daily operational tasks against a fixed schedule.\nManaged equipment, stores and manpower against a tight budget, escalating shortfalls early rather than absorbing risk silently.\nRan structured pre-task briefings and post-task reviews, converting lessons into concrete changes to the next task.\nHandled day-to-day people issues - discipline, welfare, training gaps - before they affected delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Operational Task Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Jul 2019 – Dec 2021',
           responsibilities:
               'Executed a series of short-notice operational tasks, each requiring rapid replanning as the situation on the ground changed.\nCoordinated directly with adjacent teams and supporting elements to keep a task on schedule despite resource constraints.\nMaintained equipment and personnel readiness through disciplined routine maintenance and training, not just at inspection time.\nIdentified and fixed a recurring process gap that had been causing avoidable delays before it was raised as an issue.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Leadership / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jan 2017 – Jun 2019',
           responsibilities:
               'Led a small team through initial operational training, building the fundamentals of planning, discipline and teamwork.\nAssisted a senior officer in running unit administration and scheduling, learning the mechanics of resource planning first-hand.\nTook on a specific functional responsibility (stores, transport, or training) and ran it independently under supervision.\nBuilt a reputation for reliability on small tasks that led to being trusted with larger ones ahead of peers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2014 – Dec 2016',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -80,14 +87,9 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Young Officers Course / branch-specific qualifying course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Specialist functional / weapons course, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2015'),
+        CourseEntry(name: 'Instructor Course', year: '2016'),
+        CourseEntry(name: 'Weapons Course', year: '2018'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -100,7 +102,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Major',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Arjun Mehta',
       rank: 'Major',
@@ -130,21 +132,21 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Technical / Systems Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned day-to-day serviceability of a portfolio of 100+ technical systems/assets, coordinating maintenance schedules and spares.\nWorked directly with equipment specialists and external vendors to resolve technical issues and close capability gaps.\nMaintained accurate technical and inventory records, replacing an informal tracking process with a structured one.\nTrained junior personnel on equipment operation and first-line maintenance, reducing dependency on senior staff.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Functional / Support Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Supported a functional portfolio (logistics, communications or engineering) requiring close coordination with multiple users.\nDiagnosed and resolved a recurring reliability issue by tracing it back to a process gap rather than a one-off fault.\nCoordinated stores and spares availability against operational schedules, flagging shortfalls before they caused delay.\nAssisted in planning and executing a minor equipment upgrade, learning project coordination first-hand.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Technical / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Completed specialist technical training and was assigned early responsibility for a specific system or process.\nAssisted senior technical staff in equipment inspections, maintenance planning and documentation.\nBuilt a working knowledge of the unit\'s full technical portfolio ahead of formal handover of responsibility.\nFlagged a minor but persistent fault pattern that, once fixed, improved overall equipment availability.',
         ),
@@ -168,14 +170,9 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Young Officers Course / branch-specific qualifying course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Specialist functional / weapons course, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2015'),
+        CourseEntry(name: 'Instructor Course', year: '2016'),
+        CourseEntry(name: 'Weapons Course', year: '2018'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -188,7 +185,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Major',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Arjun Mehta',
       rank: 'Major',
@@ -217,21 +214,21 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Staff / Coordination Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared assessments, briefing notes and recommendations for a senior officer\'s decision-making.\nCoordinated inputs from multiple functional areas to deliver a task or report against a fixed deadline.\nTracked action items from meetings and reviews, following up to ensure closure rather than letting them lapse.\nDrafted correspondence and presentations that were used directly by senior leadership.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team Leadership Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a small team through a defined task requiring planning, coordination and reporting.\nIntroduced a simple tracking method for a recurring administrative process, reducing errors.\nCoordinated with an adjacent team to resolve a scheduling conflict without escalation.\nPrepared and delivered briefings to seniors and peers on task progress and issues.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Staff / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Assisted a senior officer in preparing assessments and administrative documentation.\nLearned the fundamentals of structured planning and stakeholder coordination through supervised tasks.\nTook on a specific coordination responsibility and delivered it reliably, building trust for larger tasks.\nContributed written input to a unit-level review or planning exercise.',
         ),
@@ -255,14 +252,9 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Young Officers Course / branch-specific qualifying course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Specialist functional / weapons course, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2015'),
+        CourseEntry(name: 'Instructor Course', year: '2016'),
+        CourseEntry(name: 'Weapons Course', year: '2018'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -305,23 +297,48 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Leadership Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Aug 2021 – Jun 2024',
           responsibilities:
               'Directly commanded a team of 30-80 personnel, personally planning and executing daily operational tasks against a fixed schedule.\nManaged equipment, stores and manpower against a tight budget, escalating shortfalls early rather than absorbing risk silently.\nRan structured pre-task briefings and post-task reviews, converting lessons into concrete changes to the next task.\nHandled day-to-day people issues - discipline, welfare, training gaps - before they affected delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Operational Task Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Sep 2018 – Jul 2021',
           responsibilities:
               'Executed a series of short-notice operational tasks, each requiring rapid replanning as the situation on the ground changed.\nCoordinated directly with adjacent teams and supporting elements to keep a task on schedule despite resource constraints.\nMaintained equipment and personnel readiness through disciplined routine maintenance and training, not just at inspection time.\nIdentified and fixed a recurring process gap that had been causing avoidable delays before it was raised as an issue.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Leadership / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Nov 2015 – Aug 2018',
           responsibilities:
               'Led a small team through initial operational training, building the fundamentals of planning, discipline and teamwork.\nAssisted a senior officer in running unit administration and scheduling, learning the mechanics of resource planning first-hand.\nTook on a specific functional responsibility (stores, transport, or training) and ran it independently under supervision.\nBuilt a reputation for reliability on small tasks that led to being trusted with larger ones ahead of peers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jan 2013 – Oct 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Mar 2010 – Dec 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'May 2007 – Feb 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Apr 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -343,14 +360,11 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Defence Services Staff Course (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command / specialist course appropriate to arm or branch, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2005'),
+        CourseEntry(name: 'Instructor Course', year: '2006'),
+        CourseEntry(name: 'Weapons Course', year: '2008'),
+        CourseEntry(name: 'Junior Command Course', year: '2013'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -363,7 +377,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Lieutenant Colonel',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Rohan Kapoor',
       rank: 'Lieutenant Colonel',
@@ -393,23 +407,41 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Technical / Systems Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned day-to-day serviceability of a portfolio of 100+ technical systems/assets, coordinating maintenance schedules and spares.\nWorked directly with equipment specialists and external vendors to resolve technical issues and close capability gaps.\nMaintained accurate technical and inventory records, replacing an informal tracking process with a structured one.\nTrained junior personnel on equipment operation and first-line maintenance, reducing dependency on senior staff.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Functional / Support Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Supported a functional portfolio (logistics, communications or engineering) requiring close coordination with multiple users.\nDiagnosed and resolved a recurring reliability issue by tracing it back to a process gap rather than a one-off fault.\nCoordinated stores and spares availability against operational schedules, flagging shortfalls before they caused delay.\nAssisted in planning and executing a minor equipment upgrade, learning project coordination first-hand.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Technical / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Completed specialist technical training and was assigned early responsibility for a specific system or process.\nAssisted senior technical staff in equipment inspections, maintenance planning and documentation.\nBuilt a working knowledge of the unit\'s full technical portfolio ahead of formal handover of responsibility.\nFlagged a minor but persistent fault pattern that, once fixed, improved overall equipment availability.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -431,14 +463,11 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Defence Services Staff Course (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command / specialist course appropriate to arm or branch, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2005'),
+        CourseEntry(name: 'Instructor Course', year: '2006'),
+        CourseEntry(name: 'Weapons Course', year: '2008'),
+        CourseEntry(name: 'Junior Command Course', year: '2013'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -451,7 +480,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Lieutenant Colonel',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Rohan Kapoor',
       rank: 'Lieutenant Colonel',
@@ -480,23 +509,41 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Staff / Coordination Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared assessments, briefing notes and recommendations for a senior officer\'s decision-making.\nCoordinated inputs from multiple functional areas to deliver a task or report against a fixed deadline.\nTracked action items from meetings and reviews, following up to ensure closure rather than letting them lapse.\nDrafted correspondence and presentations that were used directly by senior leadership.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team Leadership Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a small team through a defined task requiring planning, coordination and reporting.\nIntroduced a simple tracking method for a recurring administrative process, reducing errors.\nCoordinated with an adjacent team to resolve a scheduling conflict without escalation.\nPrepared and delivered briefings to seniors and peers on task progress and issues.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Staff / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Assisted a senior officer in preparing assessments and administrative documentation.\nLearned the fundamentals of structured planning and stakeholder coordination through supervised tasks.\nTook on a specific coordination responsibility and delivered it reliably, building trust for larger tasks.\nContributed written input to a unit-level review or planning exercise.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -518,14 +565,11 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Defence Services Staff Course (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command / specialist course appropriate to arm or branch, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2005'),
+        CourseEntry(name: 'Instructor Course', year: '2006'),
+        CourseEntry(name: 'Weapons Course', year: '2008'),
+        CourseEntry(name: 'Junior Command Course', year: '2013'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -569,23 +613,54 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Functional Head / Major Command Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'Oct 2021 – Jun 2024',
           responsibilities:
               'Led an organisation of 300-600 personnel, owning the full budget, equipment and manpower plan for the function.\nSet performance standards and a review rhythm for subordinate leaders, holding them accountable for delivery against plan.\nManaged risk across a portfolio of concurrent activities, escalating and resolving issues before they affected the wider organisation.\nBriefed senior leadership and external stakeholders regularly on status, risk and resource requirements.\nRan a significant equipment or process upgrade from business case through to operational handover.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Deputy Head Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Jan 2019 – Sep 2021',
           responsibilities:
               'Deputised for the functional head, running day-to-day operations across a large, dispersed organisation.\nCoordinated across multiple sub-units and support functions to keep a demanding operational programme on track.\nIntroduced a structured performance-review process that gave leadership early visibility of emerging problems.\nManaged a cross-functional team through a significant organisational change with minimal disruption to delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Command Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Apr 2016 – Dec 2018',
           responsibilities:
               'Commanded a sub-unit of 100-200 personnel, delivering a demanding operational programme against a fixed budget.\nBuilt the team\'s planning and reporting discipline from a low base, improving on-time delivery significantly.\nManaged equipment lifecycle and maintenance planning, reducing unplanned downtime across the tenure.\nDeveloped junior leaders through structured coaching and progressively larger delegated responsibility.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2013 – Mar 2016',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Oct 2010 – Jun 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jan 2008 – Sep 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 2005 – Dec 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Mar 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -607,18 +682,12 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Higher Command / senior leadership course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Defence Services Staff Course (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2003'),
+        CourseEntry(name: 'Instructor Course', year: '2004'),
+        CourseEntry(name: 'Weapons Course', year: '2006'),
+        CourseEntry(name: 'Junior Command Course', year: '2011'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2012'),
+        CourseEntry(name: 'Senior Command Course', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -634,7 +703,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Colonel',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Vikram Malhotra',
       rank: 'Colonel',
@@ -665,23 +734,47 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Portfolio / Programme Head Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Owned a technology/equipment portfolio worth several crore rupees, managing requirements, budget, risk and vendors end-to-end.\nLed a technical team of 20-40 specialists, setting standards for maintenance, documentation and reporting.\nImplemented a structured lifecycle-management approach that improved reliability and reduced unplanned downtime.\nManaged vendor and contract relationships, holding external suppliers accountable to agreed service levels.\nBriefed senior leadership on portfolio health, risk and investment priorities.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Technical / Functional Staff Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Mar 2018 – Apr 2021',
           responsibilities:
               'Coordinated a multi-site technical function, translating user requirements into a prioritised delivery plan.\nIntroduced data-led reporting that gave leadership early visibility of emerging reliability or capacity issues.\nManaged procurement and asset-tracking for a significant equipment upgrade programme.\nMentored and developed junior technical officers into independent portfolio-owning roles.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Technical Team Leadership Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Jan 2015 – Feb 2018',
           responsibilities:
               'Led a technical team through a demanding equipment modernisation programme, on schedule and within budget.\nStandardised maintenance and inspection processes across previously inconsistent sub-units.\nCoordinated with external vendors and specialists to resolve a series of significant technical issues.\nBuilt the technical competence of the team through structured training and knowledge transfer.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2011 – Dec 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Sep 2008 – Oct 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Aug 2005 – Aug 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Jul 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -703,18 +796,12 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Higher Command / senior leadership course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Defence Services Staff Course (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2003'),
+        CourseEntry(name: 'Instructor Course', year: '2004'),
+        CourseEntry(name: 'Weapons Course', year: '2006'),
+        CourseEntry(name: 'Junior Command Course', year: '2011'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2012'),
+        CourseEntry(name: 'Senior Command Course', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -730,7 +817,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Colonel',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Vikram Malhotra',
       rank: 'Colonel',
@@ -761,23 +848,47 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Headquarters / Programme Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Prepared strategic assessments, decision-support papers and implementation roadmaps for senior leadership.\nCoordinated inputs across multiple functions and external stakeholders, reconciling competing priorities and maintaining execution momentum.\nEstablished governance mechanisms, performance measures and review routines to track implementation and surface issues early.\nSupported transformation and change initiatives through structured communication, stakeholder engagement and follow-through.\nTranslated complex operational and organisational issues into clear options, recommendations and action plans.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Command / Major Functional Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Mar 2018 – Apr 2021',
           responsibilities:
               'Led a major functional responsibility requiring structured planning, coordination and delivery across diverse stakeholders.\nPrepared assessments and recommendations for senior decision-makers, balancing operational requirements, risks and organisational priorities.\nCoordinated teams and stakeholders to execute plans and resolve issues under changing circumstances.\nApplied governance and performance-review mechanisms to monitor delivery and drive corrective action.\nDeveloped junior leaders and team members through coaching, feedback and professional development.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Earlier Command / Staff Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Jan 2015 – Feb 2018',
           responsibilities:
               'Held an earlier command/staff appointment involving planning, coordination and disciplined execution in a complex operating environment.\nPrepared concise assessments and recommendations to support timely decisions.\nCoordinated stakeholders across functional boundaries and maintained delivery against competing requirements.\nSupported implementation through structured reviews, issue tracking and follow-up.\nBuilt experience in leadership, communication and decision-making that underpinned subsequent headquarters and programme responsibilities.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Nov 2011 – Dec 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 2008 – Oct 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Aug 2005 – Aug 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Jul 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -799,18 +910,13 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Higher Command / senior leadership course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Defence Services Staff Course (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '2003'),
+        CourseEntry(name: 'Instructor Course', year: '2004'),
+        CourseEntry(name: 'Weapons Course', year: '2006'),
+        CourseEntry(name: 'Junior Command Course', year: '2011'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2012'),
+        CourseEntry(name: 'Senior Command Course', year: '2015'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2016'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -857,23 +963,66 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Functional Head / Major Command Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Led an organisation of 300-600 personnel, owning the full budget, equipment and manpower plan for the function.\nSet performance standards and a review rhythm for subordinate leaders, holding them accountable for delivery against plan.\nManaged risk across a portfolio of concurrent activities, escalating and resolving issues before they affected the wider organisation.\nBriefed senior leadership and external stakeholders regularly on status, risk and resource requirements.\nRan a significant equipment or process upgrade from business case through to operational handover.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Deputy Head Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Jul 2018 – Jun 2021',
           responsibilities:
               'Deputised for the functional head, running day-to-day operations across a large, dispersed organisation.\nCoordinated across multiple sub-units and support functions to keep a demanding operational programme on track.\nIntroduced a structured performance-review process that gave leadership early visibility of emerging problems.\nManaged a cross-functional team through a significant organisational change with minimal disruption to delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Command Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2015 – Jun 2018',
           responsibilities:
               'Commanded a sub-unit of 100-200 personnel, delivering a demanding operational programme against a fixed budget.\nBuilt the team\'s planning and reporting discipline from a low base, improving on-time delivery significantly.\nManaged equipment lifecycle and maintenance planning, reducing unplanned downtime across the tenure.\nDeveloped junior leaders through structured coaching and progressively larger delegated responsibility.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2012 – Jun 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Jul 2009 – Jun 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jul 2006 – Jun 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2003 – Jun 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2000 – Jun 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Jul 1997 – Jun 2000',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Jun 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -894,7 +1043,15 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Young Officers Course', year: '1995'),
+        CourseEntry(name: 'Instructor Course', year: '1996'),
+        CourseEntry(name: 'Weapons Course', year: '1998'),
+        CourseEntry(name: 'Junior Command Course', year: '2003'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2004'),
+        CourseEntry(name: 'Senior Command Course', year: '2007'),
+        CourseEntry(name: 'Higher Command Course', year: '2014'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -902,7 +1059,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Brigadier',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Aman Sethi',
       rank: 'Brigadier',
@@ -933,23 +1090,59 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Portfolio / Programme Head Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned a technology/equipment portfolio worth several crore rupees, managing requirements, budget, risk and vendors end-to-end.\nLed a technical team of 20-40 specialists, setting standards for maintenance, documentation and reporting.\nImplemented a structured lifecycle-management approach that improved reliability and reduced unplanned downtime.\nManaged vendor and contract relationships, holding external suppliers accountable to agreed service levels.\nBriefed senior leadership on portfolio health, risk and investment priorities.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Technical / Functional Staff Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Coordinated a multi-site technical function, translating user requirements into a prioritised delivery plan.\nIntroduced data-led reporting that gave leadership early visibility of emerging reliability or capacity issues.\nManaged procurement and asset-tracking for a significant equipment upgrade programme.\nMentored and developed junior technical officers into independent portfolio-owning roles.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Technical Team Leadership Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Led a technical team through a demanding equipment modernisation programme, on schedule and within budget.\nStandardised maintenance and inspection processes across previously inconsistent sub-units.\nCoordinated with external vendors and specialists to resolve a series of significant technical issues.\nBuilt the technical competence of the team through structured training and knowledge transfer.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Mar 2001 – Jun 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Nov 1997 – Feb 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Oct 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -970,7 +1163,15 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Young Officers Course', year: '1995'),
+        CourseEntry(name: 'Instructor Course', year: '1996'),
+        CourseEntry(name: 'Weapons Course', year: '1998'),
+        CourseEntry(name: 'Junior Command Course', year: '2003'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2004'),
+        CourseEntry(name: 'Senior Command Course', year: '2007'),
+        CourseEntry(name: 'Higher Command Course', year: '2014'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -978,7 +1179,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Brigadier',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Aman Sethi',
       rank: 'Brigadier',
@@ -1009,23 +1210,59 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Headquarters / Programme Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared strategic assessments, decision-support papers and implementation roadmaps for senior leadership.\nCoordinated inputs across multiple functions and external stakeholders, reconciling competing priorities and maintaining execution momentum.\nEstablished governance mechanisms, performance measures and review routines to track implementation and surface issues early.\nSupported transformation and change initiatives through structured communication, stakeholder engagement and follow-through.\nTranslated complex operational and organisational issues into clear options, recommendations and action plans.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Command / Major Functional Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a major functional responsibility requiring structured planning, coordination and delivery across diverse stakeholders.\nPrepared assessments and recommendations for senior decision-makers, balancing operational requirements, risks and organisational priorities.\nCoordinated teams and stakeholders to execute plans and resolve issues under changing circumstances.\nApplied governance and performance-review mechanisms to monitor delivery and drive corrective action.\nDeveloped junior leaders and team members through coaching, feedback and professional development.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Earlier Command / Staff Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Held an earlier command/staff appointment involving planning, coordination and disciplined execution in a complex operating environment.\nPrepared concise assessments and recommendations to support timely decisions.\nCoordinated stakeholders across functional boundaries and maintained delivery against competing requirements.\nSupported implementation through structured reviews, issue tracking and follow-up.\nBuilt experience in leadership, communication and decision-making that underpinned subsequent headquarters and programme responsibilities.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Mar 2001 – Jun 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Nov 1997 – Feb 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Oct 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1046,7 +1283,16 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Young Officers Course', year: '1995'),
+        CourseEntry(name: 'Instructor Course', year: '1996'),
+        CourseEntry(name: 'Weapons Course', year: '1998'),
+        CourseEntry(name: 'Junior Command Course', year: '2003'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2004'),
+        CourseEntry(name: 'Senior Command Course', year: '2007'),
+        CourseEntry(name: 'Higher Command Course', year: '2014'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2008'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1085,23 +1331,78 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Enterprise Leadership Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'Sep 2021 – Jun 2024',
           responsibilities:
               'Led an enterprise-scale organisation of 3,000+ personnel across multiple locations, owning budget, policy and performance.\nSat on the senior decision-making body, shaping resource allocation and organisation-wide priorities.\nDirected a major transformation programme, aligning structure, process and people to a new operating model.\nRepresented the organisation to the highest external stakeholders, including ministry and industry counterparts.\nBuilt succession depth across the senior leadership tier through structured development and delegation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Regional Head Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Nov 2018 – Aug 2021',
           responsibilities:
               'Commanded a major regional organisation, translating enterprise strategy into an executable regional plan.\nOwned a budget in excess of ₹50 crore, delivering the full programme of work within approved resources.\nManaged relationships with senior government, industry and community stakeholders on behalf of the organisation.\nLed the response to a significant operational crisis, restoring normal function within a defined timeframe.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Functional Director Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Jan 2016 – Oct 2018',
           responsibilities:
               'Directed a major functional area at the enterprise level, advising senior leadership on policy and resourcing.\nLed cross-organisational coordination on a multi-year capability or infrastructure programme.\nEstablished governance and reporting standards subsequently adopted across the wider organisation.\nDeveloped and presented enterprise-level risk assessments and recommendations to senior decision-makers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Mar 2013 – Dec 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'May 2010 – Feb 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jul 2007 – Apr 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 2004 – Jun 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2001 – Aug 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Jan 1999 – Oct 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Mar 1996 – Dec 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Logistics & Administration Appointment',
+          organizationType: '',
+          duration: 'May 1993 – Feb 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Apr 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1123,18 +1424,14 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '1991'),
+        CourseEntry(name: 'Instructor Course', year: '1992'),
+        CourseEntry(name: 'Weapons Course', year: '1994'),
+        CourseEntry(name: 'Junior Command Course', year: '1999'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2000'),
+        CourseEntry(name: 'Senior Command Course', year: '2003'),
+        CourseEntry(name: 'Higher Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -1150,7 +1447,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Major General',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Nikhil Rao',
       rank: 'Major General',
@@ -1181,23 +1478,71 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Technology / Capability Leadership Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Directed an enterprise-level technology/capability portfolio worth several hundred crore rupees.\nSet organisation-wide technology policy and investment priorities, briefed regularly to senior leadership.\nLed a major multi-year modernisation programme, coordinating industry partners, internal teams and budget.\nManaged senior relationships with major technology vendors and government partners on behalf of the organisation.\nBuilt and mentored a technology leadership bench across the organisation\'s senior technical cadre.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Programme / Regional Technology Head Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Apr 2018 – Apr 2021',
           responsibilities:
               'Led a major regional technology programme, translating enterprise strategy into an executable delivery plan.\nOwned a capital budget in excess of ₹50 crore across a multi-year equipment/systems programme.\nDirected the technical response to a significant capability gap, closing it ahead of the planned timeline.\nRepresented the organisation to senior industry and government technology stakeholders.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Technology Advisor Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Mar 2015 – Mar 2018',
           responsibilities:
               'Advised senior leadership on technology strategy, risk and long-term capability requirements.\nDirected cross-organisational coordination on a major systems-integration programme.\nEstablished technology governance standards subsequently adopted organisation-wide.\nLed the technical evaluation and business case for a major capital equipment decision.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Feb 2012 – Feb 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Jan 2009 – Jan 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Dec 2005 – Dec 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 2002 – Nov 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Oct 1999 – Oct 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Sep 1996 – Sep 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Quality Assurance Appointment',
+          organizationType: '',
+          duration: 'Aug 1993 – Aug 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Project Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Jul 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1219,18 +1564,14 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '1991'),
+        CourseEntry(name: 'Instructor Course', year: '1992'),
+        CourseEntry(name: 'Weapons Course', year: '1994'),
+        CourseEntry(name: 'Junior Command Course', year: '1999'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2000'),
+        CourseEntry(name: 'Senior Command Course', year: '2003'),
+        CourseEntry(name: 'Higher Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -1246,7 +1587,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Major General',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Nikhil Rao',
       rank: 'Major General',
@@ -1277,23 +1618,71 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Strategy / Governance Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Chaired or served on the senior governance body responsible for organisation-wide strategy and resource allocation.\nDirected a multi-year transformation programme, aligning structure, process and culture to a new strategic direction.\nAdvised the most senior leadership on strategic options and risk during a period of major organisational change.\nRepresented the organisation at the highest external levels, including government and international counterparts.\nBuilt and mentored a pipeline of senior strategists and staff officers across the organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Strategic Staff Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Apr 2018 – Apr 2021',
           responsibilities:
               'Led enterprise-level strategic planning for a major command, translating direction into a multi-year executable plan.\nDirected the organisation\'s response to a significant strategic risk, protecting continuity throughout.\nManaged senior relationships with government and industry stakeholders on behalf of the organisation.\nEstablished a governance and review framework subsequently adopted across the wider organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Policy Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Mar 2015 – Mar 2018',
           responsibilities:
               'Shaped organisational policy on a significant strategic issue, briefed directly to senior leadership.\nDirected cross-organisational coordination on a major, multi-stakeholder strategic initiative.\nPrepared board-level papers and recommendations that directly informed senior decision-making.\nLed a structured review that reshaped how the organisation approached a recurring strategic risk.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Feb 2012 – Feb 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Jan 2009 – Jan 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Dec 2005 – Dec 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 2002 – Nov 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Oct 1999 – Oct 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 1996 – Sep 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Administration Staff Appointment',
+          organizationType: '',
+          duration: 'Aug 1993 – Aug 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Policy Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Jul 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1315,18 +1704,15 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
-        CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+        CourseEntry(name: 'Young Officers Course', year: '1991'),
+        CourseEntry(name: 'Instructor Course', year: '1992'),
+        CourseEntry(name: 'Weapons Course', year: '1994'),
+        CourseEntry(name: 'Junior Command Course', year: '1999'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '2000'),
+        CourseEntry(name: 'Senior Command Course', year: '2003'),
+        CourseEntry(name: 'Higher Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2004'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Sena Medal, if actually awarded', year: '[Year]'),
@@ -1373,23 +1759,90 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Enterprise Leadership Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Oct 2021 – Jun 2024',
           responsibilities:
               'Led an enterprise-scale organisation of 3,000+ personnel across multiple locations, owning budget, policy and performance.\nSat on the senior decision-making body, shaping resource allocation and organisation-wide priorities.\nDirected a major transformation programme, aligning structure, process and people to a new operating model.\nRepresented the organisation to the highest external stakeholders, including ministry and industry counterparts.\nBuilt succession depth across the senior leadership tier through structured development and delegation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Regional Head Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jan 2019 – Sep 2021',
           responsibilities:
               'Commanded a major regional organisation, translating enterprise strategy into an executable regional plan.\nOwned a budget in excess of ₹50 crore, delivering the full programme of work within approved resources.\nManaged relationships with senior government, industry and community stakeholders on behalf of the organisation.\nLed the response to a significant operational crisis, restoring normal function within a defined timeframe.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Functional Director Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Apr 2016 – Dec 2018',
           responsibilities:
               'Directed a major functional area at the enterprise level, advising senior leadership on policy and resourcing.\nLed cross-organisational coordination on a multi-year capability or infrastructure programme.\nEstablished governance and reporting standards subsequently adopted across the wider organisation.\nDeveloped and presented enterprise-level risk assessments and recommendations to senior decision-makers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2013 – Mar 2016',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Oct 2010 – Jun 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jan 2008 – Sep 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 2005 – Dec 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Mar 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Nov 1999 – Jun 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Mar 1997 – Oct 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Logistics & Administration Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Feb 1997',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 1991 – Jun 1994',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Exercise Planning Appointment',
+          organizationType: '',
+          duration: 'Mar 1989 – Oct 1991',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Jul 1986 – Feb 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1410,7 +1863,17 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Young Officers Course', year: '1987'),
+        CourseEntry(name: 'Instructor Course', year: '1988'),
+        CourseEntry(name: 'Weapons Course', year: '1990'),
+        CourseEntry(name: 'Junior Command Course', year: '1995'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '1996'),
+        CourseEntry(name: 'Senior Command Course', year: '1999'),
+        CourseEntry(name: 'Higher Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1418,7 +1881,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Lieutenant General',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Karan Bedi',
       rank: 'Lieutenant General',
@@ -1449,23 +1912,83 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Technology / Capability Leadership Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Directed an enterprise-level technology/capability portfolio worth several hundred crore rupees.\nSet organisation-wide technology policy and investment priorities, briefed regularly to senior leadership.\nLed a major multi-year modernisation programme, coordinating industry partners, internal teams and budget.\nManaged senior relationships with major technology vendors and government partners on behalf of the organisation.\nBuilt and mentored a technology leadership bench across the organisation\'s senior technical cadre.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Programme / Regional Technology Head Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Aug 2018 – Jun 2021',
           responsibilities:
               'Led a major regional technology programme, translating enterprise strategy into an executable delivery plan.\nOwned a capital budget in excess of ₹50 crore across a multi-year equipment/systems programme.\nDirected the technical response to a significant capability gap, closing it ahead of the planned timeline.\nRepresented the organisation to senior industry and government technology stakeholders.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Technology Advisor Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Sep 2015 – Jul 2018',
           responsibilities:
               'Advised senior leadership on technology strategy, risk and long-term capability requirements.\nDirected cross-organisational coordination on a major systems-integration programme.\nEstablished technology governance standards subsequently adopted organisation-wide.\nLed the technical evaluation and business case for a major capital equipment decision.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Oct 2012 – Aug 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2009 – Sep 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Dec 2006 – Oct 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Jan 2004 – Nov 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Feb 2001 – Dec 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Mar 1998 – Jan 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Quality Assurance Appointment',
+          organizationType: '',
+          duration: 'Apr 1995 – Feb 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Project Staff Appointment',
+          organizationType: '',
+          duration: 'May 1992 – Mar 1995',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Workshop / Depot Appointment',
+          organizationType: '',
+          duration: 'Jun 1989 – Apr 1992',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1986 – May 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1486,7 +2009,17 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Young Officers Course', year: '1987'),
+        CourseEntry(name: 'Instructor Course', year: '1988'),
+        CourseEntry(name: 'Weapons Course', year: '1990'),
+        CourseEntry(name: 'Junior Command Course', year: '1995'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '1996'),
+        CourseEntry(name: 'Senior Command Course', year: '1999'),
+        CourseEntry(name: 'Higher Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1494,7 +2027,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Army',
     rank: 'Lieutenant General',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Karan Bedi',
       rank: 'Lieutenant General',
@@ -1525,24 +2058,84 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Strategy / Governance Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Chaired or served on the senior governance body responsible for organisation-wide strategy and resource allocation.\nDirected a multi-year transformation programme, aligning structure, process and culture to a new strategic direction.\nAdvised the most senior leadership on strategic options and risk during a period of major organisational change.\nRepresented the organisation at the highest external levels, including government and international counterparts.\nBuilt and mentored a pipeline of senior strategists and staff officers across the organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Strategic Staff Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Aug 2018 – Jun 2021',
           responsibilities:
               'Led enterprise-level strategic planning for a major command, translating direction into a multi-year executable plan.\nDirected the organisation\'s response to a significant strategic risk, protecting continuity throughout.\nManaged senior relationships with government and industry stakeholders on behalf of the organisation.\nEstablished a governance and review framework subsequently adopted across the wider organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Policy Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Sep 2015 – Jul 2018',
           responsibilities:
               'Shaped organisational policy on a significant strategic issue, briefed directly to senior leadership.\nDirected cross-organisational coordination on a major, multi-stakeholder strategic initiative.\nPrepared board-level papers and recommendations that directly informed senior decision-making.\nLed a structured review that reshaped how the organisation approached a recurring strategic risk.',
         ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Oct 2012 – Aug 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2009 – Sep 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Dec 2006 – Oct 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jan 2004 – Nov 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Feb 2001 – Dec 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 1998 – Jan 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Administration Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 1995 – Feb 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Policy Staff Appointment',
+          organizationType: '',
+          duration: 'May 1992 – Mar 1995',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Coordination Appointment',
+          organizationType: '',
+          duration: 'Jun 1989 – Apr 1992',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Jul 1986 – May 1989',
+          responsibilities: '',
+        ),
       ],
       education: [
         EducationEntry(
@@ -1562,7 +2155,18 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Young Officers Course', year: '1987'),
+        CourseEntry(name: 'Instructor Course', year: '1988'),
+        CourseEntry(name: 'Weapons Course', year: '1990'),
+        CourseEntry(name: 'Junior Command Course', year: '1995'),
+        CourseEntry(name: 'Driving & Maintenance Course', year: '1996'),
+        CourseEntry(name: 'Senior Command Course', year: '1999'),
+        CourseEntry(name: 'Higher Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2000'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1600,23 +2204,30 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Leadership Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Jan 2022 – Jun 2024',
           responsibilities:
               'Directly commanded a team of 30-80 personnel, personally planning and executing daily operational tasks against a fixed schedule.\nManaged equipment, stores and manpower against a tight budget, escalating shortfalls early rather than absorbing risk silently.\nRan structured pre-task briefings and post-task reviews, converting lessons into concrete changes to the next task.\nHandled day-to-day people issues - discipline, welfare, training gaps - before they affected delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Operational Task Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Jul 2019 – Dec 2021',
           responsibilities:
               'Executed a series of short-notice operational tasks, each requiring rapid replanning as the situation on the ground changed.\nCoordinated directly with adjacent teams and supporting elements to keep a task on schedule despite resource constraints.\nMaintained equipment and personnel readiness through disciplined routine maintenance and training, not just at inspection time.\nIdentified and fixed a recurring process gap that had been causing avoidable delays before it was raised as an issue.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Leadership / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jan 2017 – Jun 2019',
           responsibilities:
               'Led a small team through initial operational training, building the fundamentals of planning, discipline and teamwork.\nAssisted a senior officer in running unit administration and scheduling, learning the mechanics of resource planning first-hand.\nTook on a specific functional responsibility (stores, transport, or training) and ran it independently under supervision.\nBuilt a reputation for reliability on small tasks that led to being trusted with larger ones ahead of peers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2014 – Dec 2016',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1637,7 +2248,11 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2015'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2016'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2018'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1645,7 +2260,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Lieutenant Commander',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Aditya Menon',
       rank: 'Lieutenant Commander',
@@ -1675,21 +2290,21 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Technical / Systems Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned day-to-day serviceability of a portfolio of 100+ technical systems/assets, coordinating maintenance schedules and spares.\nWorked directly with equipment specialists and external vendors to resolve technical issues and close capability gaps.\nMaintained accurate technical and inventory records, replacing an informal tracking process with a structured one.\nTrained junior personnel on equipment operation and first-line maintenance, reducing dependency on senior staff.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Functional / Support Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Supported a functional portfolio (logistics, communications or engineering) requiring close coordination with multiple users.\nDiagnosed and resolved a recurring reliability issue by tracing it back to a process gap rather than a one-off fault.\nCoordinated stores and spares availability against operational schedules, flagging shortfalls before they caused delay.\nAssisted in planning and executing a minor equipment upgrade, learning project coordination first-hand.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Technical / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Completed specialist technical training and was assigned early responsibility for a specific system or process.\nAssisted senior technical staff in equipment inspections, maintenance planning and documentation.\nBuilt a working knowledge of the unit\'s full technical portfolio ahead of formal handover of responsibility.\nFlagged a minor but persistent fault pattern that, once fixed, improved overall equipment availability.',
         ),
@@ -1712,7 +2327,11 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2015'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2016'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2018'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1720,7 +2339,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Lieutenant Commander',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Aditya Menon',
       rank: 'Lieutenant Commander',
@@ -1749,21 +2368,21 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Staff / Coordination Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared assessments, briefing notes and recommendations for a senior officer\'s decision-making.\nCoordinated inputs from multiple functional areas to deliver a task or report against a fixed deadline.\nTracked action items from meetings and reviews, following up to ensure closure rather than letting them lapse.\nDrafted correspondence and presentations that were used directly by senior leadership.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team Leadership Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a small team through a defined task requiring planning, coordination and reporting.\nIntroduced a simple tracking method for a recurring administrative process, reducing errors.\nCoordinated with an adjacent team to resolve a scheduling conflict without escalation.\nPrepared and delivered briefings to seniors and peers on task progress and issues.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Staff / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Assisted a senior officer in preparing assessments and administrative documentation.\nLearned the fundamentals of structured planning and stakeholder coordination through supervised tasks.\nTook on a specific coordination responsibility and delivered it reliably, building trust for larger tasks.\nContributed written input to a unit-level review or planning exercise.',
         ),
@@ -1786,7 +2405,11 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2015'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2016'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2018'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -1824,23 +2447,48 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Leadership Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Aug 2021 – Jun 2024',
           responsibilities:
               'Directly commanded a team of 30-80 personnel, personally planning and executing daily operational tasks against a fixed schedule.\nManaged equipment, stores and manpower against a tight budget, escalating shortfalls early rather than absorbing risk silently.\nRan structured pre-task briefings and post-task reviews, converting lessons into concrete changes to the next task.\nHandled day-to-day people issues - discipline, welfare, training gaps - before they affected delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Operational Task Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Sep 2018 – Jul 2021',
           responsibilities:
               'Executed a series of short-notice operational tasks, each requiring rapid replanning as the situation on the ground changed.\nCoordinated directly with adjacent teams and supporting elements to keep a task on schedule despite resource constraints.\nMaintained equipment and personnel readiness through disciplined routine maintenance and training, not just at inspection time.\nIdentified and fixed a recurring process gap that had been causing avoidable delays before it was raised as an issue.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Leadership / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Nov 2015 – Aug 2018',
           responsibilities:
               'Led a small team through initial operational training, building the fundamentals of planning, discipline and teamwork.\nAssisted a senior officer in running unit administration and scheduling, learning the mechanics of resource planning first-hand.\nTook on a specific functional responsibility (stores, transport, or training) and ran it independently under supervision.\nBuilt a reputation for reliability on small tasks that led to being trusted with larger ones ahead of peers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jan 2013 – Oct 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Mar 2010 – Dec 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'May 2007 – Feb 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Apr 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1862,14 +2510,12 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2005'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2006'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2008'),
         CourseEntry(
-            name:
-                'Defence Services Staff Course / equivalent (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command qualification / specialist course, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '2013'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -1882,7 +2528,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Commander',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Rahul Nair',
       rank: 'Commander',
@@ -1912,23 +2558,41 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Technical / Systems Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned day-to-day serviceability of a portfolio of 100+ technical systems/assets, coordinating maintenance schedules and spares.\nWorked directly with equipment specialists and external vendors to resolve technical issues and close capability gaps.\nMaintained accurate technical and inventory records, replacing an informal tracking process with a structured one.\nTrained junior personnel on equipment operation and first-line maintenance, reducing dependency on senior staff.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Functional / Support Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Supported a functional portfolio (logistics, communications or engineering) requiring close coordination with multiple users.\nDiagnosed and resolved a recurring reliability issue by tracing it back to a process gap rather than a one-off fault.\nCoordinated stores and spares availability against operational schedules, flagging shortfalls before they caused delay.\nAssisted in planning and executing a minor equipment upgrade, learning project coordination first-hand.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Technical / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Completed specialist technical training and was assigned early responsibility for a specific system or process.\nAssisted senior technical staff in equipment inspections, maintenance planning and documentation.\nBuilt a working knowledge of the unit\'s full technical portfolio ahead of formal handover of responsibility.\nFlagged a minor but persistent fault pattern that, once fixed, improved overall equipment availability.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -1950,14 +2614,12 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2005'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2006'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2008'),
         CourseEntry(
-            name:
-                'Defence Services Staff Course / equivalent (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command qualification / specialist course, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '2013'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -1970,7 +2632,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Commander',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Rahul Nair',
       rank: 'Commander',
@@ -1999,23 +2661,41 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Staff / Coordination Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared assessments, briefing notes and recommendations for a senior officer\'s decision-making.\nCoordinated inputs from multiple functional areas to deliver a task or report against a fixed deadline.\nTracked action items from meetings and reviews, following up to ensure closure rather than letting them lapse.\nDrafted correspondence and presentations that were used directly by senior leadership.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team Leadership Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a small team through a defined task requiring planning, coordination and reporting.\nIntroduced a simple tracking method for a recurring administrative process, reducing errors.\nCoordinated with an adjacent team to resolve a scheduling conflict without escalation.\nPrepared and delivered briefings to seniors and peers on task progress and issues.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Staff / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Assisted a senior officer in preparing assessments and administrative documentation.\nLearned the fundamentals of structured planning and stakeholder coordination through supervised tasks.\nTook on a specific coordination responsibility and delivered it reliably, building trust for larger tasks.\nContributed written input to a unit-level review or planning exercise.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2037,14 +2717,12 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2005'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2006'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2008'),
         CourseEntry(
-            name:
-                'Defence Services Staff Course / equivalent (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command qualification / specialist course, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '2013'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2088,23 +2766,54 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Functional Head / Major Command Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'Oct 2021 – Jun 2024',
           responsibilities:
               'Led an organisation of 300-600 personnel, owning the full budget, equipment and manpower plan for the function.\nSet performance standards and a review rhythm for subordinate leaders, holding them accountable for delivery against plan.\nManaged risk across a portfolio of concurrent activities, escalating and resolving issues before they affected the wider organisation.\nBriefed senior leadership and external stakeholders regularly on status, risk and resource requirements.\nRan a significant equipment or process upgrade from business case through to operational handover.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Deputy Head Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Jan 2019 – Sep 2021',
           responsibilities:
               'Deputised for the functional head, running day-to-day operations across a large, dispersed organisation.\nCoordinated across multiple sub-units and support functions to keep a demanding operational programme on track.\nIntroduced a structured performance-review process that gave leadership early visibility of emerging problems.\nManaged a cross-functional team through a significant organisational change with minimal disruption to delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Command Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Apr 2016 – Dec 2018',
           responsibilities:
               'Commanded a sub-unit of 100-200 personnel, delivering a demanding operational programme against a fixed budget.\nBuilt the team\'s planning and reporting discipline from a low base, improving on-time delivery significantly.\nManaged equipment lifecycle and maintenance planning, reducing unplanned downtime across the tenure.\nDeveloped junior leaders through structured coaching and progressively larger delegated responsibility.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2013 – Mar 2016',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Oct 2010 – Jun 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jan 2008 – Sep 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 2005 – Dec 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Mar 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2126,18 +2835,15 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2003'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2004'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2006'),
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '2011'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2012'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command / specialist qualification, replace with verified details.',
-            year: '[Year]'),
+            name: 'Technical Management Course (Naval War College)',
+            year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2153,7 +2859,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Captain',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Siddharth Iyer',
       rank: 'Captain',
@@ -2184,23 +2890,47 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Portfolio / Programme Head Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Owned a technology/equipment portfolio worth several crore rupees, managing requirements, budget, risk and vendors end-to-end.\nLed a technical team of 20-40 specialists, setting standards for maintenance, documentation and reporting.\nImplemented a structured lifecycle-management approach that improved reliability and reduced unplanned downtime.\nManaged vendor and contract relationships, holding external suppliers accountable to agreed service levels.\nBriefed senior leadership on portfolio health, risk and investment priorities.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Technical / Functional Staff Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Mar 2018 – Apr 2021',
           responsibilities:
               'Coordinated a multi-site technical function, translating user requirements into a prioritised delivery plan.\nIntroduced data-led reporting that gave leadership early visibility of emerging reliability or capacity issues.\nManaged procurement and asset-tracking for a significant equipment upgrade programme.\nMentored and developed junior technical officers into independent portfolio-owning roles.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Technical Team Leadership Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Jan 2015 – Feb 2018',
           responsibilities:
               'Led a technical team through a demanding equipment modernisation programme, on schedule and within budget.\nStandardised maintenance and inspection processes across previously inconsistent sub-units.\nCoordinated with external vendors and specialists to resolve a series of significant technical issues.\nBuilt the technical competence of the team through structured training and knowledge transfer.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2011 – Dec 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Sep 2008 – Oct 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Aug 2005 – Aug 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Jul 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2222,18 +2952,15 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2003'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2004'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2006'),
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '2011'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2012'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command / specialist qualification, replace with verified details.',
-            year: '[Year]'),
+            name: 'Technical Management Course (Naval War College)',
+            year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2249,7 +2976,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Captain',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Siddharth Iyer',
       rank: 'Captain',
@@ -2280,23 +3007,47 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Headquarters / Programme Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Prepared strategic assessments, decision-support papers and implementation roadmaps for senior leadership.\nCoordinated inputs across multiple functions and external stakeholders, reconciling competing priorities and maintaining execution momentum.\nEstablished governance mechanisms, performance measures and review routines to track implementation and surface issues early.\nSupported transformation and change initiatives through structured communication, stakeholder engagement and follow-through.\nTranslated complex operational and organisational issues into clear options, recommendations and action plans.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Command / Major Functional Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Mar 2018 – Apr 2021',
           responsibilities:
               'Led a major functional responsibility requiring structured planning, coordination and delivery across diverse stakeholders.\nPrepared assessments and recommendations for senior decision-makers, balancing operational requirements, risks and organisational priorities.\nCoordinated teams and stakeholders to execute plans and resolve issues under changing circumstances.\nApplied governance and performance-review mechanisms to monitor delivery and drive corrective action.\nDeveloped junior leaders and team members through coaching, feedback and professional development.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Earlier Command / Staff Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Jan 2015 – Feb 2018',
           responsibilities:
               'Held an earlier command/staff appointment involving planning, coordination and disciplined execution in a complex operating environment.\nPrepared concise assessments and recommendations to support timely decisions.\nCoordinated stakeholders across functional boundaries and maintained delivery against competing requirements.\nSupported implementation through structured reviews, issue tracking and follow-up.\nBuilt experience in leadership, communication and decision-making that underpinned subsequent headquarters and programme responsibilities.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Nov 2011 – Dec 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 2008 – Oct 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Aug 2005 – Aug 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Jul 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2318,18 +3069,16 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '2003'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '2004'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '2006'),
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '2011'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2012'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Command / specialist qualification, replace with verified details.',
-            year: '[Year]'),
+            name: 'Technical Management Course (Naval War College)',
+            year: '2015'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2016'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2376,23 +3125,66 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Functional Head / Major Command Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Led an organisation of 300-600 personnel, owning the full budget, equipment and manpower plan for the function.\nSet performance standards and a review rhythm for subordinate leaders, holding them accountable for delivery against plan.\nManaged risk across a portfolio of concurrent activities, escalating and resolving issues before they affected the wider organisation.\nBriefed senior leadership and external stakeholders regularly on status, risk and resource requirements.\nRan a significant equipment or process upgrade from business case through to operational handover.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Deputy Head Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Jul 2018 – Jun 2021',
           responsibilities:
               'Deputised for the functional head, running day-to-day operations across a large, dispersed organisation.\nCoordinated across multiple sub-units and support functions to keep a demanding operational programme on track.\nIntroduced a structured performance-review process that gave leadership early visibility of emerging problems.\nManaged a cross-functional team through a significant organisational change with minimal disruption to delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Command Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2015 – Jun 2018',
           responsibilities:
               'Commanded a sub-unit of 100-200 personnel, delivering a demanding operational programme against a fixed budget.\nBuilt the team\'s planning and reporting discipline from a low base, improving on-time delivery significantly.\nManaged equipment lifecycle and maintenance planning, reducing unplanned downtime across the tenure.\nDeveloped junior leaders through structured coaching and progressively larger delegated responsibility.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2012 – Jun 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Jul 2009 – Jun 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jul 2006 – Jun 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2003 – Jun 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2000 – Jun 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Jul 1997 – Jun 2000',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Jun 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2413,7 +3205,18 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1995'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1996'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1998'),
+        CourseEntry(
+            name: 'Junior Staff Course (Naval War College)', year: '2003'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2004'),
+        CourseEntry(
+            name: 'Technical Management Course (Naval War College)',
+            year: '2007'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2014'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -2421,7 +3224,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Commodore',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Arvind Krishnan',
       rank: 'Commodore',
@@ -2452,23 +3255,59 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Portfolio / Programme Head Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned a technology/equipment portfolio worth several crore rupees, managing requirements, budget, risk and vendors end-to-end.\nLed a technical team of 20-40 specialists, setting standards for maintenance, documentation and reporting.\nImplemented a structured lifecycle-management approach that improved reliability and reduced unplanned downtime.\nManaged vendor and contract relationships, holding external suppliers accountable to agreed service levels.\nBriefed senior leadership on portfolio health, risk and investment priorities.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Technical / Functional Staff Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Coordinated a multi-site technical function, translating user requirements into a prioritised delivery plan.\nIntroduced data-led reporting that gave leadership early visibility of emerging reliability or capacity issues.\nManaged procurement and asset-tracking for a significant equipment upgrade programme.\nMentored and developed junior technical officers into independent portfolio-owning roles.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Technical Team Leadership Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Led a technical team through a demanding equipment modernisation programme, on schedule and within budget.\nStandardised maintenance and inspection processes across previously inconsistent sub-units.\nCoordinated with external vendors and specialists to resolve a series of significant technical issues.\nBuilt the technical competence of the team through structured training and knowledge transfer.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Mar 2001 – Jun 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Nov 1997 – Feb 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Oct 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2489,7 +3328,18 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1995'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1996'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1998'),
+        CourseEntry(
+            name: 'Junior Staff Course (Naval War College)', year: '2003'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2004'),
+        CourseEntry(
+            name: 'Technical Management Course (Naval War College)',
+            year: '2007'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2014'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -2497,7 +3347,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Commodore',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Arvind Krishnan',
       rank: 'Commodore',
@@ -2528,23 +3378,59 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Headquarters / Programme Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared strategic assessments, decision-support papers and implementation roadmaps for senior leadership.\nCoordinated inputs across multiple functions and external stakeholders, reconciling competing priorities and maintaining execution momentum.\nEstablished governance mechanisms, performance measures and review routines to track implementation and surface issues early.\nSupported transformation and change initiatives through structured communication, stakeholder engagement and follow-through.\nTranslated complex operational and organisational issues into clear options, recommendations and action plans.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Command / Major Functional Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a major functional responsibility requiring structured planning, coordination and delivery across diverse stakeholders.\nPrepared assessments and recommendations for senior decision-makers, balancing operational requirements, risks and organisational priorities.\nCoordinated teams and stakeholders to execute plans and resolve issues under changing circumstances.\nApplied governance and performance-review mechanisms to monitor delivery and drive corrective action.\nDeveloped junior leaders and team members through coaching, feedback and professional development.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Earlier Command / Staff Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Held an earlier command/staff appointment involving planning, coordination and disciplined execution in a complex operating environment.\nPrepared concise assessments and recommendations to support timely decisions.\nCoordinated stakeholders across functional boundaries and maintained delivery against competing requirements.\nSupported implementation through structured reviews, issue tracking and follow-up.\nBuilt experience in leadership, communication and decision-making that underpinned subsequent headquarters and programme responsibilities.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Mar 2001 – Jun 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Nov 1997 – Feb 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Oct 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2565,7 +3451,19 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1995'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1996'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1998'),
+        CourseEntry(
+            name: 'Junior Staff Course (Naval War College)', year: '2003'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2004'),
+        CourseEntry(
+            name: 'Technical Management Course (Naval War College)',
+            year: '2007'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2014'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2008'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -2604,23 +3502,78 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Enterprise Leadership Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'Sep 2021 – Jun 2024',
           responsibilities:
               'Led an enterprise-scale organisation of 3,000+ personnel across multiple locations, owning budget, policy and performance.\nSat on the senior decision-making body, shaping resource allocation and organisation-wide priorities.\nDirected a major transformation programme, aligning structure, process and people to a new operating model.\nRepresented the organisation to the highest external stakeholders, including ministry and industry counterparts.\nBuilt succession depth across the senior leadership tier through structured development and delegation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Regional Head Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Nov 2018 – Aug 2021',
           responsibilities:
               'Commanded a major regional organisation, translating enterprise strategy into an executable regional plan.\nOwned a budget in excess of ₹50 crore, delivering the full programme of work within approved resources.\nManaged relationships with senior government, industry and community stakeholders on behalf of the organisation.\nLed the response to a significant operational crisis, restoring normal function within a defined timeframe.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Functional Director Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Jan 2016 – Oct 2018',
           responsibilities:
               'Directed a major functional area at the enterprise level, advising senior leadership on policy and resourcing.\nLed cross-organisational coordination on a multi-year capability or infrastructure programme.\nEstablished governance and reporting standards subsequently adopted across the wider organisation.\nDeveloped and presented enterprise-level risk assessments and recommendations to senior decision-makers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Mar 2013 – Dec 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'May 2010 – Feb 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jul 2007 – Apr 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 2004 – Jun 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2001 – Aug 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Jan 1999 – Oct 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Mar 1996 – Dec 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Logistics & Administration Appointment',
+          organizationType: '',
+          duration: 'May 1993 – Feb 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Apr 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2642,18 +3595,17 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1991'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1992'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1994'),
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '1999'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2000'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Technical Management Course (Naval War College)',
+            year: '2003'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2669,7 +3621,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Rear Admiral',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Rajat Menon',
       rank: 'Rear Admiral',
@@ -2700,23 +3652,71 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Technology / Capability Leadership Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Directed an enterprise-level technology/capability portfolio worth several hundred crore rupees.\nSet organisation-wide technology policy and investment priorities, briefed regularly to senior leadership.\nLed a major multi-year modernisation programme, coordinating industry partners, internal teams and budget.\nManaged senior relationships with major technology vendors and government partners on behalf of the organisation.\nBuilt and mentored a technology leadership bench across the organisation\'s senior technical cadre.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Programme / Regional Technology Head Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Apr 2018 – Apr 2021',
           responsibilities:
               'Led a major regional technology programme, translating enterprise strategy into an executable delivery plan.\nOwned a capital budget in excess of ₹50 crore across a multi-year equipment/systems programme.\nDirected the technical response to a significant capability gap, closing it ahead of the planned timeline.\nRepresented the organisation to senior industry and government technology stakeholders.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Technology Advisor Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Mar 2015 – Mar 2018',
           responsibilities:
               'Advised senior leadership on technology strategy, risk and long-term capability requirements.\nDirected cross-organisational coordination on a major systems-integration programme.\nEstablished technology governance standards subsequently adopted organisation-wide.\nLed the technical evaluation and business case for a major capital equipment decision.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Feb 2012 – Feb 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Jan 2009 – Jan 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Dec 2005 – Dec 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 2002 – Nov 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Oct 1999 – Oct 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Sep 1996 – Sep 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Quality Assurance Appointment',
+          organizationType: '',
+          duration: 'Aug 1993 – Aug 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Project Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Jul 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2738,18 +3738,17 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1991'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1992'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1994'),
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '1999'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2000'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Technical Management Course (Naval War College)',
+            year: '2003'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2765,7 +3764,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Rear Admiral',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Rajat Menon',
       rank: 'Rear Admiral',
@@ -2796,23 +3795,71 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Strategy / Governance Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Chaired or served on the senior governance body responsible for organisation-wide strategy and resource allocation.\nDirected a multi-year transformation programme, aligning structure, process and culture to a new strategic direction.\nAdvised the most senior leadership on strategic options and risk during a period of major organisational change.\nRepresented the organisation at the highest external levels, including government and international counterparts.\nBuilt and mentored a pipeline of senior strategists and staff officers across the organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Strategic Staff Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Apr 2018 – Apr 2021',
           responsibilities:
               'Led enterprise-level strategic planning for a major command, translating direction into a multi-year executable plan.\nDirected the organisation\'s response to a significant strategic risk, protecting continuity throughout.\nManaged senior relationships with government and industry stakeholders on behalf of the organisation.\nEstablished a governance and review framework subsequently adopted across the wider organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Policy Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Mar 2015 – Mar 2018',
           responsibilities:
               'Shaped organisational policy on a significant strategic issue, briefed directly to senior leadership.\nDirected cross-organisational coordination on a major, multi-stakeholder strategic initiative.\nPrepared board-level papers and recommendations that directly informed senior decision-making.\nLed a structured review that reshaped how the organisation approached a recurring strategic risk.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Feb 2012 – Feb 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Jan 2009 – Jan 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Dec 2005 – Dec 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 2002 – Nov 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Oct 1999 – Oct 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 1996 – Sep 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Administration Staff Appointment',
+          organizationType: '',
+          duration: 'Aug 1993 – Aug 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Policy Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Jul 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2834,18 +3881,18 @@ const List<CvExample> kCvExamples = [
             year: '[Year]'),
       ],
       courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1991'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1992'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1994'),
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Junior Staff Course (Naval War College)', year: '1999'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '2000'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Technical Management Course (Naval War College)',
+            year: '2003'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2004'),
       ],
       honoursAwards: [
         AwardEntry(name: 'Nao Sena Medal, if actually awarded', year: '[Year]'),
@@ -2892,23 +3939,90 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Enterprise Leadership Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Oct 2021 – Jun 2024',
           responsibilities:
               'Led an enterprise-scale organisation of 3,000+ personnel across multiple locations, owning budget, policy and performance.\nSat on the senior decision-making body, shaping resource allocation and organisation-wide priorities.\nDirected a major transformation programme, aligning structure, process and people to a new operating model.\nRepresented the organisation to the highest external stakeholders, including ministry and industry counterparts.\nBuilt succession depth across the senior leadership tier through structured development and delegation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Regional Head Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jan 2019 – Sep 2021',
           responsibilities:
               'Commanded a major regional organisation, translating enterprise strategy into an executable regional plan.\nOwned a budget in excess of ₹50 crore, delivering the full programme of work within approved resources.\nManaged relationships with senior government, industry and community stakeholders on behalf of the organisation.\nLed the response to a significant operational crisis, restoring normal function within a defined timeframe.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Functional Director Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Apr 2016 – Dec 2018',
           responsibilities:
               'Directed a major functional area at the enterprise level, advising senior leadership on policy and resourcing.\nLed cross-organisational coordination on a multi-year capability or infrastructure programme.\nEstablished governance and reporting standards subsequently adopted across the wider organisation.\nDeveloped and presented enterprise-level risk assessments and recommendations to senior decision-makers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2013 – Mar 2016',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Oct 2010 – Jun 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jan 2008 – Sep 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 2005 – Dec 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Mar 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Nov 1999 – Jun 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Mar 1997 – Oct 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Logistics & Administration Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Feb 1997',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 1991 – Jun 1994',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Exercise Planning Appointment',
+          organizationType: '',
+          duration: 'Mar 1989 – Oct 1991',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Jul 1986 – Feb 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -2929,7 +4043,20 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1987'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1988'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1990'),
+        CourseEntry(
+            name: 'Junior Staff Course (Naval War College)', year: '1995'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '1996'),
+        CourseEntry(
+            name: 'Technical Management Course (Naval War College)',
+            year: '1999'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -2937,7 +4064,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Vice Admiral',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Devendra Pillai',
       rank: 'Vice Admiral',
@@ -2968,23 +4095,83 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Technology / Capability Leadership Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Directed an enterprise-level technology/capability portfolio worth several hundred crore rupees.\nSet organisation-wide technology policy and investment priorities, briefed regularly to senior leadership.\nLed a major multi-year modernisation programme, coordinating industry partners, internal teams and budget.\nManaged senior relationships with major technology vendors and government partners on behalf of the organisation.\nBuilt and mentored a technology leadership bench across the organisation\'s senior technical cadre.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Programme / Regional Technology Head Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Aug 2018 – Jun 2021',
           responsibilities:
               'Led a major regional technology programme, translating enterprise strategy into an executable delivery plan.\nOwned a capital budget in excess of ₹50 crore across a multi-year equipment/systems programme.\nDirected the technical response to a significant capability gap, closing it ahead of the planned timeline.\nRepresented the organisation to senior industry and government technology stakeholders.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Technology Advisor Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Sep 2015 – Jul 2018',
           responsibilities:
               'Advised senior leadership on technology strategy, risk and long-term capability requirements.\nDirected cross-organisational coordination on a major systems-integration programme.\nEstablished technology governance standards subsequently adopted organisation-wide.\nLed the technical evaluation and business case for a major capital equipment decision.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Oct 2012 – Aug 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2009 – Sep 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Dec 2006 – Oct 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Jan 2004 – Nov 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Feb 2001 – Dec 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Mar 1998 – Jan 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Quality Assurance Appointment',
+          organizationType: '',
+          duration: 'Apr 1995 – Feb 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Project Staff Appointment',
+          organizationType: '',
+          duration: 'May 1992 – Mar 1995',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Workshop / Depot Appointment',
+          organizationType: '',
+          duration: 'Jun 1989 – Apr 1992',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1986 – May 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3005,7 +4192,20 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1987'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1988'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1990'),
+        CourseEntry(
+            name: 'Junior Staff Course (Naval War College)', year: '1995'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '1996'),
+        CourseEntry(
+            name: 'Technical Management Course (Naval War College)',
+            year: '1999'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -3013,7 +4213,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Navy',
     rank: 'Vice Admiral',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Devendra Pillai',
       rank: 'Vice Admiral',
@@ -3044,23 +4244,83 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Strategy / Governance Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Chaired or served on the senior governance body responsible for organisation-wide strategy and resource allocation.\nDirected a multi-year transformation programme, aligning structure, process and culture to a new strategic direction.\nAdvised the most senior leadership on strategic options and risk during a period of major organisational change.\nRepresented the organisation at the highest external levels, including government and international counterparts.\nBuilt and mentored a pipeline of senior strategists and staff officers across the organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Strategic Staff Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Aug 2018 – Jun 2021',
           responsibilities:
               'Led enterprise-level strategic planning for a major command, translating direction into a multi-year executable plan.\nDirected the organisation\'s response to a significant strategic risk, protecting continuity throughout.\nManaged senior relationships with government and industry stakeholders on behalf of the organisation.\nEstablished a governance and review framework subsequently adopted across the wider organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Policy Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Sep 2015 – Jul 2018',
           responsibilities:
               'Shaped organisational policy on a significant strategic issue, briefed directly to senior leadership.\nDirected cross-organisational coordination on a major, multi-stakeholder strategic initiative.\nPrepared board-level papers and recommendations that directly informed senior decision-making.\nLed a structured review that reshaped how the organisation approached a recurring strategic risk.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Oct 2012 – Aug 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2009 – Sep 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Dec 2006 – Oct 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jan 2004 – Nov 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Feb 2001 – Dec 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 1998 – Jan 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Administration Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 1995 – Feb 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Policy Staff Appointment',
+          organizationType: '',
+          duration: 'May 1992 – Mar 1995',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Coordination Appointment',
+          organizationType: '',
+          duration: 'Jun 1989 – Apr 1992',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Jul 1986 – May 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3081,7 +4341,21 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(name: 'Sub-Lieutenant Technical Course', year: '1987'),
+        CourseEntry(name: 'Long Instructional Technique Course', year: '1988'),
+        CourseEntry(name: 'Gunnery Course (INS Dronacharya)', year: '1990'),
+        CourseEntry(
+            name: 'Junior Staff Course (Naval War College)', year: '1995'),
+        CourseEntry(name: 'Ship Handling & Navigation Course', year: '1996'),
+        CourseEntry(
+            name: 'Technical Management Course (Naval War College)',
+            year: '1999'),
+        CourseEntry(name: 'Naval Higher Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2000'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -3119,23 +4393,30 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Leadership Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Jan 2022 – Jun 2024',
           responsibilities:
               'Directly commanded a team of 30-80 personnel, personally planning and executing daily operational tasks against a fixed schedule.\nManaged equipment, stores and manpower against a tight budget, escalating shortfalls early rather than absorbing risk silently.\nRan structured pre-task briefings and post-task reviews, converting lessons into concrete changes to the next task.\nHandled day-to-day people issues - discipline, welfare, training gaps - before they affected delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Operational Task Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Jul 2019 – Dec 2021',
           responsibilities:
               'Executed a series of short-notice operational tasks, each requiring rapid replanning as the situation on the ground changed.\nCoordinated directly with adjacent teams and supporting elements to keep a task on schedule despite resource constraints.\nMaintained equipment and personnel readiness through disciplined routine maintenance and training, not just at inspection time.\nIdentified and fixed a recurring process gap that had been causing avoidable delays before it was raised as an issue.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Leadership / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jan 2017 – Jun 2019',
           responsibilities:
               'Led a small team through initial operational training, building the fundamentals of planning, discipline and teamwork.\nAssisted a senior officer in running unit administration and scheduling, learning the mechanics of resource planning first-hand.\nTook on a specific functional responsibility (stores, transport, or training) and ran it independently under supervision.\nBuilt a reputation for reliability on small tasks that led to being trusted with larger ones ahead of peers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2014 – Dec 2016',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3158,17 +4439,10 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Professional branch / flying specialisation course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Operational conversion / type qualification (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Instructor / specialist course (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2015'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2016'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2018'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3182,7 +4456,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Squadron Leader',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Aarav Khanna',
       rank: 'Squadron Leader',
@@ -3212,21 +4486,21 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Technical / Systems Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned day-to-day serviceability of a portfolio of 100+ technical systems/assets, coordinating maintenance schedules and spares.\nWorked directly with equipment specialists and external vendors to resolve technical issues and close capability gaps.\nMaintained accurate technical and inventory records, replacing an informal tracking process with a structured one.\nTrained junior personnel on equipment operation and first-line maintenance, reducing dependency on senior staff.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Functional / Support Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Supported a functional portfolio (logistics, communications or engineering) requiring close coordination with multiple users.\nDiagnosed and resolved a recurring reliability issue by tracing it back to a process gap rather than a one-off fault.\nCoordinated stores and spares availability against operational schedules, flagging shortfalls before they caused delay.\nAssisted in planning and executing a minor equipment upgrade, learning project coordination first-hand.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Technical / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Completed specialist technical training and was assigned early responsibility for a specific system or process.\nAssisted senior technical staff in equipment inspections, maintenance planning and documentation.\nBuilt a working knowledge of the unit\'s full technical portfolio ahead of formal handover of responsibility.\nFlagged a minor but persistent fault pattern that, once fixed, improved overall equipment availability.',
         ),
@@ -3251,17 +4525,10 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Professional branch / flying specialisation course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Operational conversion / type qualification (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Instructor / specialist course (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2015'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2016'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2018'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3275,7 +4542,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Squadron Leader',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Aarav Khanna',
       rank: 'Squadron Leader',
@@ -3304,21 +4571,21 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Staff / Coordination Appointment',
           organizationType: '',
-          duration: '2020–2022',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared assessments, briefing notes and recommendations for a senior officer\'s decision-making.\nCoordinated inputs from multiple functional areas to deliver a task or report against a fixed deadline.\nTracked action items from meetings and reviews, following up to ensure closure rather than letting them lapse.\nDrafted correspondence and presentations that were used directly by senior leadership.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team Leadership Appointment',
           organizationType: '',
-          duration: '2016–2019',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a small team through a defined task requiring planning, coordination and reporting.\nIntroduced a simple tracking method for a recurring administrative process, reducing errors.\nCoordinated with an adjacent team to resolve a scheduling conflict without escalation.\nPrepared and delivered briefings to seniors and peers on task progress and issues.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Staff / Training Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Assisted a senior officer in preparing assessments and administrative documentation.\nLearned the fundamentals of structured planning and stakeholder coordination through supervised tasks.\nTook on a specific coordination responsibility and delivered it reliably, building trust for larger tasks.\nContributed written input to a unit-level review or planning exercise.',
         ),
@@ -3343,17 +4610,10 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Professional branch / flying specialisation course, replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Operational conversion / type qualification (where applicable), replace with verified details.',
-            year: '[Year]'),
-        CourseEntry(
-            name:
-                'Instructor / specialist course (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2015'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2016'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2018'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3397,23 +4657,48 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Leadership Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Aug 2021 – Jun 2024',
           responsibilities:
               'Directly commanded a team of 30-80 personnel, personally planning and executing daily operational tasks against a fixed schedule.\nManaged equipment, stores and manpower against a tight budget, escalating shortfalls early rather than absorbing risk silently.\nRan structured pre-task briefings and post-task reviews, converting lessons into concrete changes to the next task.\nHandled day-to-day people issues - discipline, welfare, training gaps - before they affected delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Operational Task Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Sep 2018 – Jul 2021',
           responsibilities:
               'Executed a series of short-notice operational tasks, each requiring rapid replanning as the situation on the ground changed.\nCoordinated directly with adjacent teams and supporting elements to keep a task on schedule despite resource constraints.\nMaintained equipment and personnel readiness through disciplined routine maintenance and training, not just at inspection time.\nIdentified and fixed a recurring process gap that had been causing avoidable delays before it was raised as an issue.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Leadership / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Nov 2015 – Aug 2018',
           responsibilities:
               'Led a small team through initial operational training, building the fundamentals of planning, discipline and teamwork.\nAssisted a senior officer in running unit administration and scheduling, learning the mechanics of resource planning first-hand.\nTook on a specific functional responsibility (stores, transport, or training) and ran it independently under supervision.\nBuilt a reputation for reliability on small tasks that led to being trusted with larger ones ahead of peers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jan 2013 – Oct 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Mar 2010 – Dec 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'May 2007 – Feb 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Apr 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3436,17 +4721,14 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Staff Course / equivalent professional military education, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2005'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2006'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2008'),
         CourseEntry(
-            name:
-                'Operational / specialist command qualification, replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '2013'),
         CourseEntry(
-            name:
-                'Instructor / systems course (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3460,7 +4742,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Wing Commander',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Rishabh Singh',
       rank: 'Wing Commander',
@@ -3490,23 +4772,41 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Technical / Systems Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned day-to-day serviceability of a portfolio of 100+ technical systems/assets, coordinating maintenance schedules and spares.\nWorked directly with equipment specialists and external vendors to resolve technical issues and close capability gaps.\nMaintained accurate technical and inventory records, replacing an informal tracking process with a structured one.\nTrained junior personnel on equipment operation and first-line maintenance, reducing dependency on senior staff.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Functional / Support Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Supported a functional portfolio (logistics, communications or engineering) requiring close coordination with multiple users.\nDiagnosed and resolved a recurring reliability issue by tracing it back to a process gap rather than a one-off fault.\nCoordinated stores and spares availability against operational schedules, flagging shortfalls before they caused delay.\nAssisted in planning and executing a minor equipment upgrade, learning project coordination first-hand.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Technical / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Completed specialist technical training and was assigned early responsibility for a specific system or process.\nAssisted senior technical staff in equipment inspections, maintenance planning and documentation.\nBuilt a working knowledge of the unit\'s full technical portfolio ahead of formal handover of responsibility.\nFlagged a minor but persistent fault pattern that, once fixed, improved overall equipment availability.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3529,17 +4829,14 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Staff Course / equivalent professional military education, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2005'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2006'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2008'),
         CourseEntry(
-            name:
-                'Operational / specialist command qualification, replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '2013'),
         CourseEntry(
-            name:
-                'Instructor / systems course (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3553,7 +4850,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Wing Commander',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Rishabh Singh',
       rank: 'Wing Commander',
@@ -3582,23 +4879,41 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Staff / Coordination Appointment',
           organizationType: '',
-          duration: '2019–2021',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared assessments, briefing notes and recommendations for a senior officer\'s decision-making.\nCoordinated inputs from multiple functional areas to deliver a task or report against a fixed deadline.\nTracked action items from meetings and reviews, following up to ensure closure rather than letting them lapse.\nDrafted correspondence and presentations that were used directly by senior leadership.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team Leadership Appointment',
           organizationType: '',
-          duration: '2015–2018',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a small team through a defined task requiring planning, coordination and reporting.\nIntroduced a simple tracking method for a recurring administrative process, reducing errors.\nCoordinated with an adjacent team to resolve a scheduling conflict without escalation.\nPrepared and delivered briefings to seniors and peers on task progress and issues.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Early Staff / Training Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Assisted a senior officer in preparing assessments and administrative documentation.\nLearned the fundamentals of structured planning and stakeholder coordination through supervised tasks.\nTook on a specific coordination responsibility and delivered it reliably, building trust for larger tasks.\nContributed written input to a unit-level review or planning exercise.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3621,17 +4936,14 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Staff Course / equivalent professional military education, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2005'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2006'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2008'),
         CourseEntry(
-            name:
-                'Operational / specialist command qualification, replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '2013'),
         CourseEntry(
-            name:
-                'Instructor / systems course (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2014'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3676,23 +4988,54 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Functional Head / Major Command Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'Oct 2021 – Jun 2024',
           responsibilities:
               'Led an organisation of 300-600 personnel, owning the full budget, equipment and manpower plan for the function.\nSet performance standards and a review rhythm for subordinate leaders, holding them accountable for delivery against plan.\nManaged risk across a portfolio of concurrent activities, escalating and resolving issues before they affected the wider organisation.\nBriefed senior leadership and external stakeholders regularly on status, risk and resource requirements.\nRan a significant equipment or process upgrade from business case through to operational handover.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Deputy Head Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Jan 2019 – Sep 2021',
           responsibilities:
               'Deputised for the functional head, running day-to-day operations across a large, dispersed organisation.\nCoordinated across multiple sub-units and support functions to keep a demanding operational programme on track.\nIntroduced a structured performance-review process that gave leadership early visibility of emerging problems.\nManaged a cross-functional team through a significant organisational change with minimal disruption to delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Command Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Apr 2016 – Dec 2018',
           responsibilities:
               'Commanded a sub-unit of 100-200 personnel, delivering a demanding operational programme against a fixed budget.\nBuilt the team\'s planning and reporting discipline from a low base, improving on-time delivery significantly.\nManaged equipment lifecycle and maintenance planning, reducing unplanned downtime across the tenure.\nDeveloped junior leaders through structured coaching and progressively larger delegated responsibility.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2013 – Mar 2016',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Oct 2010 – Jun 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jan 2008 – Sep 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 2005 – Dec 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Mar 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3715,17 +5058,17 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2003'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2004'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2006'),
         CourseEntry(
-            name:
-                'Staff Course / equivalent (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '2011'),
         CourseEntry(
-            name:
-                'National Defence College / strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2012'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3742,7 +5085,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Group Captain',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Kabir Anand',
       rank: 'Group Captain',
@@ -3773,23 +5116,47 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Portfolio / Programme Head Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Owned a technology/equipment portfolio worth several crore rupees, managing requirements, budget, risk and vendors end-to-end.\nLed a technical team of 20-40 specialists, setting standards for maintenance, documentation and reporting.\nImplemented a structured lifecycle-management approach that improved reliability and reduced unplanned downtime.\nManaged vendor and contract relationships, holding external suppliers accountable to agreed service levels.\nBriefed senior leadership on portfolio health, risk and investment priorities.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Technical / Functional Staff Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Mar 2018 – Apr 2021',
           responsibilities:
               'Coordinated a multi-site technical function, translating user requirements into a prioritised delivery plan.\nIntroduced data-led reporting that gave leadership early visibility of emerging reliability or capacity issues.\nManaged procurement and asset-tracking for a significant equipment upgrade programme.\nMentored and developed junior technical officers into independent portfolio-owning roles.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Technical Team Leadership Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Jan 2015 – Feb 2018',
           responsibilities:
               'Led a technical team through a demanding equipment modernisation programme, on schedule and within budget.\nStandardised maintenance and inspection processes across previously inconsistent sub-units.\nCoordinated with external vendors and specialists to resolve a series of significant technical issues.\nBuilt the technical competence of the team through structured training and knowledge transfer.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2011 – Dec 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Sep 2008 – Oct 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Aug 2005 – Aug 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Jul 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3812,17 +5179,17 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2003'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2004'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2006'),
         CourseEntry(
-            name:
-                'Staff Course / equivalent (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '2011'),
         CourseEntry(
-            name:
-                'National Defence College / strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2012'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3839,7 +5206,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Group Captain',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Kabir Anand',
       rank: 'Group Captain',
@@ -3870,23 +5237,47 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Headquarters / Programme Appointment',
           organizationType: '',
-          duration: '2018–2020',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Prepared strategic assessments, decision-support papers and implementation roadmaps for senior leadership.\nCoordinated inputs across multiple functions and external stakeholders, reconciling competing priorities and maintaining execution momentum.\nEstablished governance mechanisms, performance measures and review routines to track implementation and surface issues early.\nSupported transformation and change initiatives through structured communication, stakeholder engagement and follow-through.\nTranslated complex operational and organisational issues into clear options, recommendations and action plans.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Command / Major Functional Appointment',
           organizationType: '',
-          duration: '2014–2017',
+          duration: 'Mar 2018 – Apr 2021',
           responsibilities:
               'Led a major functional responsibility requiring structured planning, coordination and delivery across diverse stakeholders.\nPrepared assessments and recommendations for senior decision-makers, balancing operational requirements, risks and organisational priorities.\nCoordinated teams and stakeholders to execute plans and resolve issues under changing circumstances.\nApplied governance and performance-review mechanisms to monitor delivery and drive corrective action.\nDeveloped junior leaders and team members through coaching, feedback and professional development.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Earlier Command / Staff Appointment',
           organizationType: '',
-          duration: '2010–2013',
+          duration: 'Jan 2015 – Feb 2018',
           responsibilities:
               'Held an earlier command/staff appointment involving planning, coordination and disciplined execution in a complex operating environment.\nPrepared concise assessments and recommendations to support timely decisions.\nCoordinated stakeholders across functional boundaries and maintained delivery against competing requirements.\nSupported implementation through structured reviews, issue tracking and follow-up.\nBuilt experience in leadership, communication and decision-making that underpinned subsequent headquarters and programme responsibilities.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Nov 2011 – Dec 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 2008 – Oct 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Aug 2005 – Aug 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Jul 2005',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -3909,17 +5300,18 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '2003'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '2004'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '2006'),
         CourseEntry(
-            name:
-                'Staff Course / equivalent (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '2011'),
         CourseEntry(
-            name:
-                'National Defence College / strategic programme (where applicable), replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2012'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2015'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2016'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -3967,23 +5359,66 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Functional Head / Major Command Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Led an organisation of 300-600 personnel, owning the full budget, equipment and manpower plan for the function.\nSet performance standards and a review rhythm for subordinate leaders, holding them accountable for delivery against plan.\nManaged risk across a portfolio of concurrent activities, escalating and resolving issues before they affected the wider organisation.\nBriefed senior leadership and external stakeholders regularly on status, risk and resource requirements.\nRan a significant equipment or process upgrade from business case through to operational handover.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Deputy Head Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Jul 2018 – Jun 2021',
           responsibilities:
               'Deputised for the functional head, running day-to-day operations across a large, dispersed organisation.\nCoordinated across multiple sub-units and support functions to keep a demanding operational programme on track.\nIntroduced a structured performance-review process that gave leadership early visibility of emerging problems.\nManaged a cross-functional team through a significant organisational change with minimal disruption to delivery.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Team / Sub-Unit Command Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2015 – Jun 2018',
           responsibilities:
               'Commanded a sub-unit of 100-200 personnel, delivering a demanding operational programme against a fixed budget.\nBuilt the team\'s planning and reporting discipline from a low base, improving on-time delivery significantly.\nManaged equipment lifecycle and maintenance planning, reducing unplanned downtime across the tenure.\nDeveloped junior leaders through structured coaching and progressively larger delegated responsibility.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2012 – Jun 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Jul 2009 – Jun 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jul 2006 – Jun 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2003 – Jun 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2000 – Jun 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Jul 1997 – Jun 2000',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Jun 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4004,7 +5439,21 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1995'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1996'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1998'),
+        CourseEntry(
+            name: 'Intermediate Staff Course for Officers', year: '2003'),
+        CourseEntry(
+            name: 'Aircraft Servicing & Maintenance Course', year: '2004'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2007'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2014'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -4012,7 +5461,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Air Commodore',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Vivek Bhatia',
       rank: 'Air Commodore',
@@ -4043,23 +5492,59 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Portfolio / Programme Head Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Owned a technology/equipment portfolio worth several crore rupees, managing requirements, budget, risk and vendors end-to-end.\nLed a technical team of 20-40 specialists, setting standards for maintenance, documentation and reporting.\nImplemented a structured lifecycle-management approach that improved reliability and reduced unplanned downtime.\nManaged vendor and contract relationships, holding external suppliers accountable to agreed service levels.\nBriefed senior leadership on portfolio health, risk and investment priorities.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Technical / Functional Staff Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Coordinated a multi-site technical function, translating user requirements into a prioritised delivery plan.\nIntroduced data-led reporting that gave leadership early visibility of emerging reliability or capacity issues.\nManaged procurement and asset-tracking for a significant equipment upgrade programme.\nMentored and developed junior technical officers into independent portfolio-owning roles.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Technical Team Leadership Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Led a technical team through a demanding equipment modernisation programme, on schedule and within budget.\nStandardised maintenance and inspection processes across previously inconsistent sub-units.\nCoordinated with external vendors and specialists to resolve a series of significant technical issues.\nBuilt the technical competence of the team through structured training and knowledge transfer.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Mar 2001 – Jun 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Nov 1997 – Feb 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Oct 1997',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4080,7 +5565,21 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1995'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1996'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1998'),
+        CourseEntry(
+            name: 'Intermediate Staff Course for Officers', year: '2003'),
+        CourseEntry(
+            name: 'Aircraft Servicing & Maintenance Course', year: '2004'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2007'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2014'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -4088,7 +5587,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Air Commodore',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Vivek Bhatia',
       rank: 'Air Commodore',
@@ -4119,24 +5618,60 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Headquarters / Programme Appointment',
           organizationType: '',
-          duration: '2017–2019',
+          duration: 'Mar 2021 – Jun 2024',
           responsibilities:
               'Prepared strategic assessments, decision-support papers and implementation roadmaps for senior leadership.\nCoordinated inputs across multiple functions and external stakeholders, reconciling competing priorities and maintaining execution momentum.\nEstablished governance mechanisms, performance measures and review routines to track implementation and surface issues early.\nSupported transformation and change initiatives through structured communication, stakeholder engagement and follow-through.\nTranslated complex operational and organisational issues into clear options, recommendations and action plans.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Command / Major Functional Appointment',
           organizationType: '',
-          duration: '2013–2016',
+          duration: 'Nov 2017 – Feb 2021',
           responsibilities:
               'Led a major functional responsibility requiring structured planning, coordination and delivery across diverse stakeholders.\nPrepared assessments and recommendations for senior decision-makers, balancing operational requirements, risks and organisational priorities.\nCoordinated teams and stakeholders to execute plans and resolve issues under changing circumstances.\nApplied governance and performance-review mechanisms to monitor delivery and drive corrective action.\nDeveloped junior leaders and team members through coaching, feedback and professional development.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Earlier Command / Staff Appointment',
           organizationType: '',
-          duration: '2009–2012',
+          duration: 'Jul 2014 – Oct 2017',
           responsibilities:
               'Held an earlier command/staff appointment involving planning, coordination and disciplined execution in a complex operating environment.\nPrepared concise assessments and recommendations to support timely decisions.\nCoordinated stakeholders across functional boundaries and maintained delivery against competing requirements.\nSupported implementation through structured reviews, issue tracking and follow-up.\nBuilt experience in leadership, communication and decision-making that underpinned subsequent headquarters and programme responsibilities.',
         ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Mar 2011 – Jun 2014',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2007 – Feb 2011',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2004 – Oct 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Mar 2001 – Jun 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Nov 1997 – Feb 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Oct 1997',
+          responsibilities: '',
+        ),
       ],
       education: [
         EducationEntry(
@@ -4156,7 +5691,22 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1995'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1996'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1998'),
+        CourseEntry(
+            name: 'Intermediate Staff Course for Officers', year: '2003'),
+        CourseEntry(
+            name: 'Aircraft Servicing & Maintenance Course', year: '2004'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2007'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2014'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2008'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -4195,23 +5745,78 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Enterprise Leadership Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'Sep 2021 – Jun 2024',
           responsibilities:
               'Led an enterprise-scale organisation of 3,000+ personnel across multiple locations, owning budget, policy and performance.\nSat on the senior decision-making body, shaping resource allocation and organisation-wide priorities.\nDirected a major transformation programme, aligning structure, process and people to a new operating model.\nRepresented the organisation to the highest external stakeholders, including ministry and industry counterparts.\nBuilt succession depth across the senior leadership tier through structured development and delegation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Regional Head Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Nov 2018 – Aug 2021',
           responsibilities:
               'Commanded a major regional organisation, translating enterprise strategy into an executable regional plan.\nOwned a budget in excess of ₹50 crore, delivering the full programme of work within approved resources.\nManaged relationships with senior government, industry and community stakeholders on behalf of the organisation.\nLed the response to a significant operational crisis, restoring normal function within a defined timeframe.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Functional Director Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Jan 2016 – Oct 2018',
           responsibilities:
               'Directed a major functional area at the enterprise level, advising senior leadership on policy and resourcing.\nLed cross-organisational coordination on a multi-year capability or infrastructure programme.\nEstablished governance and reporting standards subsequently adopted across the wider organisation.\nDeveloped and presented enterprise-level risk assessments and recommendations to senior decision-makers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Mar 2013 – Dec 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'May 2010 – Feb 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jul 2007 – Apr 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 2004 – Jun 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2001 – Aug 2004',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Jan 1999 – Oct 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Mar 1996 – Dec 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Logistics & Administration Appointment',
+          organizationType: '',
+          duration: 'May 1993 – Feb 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Apr 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4234,17 +5839,19 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1991'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1992'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1994'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '1999'),
         CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2000'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2003'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -4261,7 +5868,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Air Vice Marshal',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Samar Joshi',
       rank: 'Air Vice Marshal',
@@ -4292,23 +5899,71 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Technology / Capability Leadership Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Directed an enterprise-level technology/capability portfolio worth several hundred crore rupees.\nSet organisation-wide technology policy and investment priorities, briefed regularly to senior leadership.\nLed a major multi-year modernisation programme, coordinating industry partners, internal teams and budget.\nManaged senior relationships with major technology vendors and government partners on behalf of the organisation.\nBuilt and mentored a technology leadership bench across the organisation\'s senior technical cadre.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Programme / Regional Technology Head Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Apr 2018 – Apr 2021',
           responsibilities:
               'Led a major regional technology programme, translating enterprise strategy into an executable delivery plan.\nOwned a capital budget in excess of ₹50 crore across a multi-year equipment/systems programme.\nDirected the technical response to a significant capability gap, closing it ahead of the planned timeline.\nRepresented the organisation to senior industry and government technology stakeholders.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Technology Advisor Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Mar 2015 – Mar 2018',
           responsibilities:
               'Advised senior leadership on technology strategy, risk and long-term capability requirements.\nDirected cross-organisational coordination on a major systems-integration programme.\nEstablished technology governance standards subsequently adopted organisation-wide.\nLed the technical evaluation and business case for a major capital equipment decision.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Feb 2012 – Feb 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Jan 2009 – Jan 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Dec 2005 – Dec 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 2002 – Nov 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Oct 1999 – Oct 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Sep 1996 – Sep 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Quality Assurance Appointment',
+          organizationType: '',
+          duration: 'Aug 1993 – Aug 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Project Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Jul 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4331,17 +5986,19 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1991'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1992'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1994'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '1999'),
         CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2000'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2003'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -4358,7 +6015,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Air Vice Marshal',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Samar Joshi',
       rank: 'Air Vice Marshal',
@@ -4389,23 +6046,71 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Strategy / Governance Appointment',
           organizationType: '',
-          duration: '2016–2018',
+          duration: 'May 2021 – Jun 2024',
           responsibilities:
               'Chaired or served on the senior governance body responsible for organisation-wide strategy and resource allocation.\nDirected a multi-year transformation programme, aligning structure, process and culture to a new strategic direction.\nAdvised the most senior leadership on strategic options and risk during a period of major organisational change.\nRepresented the organisation at the highest external levels, including government and international counterparts.\nBuilt and mentored a pipeline of senior strategists and staff officers across the organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Strategic Staff Appointment',
           organizationType: '',
-          duration: '2012–2015',
+          duration: 'Apr 2018 – Apr 2021',
           responsibilities:
               'Led enterprise-level strategic planning for a major command, translating direction into a multi-year executable plan.\nDirected the organisation\'s response to a significant strategic risk, protecting continuity throughout.\nManaged senior relationships with government and industry stakeholders on behalf of the organisation.\nEstablished a governance and review framework subsequently adopted across the wider organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Policy Appointment',
           organizationType: '',
-          duration: '2008–2011',
+          duration: 'Mar 2015 – Mar 2018',
           responsibilities:
               'Shaped organisational policy on a significant strategic issue, briefed directly to senior leadership.\nDirected cross-organisational coordination on a major, multi-stakeholder strategic initiative.\nPrepared board-level papers and recommendations that directly informed senior decision-making.\nLed a structured review that reshaped how the organisation approached a recurring strategic risk.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Feb 2012 – Feb 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Jan 2009 – Jan 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Dec 2005 – Dec 2008',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 2002 – Nov 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Oct 1999 – Oct 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Sep 1996 – Sep 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Administration Staff Appointment',
+          organizationType: '',
+          duration: 'Aug 1993 – Aug 1996',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Policy Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1990 – Jul 1993',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4428,17 +6133,20 @@ const List<CvExample> kCvExamples = [
       ],
       courses: [
         CourseEntry(
-            name:
-                'Higher Command / senior leadership programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1991'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1992'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1994'),
         CourseEntry(
-            name:
-                'National Defence College / equivalent strategic programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Intermediate Staff Course for Officers', year: '1999'),
         CourseEntry(
-            name:
-                'International strategic / executive programme, replace with verified details.',
-            year: '[Year]'),
+            name: 'Aircraft Servicing & Maintenance Course', year: '2000'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '2003'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2010'),
+        CourseEntry(name: 'National Defence College', year: '2015'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2004'),
       ],
       honoursAwards: [
         AwardEntry(
@@ -4486,23 +6194,90 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Enterprise Leadership Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Oct 2021 – Jun 2024',
           responsibilities:
               'Led an enterprise-scale organisation of 3,000+ personnel across multiple locations, owning budget, policy and performance.\nSat on the senior decision-making body, shaping resource allocation and organisation-wide priorities.\nDirected a major transformation programme, aligning structure, process and people to a new operating model.\nRepresented the organisation to the highest external stakeholders, including ministry and industry counterparts.\nBuilt succession depth across the senior leadership tier through structured development and delegation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Regional Head Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Jan 2019 – Sep 2021',
           responsibilities:
               'Commanded a major regional organisation, translating enterprise strategy into an executable regional plan.\nOwned a budget in excess of ₹50 crore, delivering the full programme of work within approved resources.\nManaged relationships with senior government, industry and community stakeholders on behalf of the organisation.\nLed the response to a significant operational crisis, restoring normal function within a defined timeframe.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Functional Director Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Apr 2016 – Dec 2018',
           responsibilities:
               'Directed a major functional area at the enterprise level, advising senior leadership on policy and resourcing.\nLed cross-organisational coordination on a multi-year capability or infrastructure programme.\nEstablished governance and reporting standards subsequently adopted across the wider organisation.\nDeveloped and presented enterprise-level risk assessments and recommendations to senior decision-makers.',
+        ),
+        WorkExperienceEntry(
+          roleTitle:
+              'Staff Officer, UN Peacekeeping Deployment — United Nations Mission in South Sudan (UNMISS)',
+          organizationType: '',
+          duration: 'Jul 2013 – Mar 2016',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Oct 2010 – Jun 2013',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Appointment',
+          organizationType: '',
+          duration: 'Jan 2008 – Sep 2010',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 2005 – Dec 2007',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Adjutant / Unit Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 2002 – Mar 2005',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operational Deployment Appointment',
+          organizationType: '',
+          duration: 'Nov 1999 – Jun 2002',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Mar 1997 – Oct 1999',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Logistics & Administration Appointment',
+          organizationType: '',
+          duration: 'Jul 1994 – Feb 1997',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Nov 1991 – Jun 1994',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Exercise Planning Appointment',
+          organizationType: '',
+          duration: 'Mar 1989 – Oct 1991',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Regimental / Sub-Unit Appointment',
+          organizationType: '',
+          duration: 'Jul 1986 – Feb 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4523,7 +6298,23 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1987'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1988'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1990'),
+        CourseEntry(
+            name: 'Intermediate Staff Course for Officers', year: '1995'),
+        CourseEntry(
+            name: 'Aircraft Servicing & Maintenance Course', year: '1996'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '1999'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -4531,7 +6322,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Air Marshal',
     archetype: CvExampleArchetype.technologyAndFunctional,
-    templateId: 'business_leader',
+    templateId: 'technology_digital',
     data: CvTemplateData(
       fullName: 'Neeraj Ahuja',
       rank: 'Air Marshal',
@@ -4562,23 +6353,83 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Technology / Capability Leadership Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Directed an enterprise-level technology/capability portfolio worth several hundred crore rupees.\nSet organisation-wide technology policy and investment priorities, briefed regularly to senior leadership.\nLed a major multi-year modernisation programme, coordinating industry partners, internal teams and budget.\nManaged senior relationships with major technology vendors and government partners on behalf of the organisation.\nBuilt and mentored a technology leadership bench across the organisation\'s senior technical cadre.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Programme / Regional Technology Head Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Aug 2018 – Jun 2021',
           responsibilities:
               'Led a major regional technology programme, translating enterprise strategy into an executable delivery plan.\nOwned a capital budget in excess of ₹50 crore across a multi-year equipment/systems programme.\nDirected the technical response to a significant capability gap, closing it ahead of the planned timeline.\nRepresented the organisation to senior industry and government technology stakeholders.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Technology Advisor Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Sep 2015 – Jul 2018',
           responsibilities:
               'Advised senior leadership on technology strategy, risk and long-term capability requirements.\nDirected cross-organisational coordination on a major systems-integration programme.\nEstablished technology governance standards subsequently adopted organisation-wide.\nLed the technical evaluation and business case for a major capital equipment decision.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Oct 2012 – Aug 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Systems Appointment',
+          organizationType: '',
+          duration: 'Nov 2009 – Sep 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Maintenance & Overhaul Appointment',
+          organizationType: '',
+          duration: 'Dec 2006 – Oct 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Procurement Liaison Appointment',
+          organizationType: '',
+          duration: 'Jan 2004 – Nov 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Trials & Evaluation Appointment',
+          organizationType: '',
+          duration: 'Feb 2001 – Dec 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional (Technical) Appointment',
+          organizationType: '',
+          duration: 'Mar 1998 – Jan 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Quality Assurance Appointment',
+          organizationType: '',
+          duration: 'Apr 1995 – Feb 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Project Staff Appointment',
+          organizationType: '',
+          duration: 'May 1992 – Mar 1995',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Workshop / Depot Appointment',
+          organizationType: '',
+          duration: 'Jun 1989 – Apr 1992',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Technical Staff Appointment',
+          organizationType: '',
+          duration: 'Jul 1986 – May 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4599,7 +6450,23 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1987'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1988'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1990'),
+        CourseEntry(
+            name: 'Intermediate Staff Course for Officers', year: '1995'),
+        CourseEntry(
+            name: 'Aircraft Servicing & Maintenance Course', year: '1996'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '1999'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+      ],
       honoursAwards: [],
     ),
   ),
@@ -4607,7 +6474,7 @@ const List<CvExample> kCvExamples = [
     serviceLabel: 'Air Force',
     rank: 'Air Marshal',
     archetype: CvExampleArchetype.strategyAndTransformation,
-    templateId: 'business_leader',
+    templateId: 'executive_navy',
     data: CvTemplateData(
       fullName: 'Neeraj Ahuja',
       rank: 'Air Marshal',
@@ -4638,23 +6505,83 @@ const List<CvExample> kCvExamples = [
         WorkExperienceEntry(
           roleTitle: 'Senior Strategy / Governance Appointment',
           organizationType: '',
-          duration: '2015–2017',
+          duration: 'Jul 2021 – Jun 2024',
           responsibilities:
               'Chaired or served on the senior governance body responsible for organisation-wide strategy and resource allocation.\nDirected a multi-year transformation programme, aligning structure, process and culture to a new strategic direction.\nAdvised the most senior leadership on strategic options and risk during a period of major organisational change.\nRepresented the organisation at the highest external levels, including government and international counterparts.\nBuilt and mentored a pipeline of senior strategists and staff officers across the organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Major Command / Strategic Staff Appointment',
           organizationType: '',
-          duration: '2011–2014',
+          duration: 'Aug 2018 – Jun 2021',
           responsibilities:
               'Led enterprise-level strategic planning for a major command, translating direction into a multi-year executable plan.\nDirected the organisation\'s response to a significant strategic risk, protecting continuity throughout.\nManaged senior relationships with government and industry stakeholders on behalf of the organisation.\nEstablished a governance and review framework subsequently adopted across the wider organisation.',
         ),
         WorkExperienceEntry(
           roleTitle: 'Senior Staff / Policy Appointment',
           organizationType: '',
-          duration: '2007–2010',
+          duration: 'Sep 2015 – Jul 2018',
           responsibilities:
               'Shaped organisational policy on a significant strategic issue, briefed directly to senior leadership.\nDirected cross-organisational coordination on a major, multi-stakeholder strategic initiative.\nPrepared board-level papers and recommendations that directly informed senior decision-making.\nLed a structured review that reshaped how the organisation approached a recurring strategic risk.',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Oct 2012 – Aug 2015',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Operations Staff Appointment',
+          organizationType: '',
+          duration: 'Nov 2009 – Sep 2012',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Planning Staff Appointment',
+          organizationType: '',
+          duration: 'Dec 2006 – Oct 2009',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Liaison Appointment',
+          organizationType: '',
+          duration: 'Jan 2004 – Nov 2006',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Instructional Appointment',
+          organizationType: '',
+          duration: 'Feb 2001 – Dec 2003',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Training Staff Appointment',
+          organizationType: '',
+          duration: 'Mar 1998 – Jan 2001',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Administration Staff Appointment',
+          organizationType: '',
+          duration: 'Apr 1995 – Feb 1998',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Policy Staff Appointment',
+          organizationType: '',
+          duration: 'May 1992 – Mar 1995',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Coordination Appointment',
+          organizationType: '',
+          duration: 'Jun 1989 – Apr 1992',
+          responsibilities: '',
+        ),
+        WorkExperienceEntry(
+          roleTitle: 'Staff Appointment (Headquarters)',
+          organizationType: '',
+          duration: 'Jul 1986 – May 1989',
+          responsibilities: '',
         ),
       ],
       education: [
@@ -4675,7 +6602,24 @@ const List<CvExample> kCvExamples = [
             institution: '[Institution]',
             year: '[Year]'),
       ],
-      courses: [],
+      courses: [
+        CourseEntry(
+            name: 'Basic Professional Knowledge Course for Officers',
+            year: '1987'),
+        CourseEntry(name: 'Qualified Flying Instructor Course', year: '1988'),
+        CourseEntry(name: 'Weapon Systems School Course', year: '1990'),
+        CourseEntry(
+            name: 'Intermediate Staff Course for Officers', year: '1995'),
+        CourseEntry(
+            name: 'Aircraft Servicing & Maintenance Course', year: '1996'),
+        CourseEntry(
+            name: 'Advanced Professional Knowledge Course for Officers',
+            year: '1999'),
+        CourseEntry(name: 'Higher Air Command Course', year: '2006'),
+        CourseEntry(name: 'National Defence College', year: '2011'),
+        CourseEntry(name: 'Higher Defence Management Course', year: '2013'),
+        CourseEntry(name: 'Defence Services Staff College', year: '2000'),
+      ],
       honoursAwards: [],
     ),
   ),

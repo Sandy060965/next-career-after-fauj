@@ -39,25 +39,96 @@ void main() {
       }
     });
 
-    test('every example has career highlights and uses the unified template', () {
+    test('every example has career highlights, and templateId varies by archetype', () {
+      const expectedTemplateByArchetype = {
+        CvExampleArchetype.operationsAndGeneralManagement: 'business_leader',
+        CvExampleArchetype.technologyAndFunctional: 'technology_digital',
+        CvExampleArchetype.strategyAndTransformation: 'executive_navy',
+      };
       for (final example in kCvExamples) {
         expect(example.data.careerHighlights, isNotEmpty,
             reason: '${example.serviceLabel} ${example.rank} missing careerHighlights');
-        expect(example.templateId, 'business_leader',
-            reason: '${example.serviceLabel} ${example.rank} should use the unified template');
+        expect(example.templateId, expectedTemplateByArchetype[example.archetype],
+            reason: '${example.serviceLabel} ${example.rank} (${example.archetype})');
       }
     });
 
-    test('every work-experience entry has three tailored, non-placeholder roles', () {
+    // Rank -> (years of service, appointments shown, courses baseline).
+    const rankInfo = {
+      'Major': (10, 3, 3), 'Lieutenant Colonel': (20, 6, 5),
+      'Colonel': (22, 7, 6), 'Brigadier': (30, 9, 7),
+      'Major General': (34, 11, 8), 'Lieutenant General': (38, 13, 9),
+      'Lieutenant Commander': (10, 3, 3), 'Commander': (20, 6, 5),
+      'Captain': (22, 7, 6), 'Commodore': (30, 9, 7),
+      'Rear Admiral': (34, 11, 8), 'Vice Admiral': (38, 13, 9),
+      'Squadron Leader': (10, 3, 3), 'Wing Commander': (20, 6, 5),
+      'Group Captain': (22, 7, 6), 'Air Commodore': (30, 9, 7),
+      'Air Vice Marshal': (34, 11, 8), 'Air Marshal': (38, 13, 9),
+    };
+    const seniorRanks = {
+      'Colonel', 'Brigadier', 'Major General', 'Lieutenant General',
+      'Captain', 'Commodore', 'Rear Admiral', 'Vice Admiral',
+      'Group Captain', 'Air Commodore', 'Air Vice Marshal', 'Air Marshal',
+    };
+
+    test('appointment count scales with rank, plus the "one of three" UN deployment for Operations examples', () {
       for (final example in kCvExamples) {
-        expect(example.data.workExperience.length, 3,
-            reason: '${example.serviceLabel} ${example.rank} should have 3 work-experience entries');
-        for (final entry in example.data.workExperience) {
+        final (_, appointments, _) = rankInfo[example.rank]!;
+        final isUnBonus = example.archetype == CvExampleArchetype.operationsAndGeneralManagement;
+        final expected = appointments + (isUnBonus ? 1 : 0);
+        expect(example.data.workExperience.length, expected,
+            reason: '${example.serviceLabel} ${example.rank} (${example.archetype})');
+      }
+    });
+
+    test('the 3 most recent appointments are fully detailed; earlier ones are brief', () {
+      for (final example in kCvExamples) {
+        final entries = example.data.workExperience;
+        for (var i = 0; i < entries.length; i++) {
+          final entry = entries[i];
           expect(entry.responsibilities, isNot(contains('[XX]')),
-              reason: '${example.serviceLabel} ${example.rank}: ${entry.roleTitle} still has an unfilled placeholder');
-          expect(entry.responsibilities.split('\n').length, greaterThanOrEqualTo(4),
-              reason: '${example.serviceLabel} ${example.rank}: ${entry.roleTitle} has too few bullets');
+              reason: '${example.serviceLabel} ${example.rank}: ${entry.roleTitle}');
+          if (i < 3) {
+            expect(entry.responsibilities.split('\n').length, greaterThanOrEqualTo(4),
+                reason: '${example.serviceLabel} ${example.rank}: ${entry.roleTitle} should be fully detailed');
+          }
         }
+      }
+    });
+
+    test('course count scales with rank, plus DSSC for Strategy & Transformation from Colonel onward', () {
+      for (final example in kCvExamples) {
+        final (_, _, courses) = rankInfo[example.rank]!;
+        final isDssc = example.archetype == CvExampleArchetype.strategyAndTransformation && seniorRanks.contains(example.rank);
+        final expected = courses + (isDssc ? 1 : 0);
+        expect(example.data.courses.length, expected,
+            reason: '${example.serviceLabel} ${example.rank} (${example.archetype})');
+        if (isDssc) {
+          expect(example.data.courses.map((c) => c.name), contains('Defence Services Staff College'),
+              reason: '${example.serviceLabel} ${example.rank}');
+        }
+      }
+    });
+
+    test('appointment dates are month+year and span exactly the rank\'s years of service', () {
+      const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      ];
+      for (final example in kCvExamples) {
+        final (years, _, _) = rankInfo[example.rank]!;
+        final entries = example.data.workExperience;
+        for (final e in entries) {
+          expect(e.duration, matches(RegExp(r'^[A-Z][a-z]{2} \d{4} – [A-Z][a-z]{2} \d{4}$')),
+              reason: '${example.serviceLabel} ${example.rank}: "${e.duration}"');
+        }
+        final firstParts = entries.first.duration.split(' – ');
+        final lastParts = entries.last.duration.split(' – ');
+        final endMonth = firstParts[1].split(' ')[0];
+        final endYear = int.parse(firstParts[1].split(' ')[1]);
+        final startMonth = lastParts[0].split(' ')[0];
+        final startYear = int.parse(lastParts[0].split(' ')[1]);
+        final spanMonths = (endYear - startYear) * 12 + (months.indexOf(endMonth) - months.indexOf(startMonth)) + 1;
+        expect(spanMonths, closeTo(years * 12, 1), reason: '${example.serviceLabel} ${example.rank}');
       }
     });
 

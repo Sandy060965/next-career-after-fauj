@@ -9,7 +9,8 @@ import '../cv_template_theme.dart';
 /// A clean white header (small inline photo, no colour block) over a
 /// narrow Education/Certifications column beside Professional Experience —
 /// distinct from Corporate Banner by having no coloured header panel.
-pw.Document buildConsultant(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildConsultant(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
 
   final doc = pw.Document();
@@ -28,13 +29,18 @@ pw.Document buildConsultant(CvTemplateData data, CvPdfFonts fonts, CvTemplateThe
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text(data.titleLine, style: styles.name.copyWith(fontSize: 19)),
+                  pw.Text(data.titleLine,
+                      style: styles.name.copyWith(fontSize: 19)),
                   pw.SizedBox(height: 2),
                   pw.Text(
-                    [data.serviceLabel, data.corpsOrArm].whereType<String>().where((s) => s.isNotEmpty).join(' • '),
+                    [data.serviceLabel, data.corpsOrArm]
+                        .whereType<String>()
+                        .where((s) => s.isNotEmpty)
+                        .join(' • '),
                     style: styles.rankTitle,
                   ),
-                  if (cvContactLine(data).isNotEmpty) pw.Text(cvContactLine(data), style: styles.meta),
+                  if (cvContactLine(data).isNotEmpty)
+                    pw.Text(cvContactLine(data), style: styles.meta),
                 ],
               ),
             ),
@@ -48,54 +54,63 @@ pw.Document buildConsultant(CvTemplateData data, CvPdfFonts fonts, CvTemplateThe
           pw.Text(data.summary, style: styles.body),
           pw.SizedBox(height: 16),
         ],
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Expanded(
-              flex: 3,
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  if (data.skills.isNotEmpty) ...[
-                    cvSectionHeading('Areas of Expertise', styles),
-                    for (final s in data.skills)
-                      pw.Padding(padding: const pw.EdgeInsets.only(bottom: 4), child: pw.Text(s, style: styles.body)),
-                    pw.SizedBox(height: 10),
-                  ],
-                  if (data.education.isNotEmpty) ...[
-                    cvSectionHeading('Education', styles),
-                    for (final ed in data.education) cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
-                    pw.SizedBox(height: 6),
-                  ],
-                  if (data.certifications.isNotEmpty) ...[
-                    cvSectionHeading('Certifications', styles),
-                    for (final c in data.certifications) cvSimpleLine(c.name, c.year, styles),
-                  ],
-                ],
-              ),
+        if (data.careerHighlights.isNotEmpty) ...[
+          cvSectionHeading('Career Highlights', styles),
+          cvBulletList(data.careerHighlights.join('\n'), styles),
+          pw.SizedBox(height: 16),
+        ],
+        // Professional Experience is a separate top-level Column child
+        // below (not sharing a Row with these), since its height scales
+        // with the officer's appointment count and a Row can't paginate a
+        // child taller than one page.
+        if (data.skills.isNotEmpty) ...[
+          cvSectionHeading('Areas of Expertise', styles),
+          cvSkillTags(data.skills, styles),
+          pw.SizedBox(height: 10),
+        ],
+        if (data.education.isNotEmpty || data.certifications.isNotEmpty)
+          pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (data.education.isNotEmpty)
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      cvSectionHeading('Education', styles),
+                      for (final ed in data.education)
+                        cvSimpleLine(
+                            '${ed.degree}, ${ed.institution}', ed.year, styles),
+                    ],
+                  ),
+                ),
+              if (data.certifications.isNotEmpty) ...[
+                pw.SizedBox(width: 20),
+                pw.Expanded(
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      cvSectionHeading('Certifications', styles),
+                      for (final c in data.certifications)
+                        cvSimpleLine(c.name, c.year, styles),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        pw.SizedBox(height: 10),
+        if (data.workExperience.isNotEmpty) ...[
+          cvSectionHeading('Professional Experience', styles),
+          for (final e in data.workExperience)
+            cvExperienceEntry(
+              roleTitle: e.roleTitle,
+              organizationType: e.organizationType,
+              duration: e.duration,
+              responsibilities: e.responsibilities,
+              styles: styles,
             ),
-            pw.SizedBox(width: 24),
-            pw.Expanded(
-              flex: 7,
-              child: pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                  if (data.workExperience.isNotEmpty) ...[
-                    cvSectionHeading('Professional Experience', styles),
-                    for (final e in data.workExperience)
-                      cvExperienceEntry(
-                        roleTitle: e.roleTitle,
-                        organizationType: e.organizationType,
-                        duration: e.duration,
-                        responsibilities: e.responsibilities,
-                        styles: styles,
-                      ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ],
     ),
   );

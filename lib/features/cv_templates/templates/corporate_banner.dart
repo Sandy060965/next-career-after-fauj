@@ -8,10 +8,15 @@ import '../cv_template_theme.dart';
 
 /// A coloured top banner (photo, name, contact) over a two-column body —
 /// one layout, themed four ways: Corporate Blue/Slate/Indigo/Green.
-pw.Document buildCorporateBanner(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildCorporateBanner(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
-  final onBanner = pw.TextStyle(font: fonts.interBold, fontSize: 20, color: PdfColors.white);
-  final onBannerMuted = pw.TextStyle(font: fonts.interRegular, fontSize: 9.5, color: PdfColor.fromHex('#FFFFFFCC'));
+  final onBanner =
+      pw.TextStyle(font: fonts.interBold, fontSize: 20, color: PdfColors.white);
+  final onBannerMuted = pw.TextStyle(
+      font: fonts.interRegular,
+      fontSize: 9.5,
+      color: PdfColor.fromHex('#FFFFFFCC'));
 
   final doc = pw.Document();
   doc.addPage(
@@ -27,7 +32,12 @@ pw.Document buildCorporateBanner(CvTemplateData data, CvPdfFonts fonts, CvTempla
           child: pw.Row(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              cvAvatar(data: data, theme: theme, fonts: fonts, size: 56, initialsBackground: PdfColor.fromHex('#FFFFFF33')),
+              cvAvatar(
+                  data: data,
+                  theme: theme,
+                  fonts: fonts,
+                  size: 56,
+                  initialsBackground: PdfColor.fromHex('#FFFFFF33')),
               pw.SizedBox(width: 14),
               pw.Expanded(
                 child: pw.Column(
@@ -36,7 +46,10 @@ pw.Document buildCorporateBanner(CvTemplateData data, CvPdfFonts fonts, CvTempla
                     pw.Text(data.titleLine, style: onBanner),
                     pw.SizedBox(height: 2),
                     pw.Text(
-                      [data.serviceLabel, data.corpsOrArm].whereType<String>().where((s) => s.isNotEmpty).join(' | '),
+                      [data.serviceLabel, data.corpsOrArm]
+                          .whereType<String>()
+                          .where((s) => s.isNotEmpty)
+                          .join(' | '),
                       style: onBannerMuted,
                     ),
                     if (cvContactLine(data).isNotEmpty) ...[
@@ -51,61 +64,83 @@ pw.Document buildCorporateBanner(CvTemplateData data, CvPdfFonts fonts, CvTempla
         ),
         pw.Padding(
           padding: const pw.EdgeInsets.fromLTRB(28, 24, 28, 28),
-          child: pw.Row(
+          child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Expanded(
-                flex: 4,
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    if (data.skills.isNotEmpty) ...[
-                      cvSectionHeading('Core Competencies', styles),
-                      cvSkillTags(data.skills, styles),
-                      pw.SizedBox(height: 14),
-                    ],
-                    if (data.education.isNotEmpty) ...[
-                      cvSectionHeading('Education', styles),
-                      for (final ed in data.education) cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
-                      pw.SizedBox(height: 8),
-                    ],
-                    if (data.certifications.isNotEmpty) ...[
-                      cvSectionHeading('Certifications', styles),
-                      for (final c in data.certifications) cvSimpleLine(c.name, c.year, styles),
-                    ],
-                  ],
-                ),
+              // Only the genuinely short, bounded sections (competencies,
+              // education, certifications, profile, highlights) share a Row
+              // — Professional Experience is a top-level Column child below,
+              // since its height scales with the officer's appointment
+              // count and a Row can't paginate a child taller than one page.
+              pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Expanded(
+                    flex: 4,
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        if (data.skills.isNotEmpty) ...[
+                          cvSectionHeading('Core Competencies', styles),
+                          cvSkillTags(data.skills, styles),
+                          pw.SizedBox(height: 14),
+                        ],
+                        if (data.education.isNotEmpty) ...[
+                          cvSectionHeading('Education', styles),
+                          for (final ed in data.education)
+                            cvSimpleLine('${ed.degree}, ${ed.institution}',
+                                ed.year, styles),
+                          pw.SizedBox(height: 8),
+                        ],
+                        if (data.certifications.isNotEmpty) ...[
+                          cvSectionHeading('Certifications', styles),
+                          for (final c in data.certifications)
+                            cvSimpleLine(c.name, c.year, styles),
+                        ],
+                      ],
+                    ),
+                  ),
+                  pw.SizedBox(width: 24),
+                  pw.Expanded(
+                    flex: 6,
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        if (data.summary.trim().isNotEmpty) ...[
+                          cvSectionHeading('Professional Profile', styles),
+                          pw.Text(data.summary, style: styles.body),
+                          pw.SizedBox(height: 14),
+                        ],
+                        if (data.careerHighlights.isNotEmpty) ...[
+                          cvSectionHeading('Career Highlights', styles),
+                          cvBulletList(
+                              data.careerHighlights.join('\n'), styles),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              pw.SizedBox(width: 24),
-              pw.Expanded(
-                flex: 6,
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    if (data.summary.trim().isNotEmpty) ...[
-                      cvSectionHeading('Professional Profile', styles),
-                      pw.Text(data.summary, style: styles.body),
-                      pw.SizedBox(height: 14),
-                    ],
-                    if (data.workExperience.isNotEmpty) ...[
-                      cvSectionHeading('Professional Experience', styles),
-                      for (final e in data.workExperience)
-                        cvExperienceEntry(
-                          roleTitle: e.roleTitle,
-                          organizationType: e.organizationType,
-                          duration: e.duration,
-                          responsibilities: e.responsibilities,
-                          styles: styles,
-                        ),
-                    ],
-                    if (data.honoursAwards.isNotEmpty) ...[
-                      cvSectionHeading('Key Achievements', styles),
-                      for (final a in data.honoursAwards)
-                        cvSimpleLine('${a.name}${a.bar.isNotEmpty ? ' (${a.bar})' : ''}', a.year, styles),
-                    ],
-                  ],
-                ),
-              ),
+              if (data.workExperience.isNotEmpty) ...[
+                pw.SizedBox(height: 14),
+                cvSectionHeading('Professional Experience', styles),
+                for (final e in data.workExperience)
+                  cvExperienceEntry(
+                    roleTitle: e.roleTitle,
+                    organizationType: e.organizationType,
+                    duration: e.duration,
+                    responsibilities: e.responsibilities,
+                    styles: styles,
+                  ),
+              ],
+              if (data.honoursAwards.isNotEmpty) ...[
+                cvSectionHeading('Key Achievements', styles),
+                for (final a in data.honoursAwards)
+                  cvSimpleLine(
+                      '${a.name}${a.bar.isNotEmpty ? ' (${a.bar})' : ''}',
+                      a.year,
+                      styles),
+              ],
             ],
           ),
         ),
@@ -118,7 +153,8 @@ pw.Document buildCorporateBanner(CvTemplateData data, CvPdfFonts fonts, CvTempla
 /// "Corporate Modern" — visually distinct from the banner family: no photo,
 /// no colour block, whitespace-driven with a thin rule under the header and
 /// small timeline dots marking each role.
-pw.Document buildCorporateModern(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildCorporateModern(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
 
   final doc = pw.Document();
@@ -128,10 +164,15 @@ pw.Document buildCorporateModern(CvTemplateData data, CvPdfFonts fonts, CvTempla
       margin: const pw.EdgeInsets.fromLTRB(36, 40, 36, 36),
       maxPages: 6,
       build: (context) => [
-        pw.Text(data.titleLine, style: pw.TextStyle(font: fonts.interBold, fontSize: 24, color: theme.ink)),
+        pw.Text(data.titleLine,
+            style: pw.TextStyle(
+                font: fonts.interBold, fontSize: 24, color: theme.ink)),
         pw.SizedBox(height: 3),
         pw.Text(
-          [data.serviceLabel, data.corpsOrArm].whereType<String>().where((s) => s.isNotEmpty).join('  •  '),
+          [data.serviceLabel, data.corpsOrArm]
+              .whereType<String>()
+              .where((s) => s.isNotEmpty)
+              .join('  •  '),
           style: styles.rankTitle,
         ),
         if (cvContactLine(data).isNotEmpty) ...[
@@ -144,6 +185,11 @@ pw.Document buildCorporateModern(CvTemplateData data, CvPdfFonts fonts, CvTempla
         if (data.summary.trim().isNotEmpty) ...[
           cvSectionHeading('Profile', styles),
           pw.Text(data.summary, style: styles.body),
+          pw.SizedBox(height: 16),
+        ],
+        if (data.careerHighlights.isNotEmpty) ...[
+          cvSectionHeading('Career Highlights', styles),
+          cvBulletList(data.careerHighlights.join('\n'), styles),
           pw.SizedBox(height: 16),
         ],
         if (data.skills.isNotEmpty) ...[
@@ -164,7 +210,8 @@ pw.Document buildCorporateModern(CvTemplateData data, CvPdfFonts fonts, CvTempla
                     child: pw.Container(
                       width: 7,
                       height: 7,
-                      decoration: pw.BoxDecoration(shape: pw.BoxShape.circle, color: theme.accent),
+                      decoration: pw.BoxDecoration(
+                          shape: pw.BoxShape.circle, color: theme.accent),
                     ),
                   ),
                   pw.Expanded(
@@ -190,7 +237,9 @@ pw.Document buildCorporateModern(CvTemplateData data, CvPdfFonts fonts, CvTempla
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       cvSectionHeading('Education', styles),
-                      for (final ed in data.education) cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
+                      for (final ed in data.education)
+                        cvSimpleLine(
+                            '${ed.degree}, ${ed.institution}', ed.year, styles),
                     ],
                   ),
                 ),
@@ -201,7 +250,8 @@ pw.Document buildCorporateModern(CvTemplateData data, CvPdfFonts fonts, CvTempla
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
                       cvSectionHeading('Certifications', styles),
-                      for (final c in data.certifications) cvSimpleLine(c.name, c.year, styles),
+                      for (final c in data.certifications)
+                        cvSimpleLine(c.name, c.year, styles),
                     ],
                   ),
                 ),

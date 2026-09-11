@@ -9,12 +9,20 @@ import '../cv_template_theme.dart';
 /// Full-height coloured sidebar (photo, contact, core competencies) beside
 /// a white main column (profile, experience, education) — one layout,
 /// themed five ways: Executive Navy/Black/Platinum/Burgundy/Teal.
-pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildExecutiveSidebar(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
-  final onSidebar = pw.TextStyle(font: fonts.interSemiBold, fontSize: 15, color: PdfColors.white);
-  final onSidebarMuted = pw.TextStyle(font: fonts.interRegular, fontSize: 9, color: PdfColor.fromHex('#FFFFFFB3'));
-  final onSidebarHeading =
-      pw.TextStyle(font: fonts.interSemiBold, fontSize: 9.5, color: PdfColor.fromHex('#FFFFFFD9'), letterSpacing: 1.2);
+  final onSidebar = pw.TextStyle(
+      font: fonts.interSemiBold, fontSize: 15, color: PdfColors.white);
+  final onSidebarMuted = pw.TextStyle(
+      font: fonts.interRegular,
+      fontSize: 9,
+      color: PdfColor.fromHex('#FFFFFFB3'));
+  final onSidebarHeading = pw.TextStyle(
+      font: fonts.interSemiBold,
+      fontSize: 9.5,
+      color: PdfColor.fromHex('#FFFFFFD9'),
+      letterSpacing: 1.2);
 
   pw.Widget sidebarSection(String heading, pw.Widget child) => pw.Padding(
         padding: const pw.EdgeInsets.only(top: 18),
@@ -28,6 +36,15 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
         ),
       );
 
+  // The colour sidebar carries only bounded content (photo, contact, core
+  // competencies, certifications — none of which scale with the officer's
+  // appointment count), so it's safe to pair with the page's other
+  // bounded opening sections (Executive Profile, Career Highlights) in a
+  // Row. Professional Experience and everything after it are separate
+  // top-level Column children below — their height scales with the
+  // appointment count, and a Row can't paginate a child taller than one
+  // page — so the sidebar appears alongside the opening matter on page 1,
+  // with continuation content flowing plainly on later pages.
   final doc = pw.Document();
   doc.addPage(
     pw.MultiPage(
@@ -45,13 +62,19 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Center(child: cvAvatar(data: data, theme: theme, fonts: fonts, size: 72)),
+                  pw.Center(
+                      child: cvAvatar(
+                          data: data, theme: theme, fonts: fonts, size: 72)),
                   pw.SizedBox(height: 12),
-                  pw.Text(data.titleLine, style: onSidebar, textAlign: pw.TextAlign.center),
-                  if (data.serviceLabel.isNotEmpty || data.corpsOrArm != null) ...[
+                  pw.Text(data.titleLine,
+                      style: onSidebar, textAlign: pw.TextAlign.center),
+                  if (data.serviceLabel.isNotEmpty ||
+                      data.corpsOrArm != null) ...[
                     pw.SizedBox(height: 2),
                     pw.Text(
-                      [data.serviceLabel, data.corpsOrArm].whereType<String>().join(' • '),
+                      [data.serviceLabel, data.corpsOrArm]
+                          .whereType<String>()
+                          .join(' • '),
                       style: onSidebarMuted,
                       textAlign: pw.TextAlign.center,
                     ),
@@ -60,7 +83,9 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
                     sidebarSection(
                       'Contact',
                       pw.Text(
-                        [data.mobileNumber, data.email].where((s) => s.trim().isNotEmpty).join('\n'),
+                        [data.mobileNumber, data.email]
+                            .where((s) => s.trim().isNotEmpty)
+                            .join('\n'),
                         style: onSidebarMuted.copyWith(fontSize: 8.5),
                       ),
                     ),
@@ -87,7 +112,8 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
                           for (final c in data.certifications)
                             pw.Padding(
                               padding: const pw.EdgeInsets.only(bottom: 3),
-                              child: pw.Text('${c.name} (${c.year})', style: onSidebarMuted),
+                              child: pw.Text('${c.name} (${c.year})',
+                                  style: onSidebarMuted),
                             ),
                         ],
                       ),
@@ -97,7 +123,7 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
             ),
             pw.Expanded(
               child: pw.Padding(
-                padding: const pw.EdgeInsets.fromLTRB(28, 32, 28, 32),
+                padding: const pw.EdgeInsets.fromLTRB(28, 32, 28, 16),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
@@ -109,40 +135,52 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
                     if (data.careerHighlights.isNotEmpty) ...[
                       cvSectionHeading('Career Highlights', styles),
                       cvBulletList(data.careerHighlights.join('\n'), styles),
-                      pw.SizedBox(height: 16),
-                    ],
-                    if (data.workExperience.isNotEmpty) ...[
-                      cvSectionHeading('Professional Experience', styles),
-                      for (final e in data.workExperience)
-                        cvExperienceEntry(
-                          roleTitle: e.roleTitle,
-                          organizationType: e.organizationType,
-                          duration: e.duration,
-                          responsibilities: e.responsibilities,
-                          styles: styles,
-                        ),
-                    ],
-                    if (data.honoursAwards.isNotEmpty) ...[
-                      cvSectionHeading('Key Achievements', styles),
-                      for (final a in data.honoursAwards)
-                        cvSimpleLine('${a.name}${a.bar.isNotEmpty ? ' (${a.bar})' : ''}', a.year, styles),
-                      pw.SizedBox(height: 6),
-                    ],
-                    if (data.education.isNotEmpty) ...[
-                      cvSectionHeading('Education', styles),
-                      for (final ed in data.education)
-                        cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
-                    ],
-                    if (data.courses.isNotEmpty) ...[
-                      pw.SizedBox(height: 6),
-                      cvSectionHeading('Courses', styles),
-                      for (final c in data.courses) cvSimpleLine(c.name, c.year, styles),
                     ],
                   ],
                 ),
               ),
             ),
           ],
+        ),
+        pw.Padding(
+          padding: const pw.EdgeInsets.fromLTRB(28, 16, 28, 32),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              if (data.workExperience.isNotEmpty) ...[
+                cvSectionHeading('Professional Experience', styles),
+                for (final e in data.workExperience)
+                  cvExperienceEntry(
+                    roleTitle: e.roleTitle,
+                    organizationType: e.organizationType,
+                    duration: e.duration,
+                    responsibilities: e.responsibilities,
+                    styles: styles,
+                  ),
+              ],
+              if (data.honoursAwards.isNotEmpty) ...[
+                cvSectionHeading('Key Achievements', styles),
+                for (final a in data.honoursAwards)
+                  cvSimpleLine(
+                      '${a.name}${a.bar.isNotEmpty ? ' (${a.bar})' : ''}',
+                      a.year,
+                      styles),
+                pw.SizedBox(height: 6),
+              ],
+              if (data.education.isNotEmpty) ...[
+                cvSectionHeading('Education', styles),
+                for (final ed in data.education)
+                  cvSimpleLine(
+                      '${ed.degree}, ${ed.institution}', ed.year, styles),
+              ],
+              if (data.courses.isNotEmpty) ...[
+                pw.SizedBox(height: 6),
+                cvSectionHeading('Courses', styles),
+                for (final c in data.courses)
+                  cvSimpleLine(c.name, c.year, styles),
+              ],
+            ],
+          ),
         ),
       ],
     ),

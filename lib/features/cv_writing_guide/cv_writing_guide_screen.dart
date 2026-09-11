@@ -1,7 +1,16 @@
-import 'package:flutter/material.dart';
+import 'dart:typed_data';
 
-import 'cv_template.dart';
-import 'template_sharer.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/routing/app_routes.dart';
+import '../../core/services/file_picker_service.dart';
+import '../../core/services/pdf_export.dart';
+import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
+import '../cv_templates/cv_pdf_fonts.dart';
+import '../cv_templates/cv_template_data.dart';
+import '../cv_templates/cv_template_registry.dart';
 
 /// One section of the recommended CV structure — a major heading plus the
 /// sub-points that belong under it. Fixed, hand-authored reference content,
@@ -135,63 +144,178 @@ const _guidelines = [
   ),
 ];
 
-class CvWritingGuideScreen extends StatefulWidget {
-  const CvWritingGuideScreen({super.key, this.shareTemplate = shareTemplateFile});
+Future<PickedFile?> _defaultPickPhoto() => pickFileWithBytes(allowedExtensions: const ['jpg', 'jpeg', 'png']);
 
-  /// Overridable for testing so the platform share sheet is never actually
-  /// invoked in a test run.
-  final TemplateSharer shareTemplate;
+class CvWritingGuideScreen extends StatefulWidget {
+  const CvWritingGuideScreen({
+    super.key,
+    this.pickPhoto = _defaultPickPhoto,
+    this.loadFonts = CvPdfFonts.load,
+    this.onDeliverPdf = deliverPdfBytes,
+  });
+
+  /// Overridable for testing so the native file-picker channel is never
+  /// actually invoked in a test run.
+  final Future<PickedFile?> Function() pickPhoto;
+
+  /// Overridable for testing so bundled font assets don't need loading.
+  final Future<CvPdfFonts> Function() loadFonts;
+
+  /// Overridable for testing so the platform share/download path is never
+  /// actually invoked in a test run.
+  final Future<void> Function(Uint8List bytes, String fileName) onDeliverPdf;
 
   @override
   State<CvWritingGuideScreen> createState() => _CvWritingGuideScreenState();
 }
 
 class _CvWritingGuideScreenState extends State<CvWritingGuideScreen> {
-  String? _sharingTemplateName;
-  String? _error;
+  bool _isUpdatingPhoto = false;
 
-  Future<void> _download(CvTemplate template) async {
-    setState(() {
-      _sharingTemplateName = template.name;
-      _error = null;
-    });
+  Future<void> _addPhoto() async {
+    setState(() => _isUpdatingPhoto = true);
     try {
-      await widget.shareTemplate(template);
+      final picked = await widget.pickPhoto();
+      if (picked != null && mounted) {
+        await context.read<ProfileRepository>().updatePhoto(photoFileName: picked.name, photoBytes: picked.bytes);
+      }
+    } finally {
+      if (mounted) setState(() => _isUpdatingPhoto = false);
+    }
+  }
+
+  Future<void> _removePhoto() async {
+    setState(() => _isUpdatingPhoto = true);
+    try {
+      await context.read<ProfileRepository>().updatePhoto();
+    } finally {
+      if (mounted) setState(() => _isUpdatingPhoto = false);
+    }
+  }
+
+  Future<void> _download(CvPdfTemplate template) async {
+    try {
+      final data = CvTemplateData.fromRepository(context.read<ProfileRepository>());
+      final fonts = await widget.loadFonts();
+      final bytes = await template.build(data, fonts).save();
+      final safeName = template.name.replaceAll(RegExp(r'[^A-Za-z0-9 _-]'), '').trim();
+      await widget.onDeliverPdf(bytes, 'CV_$safeName.pdf');
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = "Couldn't open the share sheet for ${template.name}: $e");
-    } finally {
-      if (mounted) setState(() => _sharingTemplateName = null);
+      // A SnackBar rather than an inline error banner — the preview dialog
+      // sits above the page content, so an inline message near the top
+      // would go unnoticed while it's open.
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text("Couldn't generate ${template.name}: $e")));
     }
+  }
+
+  void _openPreview(CvPdfTemplate template, {required bool hasCvData}) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => _TemplatePreviewDialog(
+        template: template,
+        canDownload: hasCvData,
+        onDownload: () => _download(template),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final repo = context.watch<ProfileRepository>();
+    final intake = repo.lastCvBuilderIntake;
+    final hasCvData = intake != null && intake.workExperience.isNotEmpty;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('CV Writing Guide')),
+      appBar: AppBar(
+        title: const Text('CV Writing Guide'),
+        actions: const [HomeButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Text(
-            'Six ready-to-use CV templates, plus guidance on structuring and writing your '
-            'own — every template is a blank layout with bracketed placeholders for you to '
-            'fill in, never sample content to copy.',
+            '20 ready-to-use CV designs, auto-filled from your CV Builder details, plus guidance on '
+            'structuring and writing your own.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: 20),
-          Text('Download a template', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          const SizedBox(height: 16),
+          _PhotoRow(
+            photoBytes: repo.profile?.photoBytes,
+            isBusy: _isUpdatingPhoto,
+            onAdd: _addPhoto,
+            onRemove: _removePhoto,
+          ),
+          if (!hasCvData) ...[
+            const SizedBox(height: 12),
+            Card(
+              key: const Key('cvTemplatesNoDataBanner'),
+              color: Theme.of(context).colorScheme.errorContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Build your CV first to unlock templates',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.onErrorContainer),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Templates are auto-filled from your CV Builder details (role titles, dates, '
+                      'responsibilities). Without that, there\'s nothing to put in them — so downloads '
+                      'stay off until you\'ve built your CV.',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: Theme.of(context).colorScheme.onErrorContainer),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                      key: const Key('goToCvBuilderButton'),
+                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvBuilder),
+                      child: const Text('Build my CV'),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          for (final template in kCvTemplates) _TemplateCard(
-            template: template,
-            isSharing: _sharingTemplateName == template.name,
-            onDownload: () => _download(template),
+          ],
+          const SizedBox(height: 20),
+          Text('Choose a template', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(
+            'Tap a design to see the full page and download it.',
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: kCvPdfTemplates.length,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 190,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.82,
+            ),
+            itemBuilder: (context, index) {
+              final template = kCvPdfTemplates[index];
+              return _TemplateThumbnail(
+                template: template,
+                onTap: () => _openPreview(template, hasCvData: hasCvData),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
           Text('How to structure your CV', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           for (final section in _structure) _StructureCard(section: section),
@@ -205,42 +329,217 @@ class _CvWritingGuideScreenState extends State<CvWritingGuideScreen> {
   }
 }
 
-class _TemplateCard extends StatelessWidget {
-  const _TemplateCard({required this.template, required this.isSharing, required this.onDownload});
+class _PhotoRow extends StatelessWidget {
+  const _PhotoRow({required this.photoBytes, required this.isBusy, required this.onAdd, required this.onRemove});
 
-  final CvTemplate template;
-  final bool isSharing;
-  final VoidCallback onDownload;
+  final Uint8List? photoBytes;
+  final bool isBusy;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      key: ValueKey('cvTemplate_${template.name}'),
-      margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ClipOval(
+              child: photoBytes != null
+                  ? Image.memory(photoBytes!, width: 44, height: 44, fit: BoxFit.cover)
+                  : Container(
+                      width: 44,
+                      height: 44,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      child: Icon(Icons.person_outline, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
-              child: Column(
+              child: Text(
+                photoBytes != null
+                    ? 'Photo added — shown on templates that include one.'
+                    : 'Add a photo (optional) — most global corporate CVs skip this; add one only if '
+                        'your target market expects it.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (isBusy)
+              const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+            else if (photoBytes != null)
+              TextButton(key: const Key('removePhotoButton'), onPressed: onRemove, child: const Text('Remove'))
+            else
+              TextButton(key: const Key('addPhotoButton'), onPressed: onAdd, child: const Text('Add')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A compact gallery cell — just the cropped preview and the template name,
+/// small enough that several sit on screen together so an officer can
+/// compare layouts at a glance. Tapping opens the full-page preview.
+class _TemplateThumbnail extends StatelessWidget {
+  const _TemplateThumbnail({required this.template, required this.onTap});
+
+  final CvPdfTemplate template;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      key: ValueKey('cvPdfTemplate_${template.id}'),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AspectRatio(
+              aspectRatio: 745 / 600,
+              child: Image.asset(template.previewAssetPath, fit: BoxFit.cover, alignment: Alignment.topCenter),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 10,
+                height: 10,
+                margin: const EdgeInsets.only(top: 3),
+                decoration: BoxDecoration(color: template.swatch.flutter, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  template.name,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The enlarged, full-page view of one template — opened by tapping its
+/// gallery thumbnail. Shows the name prominently (the thumbnail grid alone
+/// made it easy to lose track of which design was which) and carries its
+/// own download action, so browsing and downloading are the same tap-through
+/// flow instead of a separate button on every grid cell.
+class _TemplatePreviewDialog extends StatefulWidget {
+  const _TemplatePreviewDialog({required this.template, required this.canDownload, required this.onDownload});
+
+  final CvPdfTemplate template;
+  final bool canDownload;
+  final Future<void> Function() onDownload;
+
+  @override
+  State<_TemplatePreviewDialog> createState() => _TemplatePreviewDialogState();
+}
+
+class _TemplatePreviewDialogState extends State<_TemplatePreviewDialog> {
+  bool _isGenerating = false;
+
+  Future<void> _handleDownload() async {
+    setState(() => _isGenerating = true);
+    try {
+      await widget.onDownload();
+    } finally {
+      if (mounted) setState(() => _isGenerating = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final template = widget.template;
+    final screenSize = MediaQuery.sizeOf(context);
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 460,
+          maxHeight: screenSize.height * 0.85,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: Image.asset(template.previewFullAssetPath, fit: BoxFit.fitWidth),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(template.name, style: Theme.of(context).textTheme.titleSmall),
-                  const SizedBox(height: 4),
-                  Text(template.description, style: Theme.of(context).textTheme.bodySmall),
+                  Container(
+                    width: 14,
+                    height: 14,
+                    margin: const EdgeInsets.only(top: 4),
+                    decoration: BoxDecoration(color: template.swatch.flutter, shape: BoxShape.circle),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(template.name, style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 4),
+                        Text(template.blurb, style: Theme.of(context).textTheme.bodySmall),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            isSharing
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : IconButton(
-                    key: ValueKey('downloadTemplate_${template.name}'),
-                    tooltip: 'Download',
-                    onPressed: onDownload,
-                    icon: const Icon(Icons.file_download_outlined),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close'),
+                    ),
                   ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _isGenerating
+                        ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)))
+                        : FilledButton.icon(
+                            key: ValueKey('downloadCvTemplate_${template.id}'),
+                            onPressed: widget.canDownload ? _handleDownload : null,
+                            icon: const Icon(Icons.file_download_outlined),
+                            label: const Text('Download'),
+                          ),
+                  ),
+                ],
+              ),
+            ),
+            if (!widget.canDownload)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: Text(
+                  'Build your CV first to unlock downloads.',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  textAlign: TextAlign.center,
+                ),
+              ),
           ],
         ),
       ),

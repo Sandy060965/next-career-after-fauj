@@ -24,6 +24,7 @@ import 'features/compensation/compensation_http_service.dart';
 import 'features/compensation/compensation_screen.dart';
 import 'features/cv_builder/cv_builder_http_service.dart';
 import 'features/cv_builder/cv_builder_screen.dart';
+import 'features/cv_examples/cv_examples_screen.dart';
 import 'features/cv_writing_guide/cv_writing_guide_screen.dart';
 import 'features/cv_civilianizer/civilianizer_http_service.dart';
 import 'features/cv_civilianizer/civilianizer_screen.dart';
@@ -183,6 +184,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
     AppRoutes.cvBuilder: (_) => const CvBuilderScreen(
         buildCv: httpBuildCv, fetchApprovedEquivalencies: httpFetchApprovedEquivalencies),
     AppRoutes.cvWritingGuide: (_) => const CvWritingGuideScreen(),
+    AppRoutes.cvExamples: (_) => const CvExamplesScreen(),
     AppRoutes.careerHandbook: (_) => const CareerHandbookScreen(),
     AppRoutes.corpsMatrix: (_) => const CorpsMatrixScreen(),
     AppRoutes.corporateLanguageGuide: (_) =>

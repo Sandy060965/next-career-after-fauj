@@ -25,6 +25,7 @@ class AppRoutes {
   static const String targetRoleStrategy = '/target-role-strategy';
   static const String cvBuilder = '/cv-builder';
   static const String cvWritingGuide = '/cv-writing-guide';
+  static const String cvExamples = '/cv-examples';
   static const String careerHandbook = '/career-handbook';
   static const String corpsMatrix = '/corps-vertical-matrix';
   static const String corporateLanguageGuide = '/corporate-language-guide';

@@ -242,6 +242,13 @@ class _CvWritingGuideScreenState extends State<CvWritingGuideScreen> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
+          OutlinedButton.icon(
+            key: const Key('goToCvExamplesButton'),
+            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvExamples),
+            icon: const Icon(Icons.menu_book_outlined),
+            label: const Text('Not sure how to phrase your CV? Browse 54 example CVs by rank and service'),
+          ),
+          const SizedBox(height: 16),
           _PhotoRow(
             photoBytes: repo.profile?.photoBytes,
             isBusy: _isUpdatingPhoto,

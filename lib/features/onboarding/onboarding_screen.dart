@@ -63,7 +63,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    final existing = context.read<ProfileRepository>().profile;
+    final repo = context.read<ProfileRepository>();
+    final existing = repo.profile;
     if (existing != null) {
       _service = existing.service;
       // Both dropdowns require their initialValue to exactly match one of
@@ -93,6 +94,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _uploadedFileName = existing.cvFileName;
       _cvExtractedText = existing.cvExtractedText;
       _cvPdfBytes = existing.cvPdfBytes;
+    } else {
+      // A fresh sign-in on a device with no local profile (reinstall, new
+      // device) — the backend may already know this officer's rank/name/
+      // service/segment from a previous sync (see officer_progress_prefill
+      // .dart), so prefill those instead of starting fully blank. Consent
+      // and the rest of the form (DOB, release date, corps/arm, CV) still
+      // aren't known server-side and are left for the officer to fill in.
+      final prefill = repo.takeProgressPrefill();
+      if (prefill != null) {
+        if (prefill.service != null) {
+          for (final service in OfficerService.values) {
+            if (service.name == prefill.service) _service = service;
+          }
+        }
+        if (_service != null && prefill.rank != null && kRanksByService[_service]!.contains(prefill.rank)) {
+          _rank = prefill.rank;
+        }
+        if (prefill.segment != null) {
+          for (final segment in OfficerSegment.values) {
+            if (segment.name == prefill.segment) _segment = segment;
+          }
+        }
+        if (prefill.fullName != null) {
+          _nameController.text = prefill.fullName!;
+        }
+      }
     }
   }
 
@@ -259,12 +286,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _submit() {
-    if (_uploadedFileName == null) {
-      setState(() => _cvError = 'Upload your CV to continue');
-      _showValidationSnackBar('Upload your CV to continue.');
-      return;
-    }
-
+    // This form never touches the photo (added separately, from the CV
+    // templates gallery) — carry over whatever the existing profile already
+    // has so an edit here doesn't silently wipe a previously-added photo.
+    final repo = context.read<ProfileRepository>();
     final profile = OfficerProfile(
       rank: _rank!,
       fullName: _nameController.text.trim(),
@@ -277,17 +302,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       mobileNumber: _mobileController.text.trim(),
       email: _emailController.text.trim(),
       segment: _segment!,
-      cvFileName: _uploadedFileName!,
+      cvFileName: _uploadedFileName ?? '',
       cvExtractedText: _cvExtractedText,
       cvPdfBytes: _cvPdfBytes,
       corpsOrArm: _corpsOrArm,
+      photoFileName: repo.profile?.photoFileName,
+      photoBytes: repo.profile?.photoBytes,
     );
 
     // saveProfile updates in-memory state synchronously (before its first
     // await) and persists to disk in the background — navigation doesn't
     // need to wait on that disk write to complete.
-    context.read<ProfileRepository>().saveProfile(profile);
-    Navigator.of(context).pushReplacementNamed(AppRoutes.profile);
+    repo.saveProfile(profile);
+    // Only brand-new profiles see the guided intro — an officer editing an
+    // existing profile (via Profile > Edit) goes straight back to the app.
+    Navigator.of(context).pushReplacementNamed(
+      repo.hasSeenGuidedIntro ? AppRoutes.profile : AppRoutes.startHere,
+    );
   }
 
   @override
@@ -575,11 +606,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Upload your CV', style: Theme.of(context).textTheme.headlineSmall),
+          Text('Upload your CV (optional)', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 4),
           Text(
-            "We only accept a CV you've written / vetted yourself — never your "
-            'official record of service.',
+            "Don't have one ready yet? Skip this for now — we'll help you build one "
+            "inside the app. We only accept a CV you've written / vetted yourself — "
+            'never your official record of service.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 12),
@@ -623,6 +655,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Text(
                 _cvError!,
                 style: TextStyle(color: colorScheme.error, fontSize: 12),
+              ),
+            ),
+          if (_uploadedFileName == null && !_isProcessingCv)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: TextButton(
+                key: const Key('skipCvButton'),
+                onPressed: _onContinuePressed,
+                child: const Text('Skip for now'),
               ),
             ),
         ],

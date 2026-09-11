@@ -4,14 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/routing/app_routes.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
+import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/widgets/analysis_loading_indicator.dart';
+import '../../core/widgets/home_button.dart';
+import '../career_paths/career_vertical.dart';
+import '../career_paths/corps_affinity.dart';
+import '../cv_upload/cv_upload_sheet.dart';
 import '../fitment/fitment_service.dart';
 import '../fitment/score_gap_screen.dart';
+import '../vertical_fit/vertical_fit.dart';
+import 'sample_jd_service.dart';
 
-enum JdInputMethod { paste, upload }
+enum JdInputMethod { paste, upload, generate }
 
 // PDF is included alongside DOCX/TXT: Claude reads PDF bytes natively (same
 // as the CV upload), so no client-side extraction is needed for it — see
@@ -24,6 +32,7 @@ class JdMatchScreen extends StatefulWidget {
     super.key,
     this.pickFile = _defaultPickJd,
     this.analyzeFitment = mockAnalyzeFitment,
+    this.generateSampleJd = mockGenerateSampleJd,
   });
 
   /// Overridable for testing so the native file-picker channel never needs
@@ -33,6 +42,10 @@ class JdMatchScreen extends StatefulWidget {
   /// Overridable for testing; defaults to sample data until the Cloudflare
   /// Worker backend is wired in.
   final FitmentAnalyzer analyzeFitment;
+
+  /// Overridable for testing; defaults to sample data until the Cloudflare
+  /// Worker backend is wired in.
+  final SampleJdGenerator generateSampleJd;
 
   @override
   State<JdMatchScreen> createState() => _JdMatchScreenState();
@@ -49,10 +62,76 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   String? _error;
   bool _isAnalyzing = false;
 
+  late List<VerticalFit> _matchedVerticals;
+  CareerVertical? _selectedVertical;
+  String? _generatedJd;
+  bool _isGeneratingJd = false;
+  String? _generateError;
+
+  @override
+  void initState() {
+    super.initState();
+    final repo = context.read<ProfileRepository>();
+    final universe = effectiveVerticalUniverse(repo.profile?.corpsOrArm);
+    final assessment = repo.lastVerticalFitAssessment;
+    _matchedVerticals = assessment == null
+        ? [for (final v in universe) VerticalFit(vertical: v, fitScore: 0)]
+        : rankVerticalFit(assessment.dimensionScores, universe: universe).take(6).toList();
+  }
+
   @override
   void dispose() {
     _jdTextController.dispose();
     super.dispose();
+  }
+
+  String _tierFor(CareerVertical vertical) {
+    final years = context.read<ProfileRepository>().profile?.workExperienceYears ?? 10;
+    return vertical.levelForExperience(years).title;
+  }
+
+  Future<void> _generateJd() async {
+    final vertical = _selectedVertical;
+    if (vertical == null) {
+      setState(() => _generateError = 'Pick a vertical to continue');
+      return;
+    }
+    setState(() {
+      _isGeneratingJd = true;
+      _generateError = null;
+    });
+    try {
+      final jd = await widget.generateSampleJd(vertical: vertical.name, tier: _tierFor(vertical));
+      if (!mounted) return;
+      setState(() {
+        _generatedJd = jd;
+        _isGeneratingJd = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isGeneratingJd = false;
+        _generateError = '$e';
+      });
+    }
+  }
+
+  void _useGeneratedJd() {
+    final generated = _generatedJd;
+    if (generated == null) return;
+    setState(() {
+      _jdTextController.text = generated;
+      _inputMethod = JdInputMethod.paste;
+      _error = null;
+    });
+  }
+
+  Future<void> _copyGeneratedJd() async {
+    await Clipboard.setData(ClipboardData(text: _generatedJd ?? ''));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(const SnackBar(content: Text('JD copied to clipboard')));
   }
 
   Future<void> _pasteFromClipboard() async {
@@ -198,8 +277,13 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final repo = context.watch<ProfileRepository>();
+    final profile = repo.profile;
+    final hasCv = repo.preferredCivilianCvText != null ||
+        (profile?.cvExtractedText?.isNotEmpty ?? false) ||
+        profile?.cvPdfBytes != null;
     return Scaffold(
-      appBar: AppBar(title: const Text('JD Match')),
+      appBar: AppBar(title: const Text('JD Match'), actions: const [HomeButton()]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -211,6 +295,10 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
               'Paste the job description text, or upload it as a file.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            if (!hasCv) ...[
+              const SizedBox(height: 12),
+              _buildNoCvBanner(context, colorScheme),
+            ],
             const SizedBox(height: 20),
             RadioGroup<JdInputMethod>(
               groupValue: _inputMethod,
@@ -225,11 +313,11 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
                         key: ValueKey('jdInput_${method.name}'),
                         value: method,
                         contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          method == JdInputMethod.paste
-                              ? 'Paste job description'
-                              : 'Upload job description',
-                        ),
+                        title: Text(switch (method) {
+                          JdInputMethod.paste => 'Paste job description',
+                          JdInputMethod.upload => 'Upload job description',
+                          JdInputMethod.generate => 'Generate a JD with AI',
+                        }),
                       ),
                     )
                     .toList(),
@@ -256,8 +344,10 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
                   label: const Text('Paste from clipboard'),
                 ),
               ),
-            ] else
-              _buildUploadPanel(),
+            ] else if (_inputMethod == JdInputMethod.upload)
+              _buildUploadPanel()
+            else
+              _buildGeneratePanel(colorScheme),
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 12),
@@ -266,21 +356,23 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
                   style: TextStyle(color: colorScheme.error, fontSize: 12),
                 ),
               ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                key: const Key('checkMatchButton'),
-                onPressed: _isAnalyzing ? null : _checkMatch,
-                child: _isAnalyzing
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Check match'),
+            if (_inputMethod != JdInputMethod.generate) ...[
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  key: const Key('checkMatchButton'),
+                  onPressed: _isAnalyzing ? null : _checkMatch,
+                  child: _isAnalyzing
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Check match'),
+                ),
               ),
-            ),
+            ],
             if (_isAnalyzing) ...[
               const SizedBox(height: 16),
               const Center(
@@ -296,6 +388,59 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoCvBanner(BuildContext context, ColorScheme colorScheme) {
+    return Container(
+      key: const Key('jdMatchNoCvBanner'),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline, size: 20, color: colorScheme.onTertiaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "You haven't added a CV yet — the match will run without it, so the result "
+                  "won't be grounded in your real experience.",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: colorScheme.onTertiaryContainer),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('jdMatchAddCvButton'),
+                  onPressed: () => showCvUploadSheet(context),
+                  child: const Text('Add CV'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('jdMatchBuildCvButton'),
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvBuilder),
+                  child: const Text('Build CV'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -331,6 +476,132 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
                 child: const Text('Browse'),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGeneratePanel(ColorScheme colorScheme) {
+    final generated = _generatedJd;
+    if (generated == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Don't have a JD yet? Pick one of your matched verticals and we'll draft a "
+            'representative one for that role level.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<CareerVertical>(
+            key: const Key('generateVerticalDropdown'),
+            initialValue: _selectedVertical,
+            isExpanded: true,
+            decoration: const InputDecoration(labelText: 'Vertical'),
+            items: [
+              for (final fit in _matchedVerticals)
+                DropdownMenuItem(
+                  value: fit.vertical,
+                  child: Text('${fit.vertical.name} — ${_tierFor(fit.vertical)}'),
+                ),
+            ],
+            onChanged: (v) => setState(() {
+              _selectedVertical = v;
+              _generateError = null;
+            }),
+          ),
+          if (_generateError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _generateError!,
+                style: TextStyle(color: colorScheme.error, fontSize: 12),
+              ),
+            ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              key: const Key('generateJdButton'),
+              onPressed: _isGeneratingJd ? null : _generateJd,
+              child: _isGeneratingJd
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Generate'),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          key: const Key('generatedJdContainer'),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(generated),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Happy with this? Use it to check your match now — or download/copy it for '
+          'later first.',
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            key: const Key('useGeneratedJdButton'),
+            onPressed: _useGeneratedJd,
+            child: const Text('Use this JD'),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                key: const Key('copyGeneratedJdButton'),
+                onPressed: _copyGeneratedJd,
+                icon: const Icon(Icons.copy_outlined),
+                label: const Text('Copy'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                key: const Key('downloadGeneratedJdButton'),
+                onPressed: () => exportTextAsPdf(
+                  title: 'Sample JD - ${_selectedVertical?.name ?? ''}',
+                  body: generated,
+                ),
+                icon: const Icon(Icons.download_outlined),
+                label: const Text('Download PDF'),
+              ),
+            ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            key: const Key('generateAnotherJdButton'),
+            onPressed: () => setState(() {
+              _generatedJd = null;
+              _selectedVertical = null;
+            }),
+            child: const Text('Pick a different vertical'),
           ),
         ),
       ],

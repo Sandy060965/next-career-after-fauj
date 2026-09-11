@@ -19,6 +19,29 @@ import '../models/officer_account.dart';
 import '../models/officer_profile.dart';
 import 'session_storage.dart';
 
+/// A one-time snapshot of what the backend already knows about this officer
+/// (see officer_progress_sync.dart, which is what wrote it) — fetched right
+/// after a sign-in on a device with no local profile yet, e.g. a reinstall
+/// or a new device. Only the four fields officer_progress tracks; the rest
+/// of onboarding (DOB, release date, corps/arm, CV) still isn't known
+/// server-side and must be re-entered regardless. See
+/// officer_progress_prefill.dart for how this gets fetched.
+class OfficerProgressPrefill {
+  const OfficerProgressPrefill({this.rank, this.fullName, this.service, this.segment});
+
+  final String? rank;
+  final String? fullName;
+  final String? service;
+  final String? segment;
+
+  factory OfficerProgressPrefill.fromJson(Map<String, dynamic> json) => OfficerProgressPrefill(
+        rank: json['rank'] as String?,
+        fullName: json['fullName'] as String?,
+        service: json['service'] as String?,
+        segment: json['segment'] as String?,
+      );
+}
+
 const _profileKey = 'officer_profile_v1';
 const _fitmentResultKey = 'last_fitment_result_v1';
 const _jdTextKey = 'last_jd_text_v1';
@@ -36,6 +59,9 @@ const _civilianizedCvSavedAtKey = 'last_civilianized_cv_saved_at_v1';
 const _builtCvSavedAtKey = 'last_built_cv_saved_at_v1';
 const _cvFileName = 'officer_cv';
 const _jdFileName = 'last_jd';
+const _photoFileName = 'officer_photo';
+const _hasSeenGuidedIntroKey = 'has_seen_guided_intro_v1';
+const _hasVisitedSkillEquivalencyKey = 'has_visited_skill_equivalency_v1';
 
 /// Holder for the officer's profile and cross-screen state, shared via
 /// Provider. Persists to disk (SharedPreferences for structured data, a
@@ -66,8 +92,43 @@ class ProfileRepository extends ChangeNotifier {
   BuiltCv? _lastBuiltCv;
   DateTime? _civilianizedCvSavedAt;
   DateTime? _builtCvSavedAt;
+  bool _hasSeenGuidedIntro = false;
+  bool _hasVisitedSkillEquivalency = false;
+  OfficerProgressPrefill? _progressPrefill;
 
   OfficerProfile? get profile => _profile;
+
+  /// In-memory only (never persisted) — set right after a sign-in that
+  /// found no local profile, consumed once by OnboardingScreen to prefill
+  /// its form instead of starting blank. See officer_progress_prefill.dart.
+  OfficerProgressPrefill? get progressPrefill => _progressPrefill;
+
+  /// Reads and clears in one step, without notifying — OnboardingScreen
+  /// calls this from initState, and notifyListeners() during another
+  /// widget's build phase throws ("setState() or markNeedsBuild() called
+  /// during build"). Nothing else observes this field, so a silent clear
+  /// is safe.
+  OfficerProgressPrefill? takeProgressPrefill() {
+    final prefill = _progressPrefill;
+    _progressPrefill = null;
+    return prefill;
+  }
+
+  void setProgressPrefill(OfficerProgressPrefill? prefill) {
+    _progressPrefill = prefill;
+    notifyListeners();
+  }
+
+  /// Whether this officer has already been shown (or skipped) the one-time
+  /// "Start Here" guided sequence right after onboarding — once true, a
+  /// fresh onboarding submit (e.g. via Profile > Edit) goes straight back
+  /// into the app instead of showing the guided intro again.
+  bool get hasSeenGuidedIntro => _hasSeenGuidedIntro;
+
+  /// Whether the officer has opened Skill Equivalency at least once — used
+  /// as its "done" signal on the Start Here screen, since it's a lookup
+  /// tool with no quiz score to key off.
+  bool get hasVisitedSkillEquivalency => _hasVisitedSkillEquivalency;
 
   /// Non-null once the officer has verified their phone number — gates
   /// access to onboarding (see main.dart's initialRoute logic). Distinct
@@ -138,9 +199,11 @@ class ProfileRepository extends ChangeNotifier {
       final profileJson = prefs.getString(_profileKey);
       if (profileJson != null) {
         final cvBytes = await _readCvFile();
+        final photoBytes = await _readPhotoFile();
         _profile = OfficerProfile.fromJson(
           jsonDecode(profileJson) as Map<String, dynamic>,
           cvPdfBytes: cvBytes,
+          photoBytes: photoBytes,
         );
       }
 
@@ -211,6 +274,9 @@ class ProfileRepository extends ChangeNotifier {
         _lastBuiltCv = BuiltCv.fromJson(jsonDecode(builtCvJson) as Map<String, dynamic>);
         _builtCvSavedAt = DateTime.tryParse(prefs.getString(_builtCvSavedAtKey) ?? '');
       }
+
+      _hasSeenGuidedIntro = prefs.getBool(_hasSeenGuidedIntroKey) ?? false;
+      _hasVisitedSkillEquivalency = prefs.getBool(_hasVisitedSkillEquivalencyKey) ?? false;
     } catch (e) {
       // Corrupt or unavailable storage — start fresh rather than crash.
       debugPrint('ProfileRepository.loadFromStorage failed: $e');
@@ -236,6 +302,28 @@ class ProfileRepository extends ChangeNotifier {
       // Persistence is best-effort — in-memory state above already
       // updated, so the app keeps working even if the disk write fails.
       debugPrint('ProfileRepository.saveProfile persistence failed: $e');
+    }
+  }
+
+  /// Adds, replaces, or (both args null) removes the officer's optional
+  /// CV-template photo — offered only from the CV templates gallery, never
+  /// part of onboarding itself. A no-op if there's no profile yet.
+  Future<void> updatePhoto({String? photoFileName, Uint8List? photoBytes}) async {
+    final current = _profile;
+    if (current == null) return;
+    final updated = current.withUpdatedPhoto(photoFileName: photoFileName, photoBytes: photoBytes);
+    _profile = updated;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_profileKey, jsonEncode(updated.toJson()));
+      if (photoBytes != null) {
+        await _writePhotoFile(photoBytes);
+      } else {
+        await _deletePhotoFile();
+      }
+    } catch (e) {
+      debugPrint('ProfileRepository.updatePhoto persistence failed: $e');
     }
   }
 
@@ -331,6 +419,42 @@ class ProfileRepository extends ChangeNotifier {
     }
   }
 
+  /// Dev-only: wipes every cached field and all persisted local storage —
+  /// a one-tap way back to a clean, unregistered state for testing, instead
+  /// of manually clearing browser storage. Only ever called from the debug
+  /// menu (debug_menu_screen.dart), itself only reachable when the app is
+  /// launched with --dart-define=SKIP_AUTH_FOR_TESTING.
+  Future<void> clearAllForTesting() async {
+    _profile = null;
+    _lastFitmentResult = null;
+    _lastJdText = null;
+    _lastJdPdfBytes = null;
+    _lastVerticalFitAssessment = null;
+    _lastAiReadinessResult = null;
+    _sessionToken = null;
+    _refreshToken = null;
+    _account = null;
+    _applications = [];
+    _lastCivilianizedCv = null;
+    _lastFinancialPlanInput = null;
+    _lastTargetRoleStrategy = null;
+    _lastCvEvidenceResult = null;
+    _lastCvBuilderIntake = null;
+    _lastBuiltCv = null;
+    _civilianizedCvSavedAt = null;
+    _builtCvSavedAt = null;
+    _hasSeenGuidedIntro = false;
+    _hasVisitedSkillEquivalency = false;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      await _sessionStorage.clearToken();
+    } catch (e) {
+      debugPrint('ProfileRepository.clearAllForTesting persistence failed: $e');
+    }
+  }
+
   Future<void> saveCivilianizedCv(CivilianizedCv result) async {
     _lastCivilianizedCv = result;
     _civilianizedCvSavedAt = DateTime.now();
@@ -398,6 +522,30 @@ class ProfileRepository extends ChangeNotifier {
       await prefs.setString(_builtCvSavedAtKey, _builtCvSavedAt!.toIso8601String());
     } catch (e) {
       debugPrint('ProfileRepository.saveBuiltCv persistence failed: $e');
+    }
+  }
+
+  Future<void> markGuidedIntroSeen() async {
+    if (_hasSeenGuidedIntro) return;
+    _hasSeenGuidedIntro = true;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_hasSeenGuidedIntroKey, true);
+    } catch (e) {
+      debugPrint('ProfileRepository.markGuidedIntroSeen persistence failed: $e');
+    }
+  }
+
+  Future<void> markSkillEquivalencyVisited() async {
+    if (_hasVisitedSkillEquivalency) return;
+    _hasVisitedSkillEquivalency = true;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_hasVisitedSkillEquivalencyKey, true);
+    } catch (e) {
+      debugPrint('ProfileRepository.markSkillEquivalencyVisited persistence failed: $e');
     }
   }
 
@@ -478,5 +626,37 @@ class ProfileRepository extends ChangeNotifier {
   Future<void> _writeJdFile(Uint8List bytes) async {
     final file = await _jdFile();
     await file.writeAsBytes(bytes).timeout(_ioTimeout);
+  }
+
+  Future<File> _photoFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/$_photoFileName');
+  }
+
+  Future<Uint8List?> _readPhotoFile() async {
+    try {
+      final file = await _photoFile();
+      if (!await file.exists().timeout(_ioTimeout)) return null;
+      return await file.readAsBytes().timeout(_ioTimeout);
+    } catch (e) {
+      debugPrint('ProfileRepository._readPhotoFile failed: $e');
+      return null;
+    }
+  }
+
+  Future<void> _writePhotoFile(Uint8List bytes) async {
+    final file = await _photoFile();
+    await file.writeAsBytes(bytes).timeout(_ioTimeout);
+  }
+
+  Future<void> _deletePhotoFile() async {
+    try {
+      final file = await _photoFile();
+      if (await file.exists().timeout(_ioTimeout)) {
+        await file.delete().timeout(_ioTimeout);
+      }
+    } catch (e) {
+      debugPrint('ProfileRepository._deletePhotoFile failed: $e');
+    }
   }
 }

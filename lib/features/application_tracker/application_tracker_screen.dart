@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/job_application.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
 import 'add_edit_application_screen.dart';
 
 class ApplicationTrackerScreen extends StatelessWidget {
@@ -14,7 +15,7 @@ class ApplicationTrackerScreen extends StatelessWidget {
     final applications = context.watch<ProfileRepository>().applications;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Application Tracker')),
+      appBar: AppBar(title: const Text('Application Tracker'), actions: const [HomeButton()]),
       floatingActionButton: FloatingActionButton(
         key: const Key('addApplicationFab'),
         tooltip: 'Log a new application',

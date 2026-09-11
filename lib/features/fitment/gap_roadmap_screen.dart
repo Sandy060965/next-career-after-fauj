@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/officer_profile.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
 import 'fitment_result.dart';
 
 class GapRoadmapScreen extends StatelessWidget {
@@ -17,7 +18,7 @@ class GapRoadmapScreen extends StatelessWidget {
     final sortedRoadmap = [...result.gapRoadmap]..sort((a, b) => a.priority.compareTo(b.priority));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Gap Roadmap')),
+      appBar: AppBar(title: const Text('Gap Roadmap'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

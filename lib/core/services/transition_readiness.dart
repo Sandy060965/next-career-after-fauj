@@ -78,18 +78,18 @@ class TransitionReadinessSummary {
         actionLabel: 'Take the Career Vertical Fit assessment',
       ),
       TransitionReadinessDimension(
-        label: 'CV & JD Fit',
-        description: 'How closely your CV matches the last job description you checked.',
-        score: cvJdFitScore,
-        route: AppRoutes.jdMatch,
-        actionLabel: 'Run a JD Match',
-      ),
-      TransitionReadinessDimension(
         label: 'AI Readiness',
         description: 'How prepared you are to work alongside AI tools in a corporate role.',
         score: aiReadinessScore,
         route: AppRoutes.aiReadiness,
         actionLabel: 'Take the AI Readiness assessment',
+      ),
+      TransitionReadinessDimension(
+        label: 'CV & JD Fit',
+        description: 'How closely your CV matches the last job description you checked.',
+        score: cvJdFitScore,
+        route: AppRoutes.jdMatch,
+        actionLabel: 'Run a JD Match',
       ),
     ];
 

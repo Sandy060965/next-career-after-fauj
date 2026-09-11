@@ -4,9 +4,11 @@ import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/admin/admin_dashboard_screen.dart';
 import 'package:next_career_after_fauj/features/admin/admin_login_screen.dart';
 import 'package:next_career_after_fauj/features/admin/admin_officer_summary.dart';
+import 'package:next_career_after_fauj/features/admin/allowed_email_summary.dart';
 import 'package:next_career_after_fauj/features/admin/allowed_phone_summary.dart';
 import 'package:next_career_after_fauj/features/admin/course_submission_summary.dart';
 import 'package:next_career_after_fauj/features/admin/login_event.dart';
+import 'package:next_career_after_fauj/features/admin/phone_recovery_grant.dart';
 import 'package:next_career_after_fauj/features/admin/support_ticket_summary.dart';
 
 final _officer = AdminOfficerSummary(
@@ -67,8 +69,12 @@ final _allowedPhone = AllowedPhoneSummary(
 // functions — every test must override them to a no-op, or it'll fire a real
 // network call against the live backend and hang the test sandbox.
 Future<List<AllowedPhoneSummary>> _noAllowedPhones(String key) async => [];
+Future<List<AllowedEmailSummary>> _noAllowedEmails(String key) async => [];
+Future<List<PhoneRecoveryGrant>> _noPhoneRecoveryGrants(String key) async => [];
 Future<void> _noopAdd(String key, String number, String? note) async {}
 Future<void> _noopRemove(String key, String number) async {}
+Future<void> _noopGrantPhoneRecovery(String key, String number, String? note) async {}
+Future<void> _noopRevokePhoneRecoveryGrant(String key, String id) async {}
 Future<List<LoginEvent>> _noLogins(String key) async => [];
 Future<List<CourseSubmissionSummary>> _noCourseSubmissions(String key) async => [];
 Future<void> _noopApprove(String key, String id) async {}
@@ -85,6 +91,10 @@ void main() {
           fetchSupportTickets: (key) async => [_openTicket],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -109,6 +119,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -137,6 +151,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -163,6 +181,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -192,6 +214,10 @@ void main() {
           },
           resolveTicket: (key, id) async => resolvedId = id,
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -222,6 +248,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -255,6 +285,10 @@ void main() {
             capturedNote = note;
           },
           removeAllowedPhone: _noopRemove,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           fetchLoginHistory: _noLogins,
           fetchCourseSubmissions: _noCourseSubmissions,
           approveCourseSubmission: _noopApprove,
@@ -290,6 +324,10 @@ void main() {
           fetchAllowedPhones: (key) async => [_allowedPhone],
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: (key, number) async => removedNumber = number,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           fetchLoginHistory: _noLogins,
           fetchCourseSubmissions: _noCourseSubmissions,
           approveCourseSubmission: _noopApprove,
@@ -344,6 +382,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: (key) async => logins,
@@ -362,9 +404,9 @@ void main() {
 
     testWidgets('approving a pending course submission calls the service and refreshes',
         (tester) async {
-      // The scrollable TabBar's 4th tab sits past the default 800px test
+      // The scrollable TabBar's 6th tab sits past the default 800px test
       // window at this label length — widen the window so it's reachable.
-      tester.view.physicalSize = const Size(1400, 800);
+      tester.view.physicalSize = const Size(1900, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -390,6 +432,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,
@@ -417,7 +463,7 @@ void main() {
     });
 
     testWidgets('rejecting a pending course submission calls the service', (tester) async {
-      tester.view.physicalSize = const Size(1400, 800);
+      tester.view.physicalSize = const Size(1900, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
@@ -438,6 +484,10 @@ void main() {
           fetchSupportTickets: (key) async => [],
           resolveTicket: (key, id) async {},
           fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
           addAllowedPhone: _noopAdd,
           removeAllowedPhone: _noopRemove,
           fetchLoginHistory: _noLogins,

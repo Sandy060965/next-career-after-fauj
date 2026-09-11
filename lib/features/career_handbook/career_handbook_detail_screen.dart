@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/routing/app_routes.dart';
+import '../../core/widgets/home_button.dart';
 import '../career_paths/career_vertical.dart';
 import 'career_handbook_entries.dart';
 import 'career_handbook_entry.dart';
@@ -31,7 +32,7 @@ class CareerHandbookDetailScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(vertical.name)),
+      appBar: AppBar(title: Text(vertical.name), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -118,8 +119,8 @@ class CareerHandbookDetailScreen extends StatelessWidget {
                 child: const Text('Career Vertical Fit'),
               ),
               OutlinedButton(
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.skillEquivalency),
-                child: const Text('Skill Equivalency Matrix'),
+                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvBuilder),
+                child: const Text('Build My Civilian CV'),
               ),
               OutlinedButton(
                 onPressed: () => Navigator.of(context).pushNamed(AppRoutes.compensation),

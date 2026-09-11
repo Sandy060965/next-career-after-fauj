@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import 'gap_roadmap_screen.dart';
 import 'refined_cv_screen.dart';
 
@@ -18,7 +19,7 @@ class _NoFitmentResultYet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(title), actions: const [HomeButton()]),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/widgets/analysis_loading_indicator.dart';
+import '../../core/widgets/home_button.dart';
 import '../career_paths/corps_affinity.dart';
 import '../vertical_fit/vertical_fit.dart';
 import 'target_role_service.dart';
@@ -116,6 +117,7 @@ class _TargetRoleStrategyScreenState extends State<TargetRoleStrategyScreen> {
               tooltip: 'Regenerate',
               onPressed: _isLoading ? null : _generate,
             ),
+          const HomeButton(),
         ],
       ),
       body: !hasAssessment

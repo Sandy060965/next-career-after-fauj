@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/services/pdf_export.dart';
+import '../../core/widgets/home_button.dart';
 import 'fitment_result.dart';
 
 enum CvView { original, refined }
@@ -30,7 +31,7 @@ class _RefinedCvScreenState extends State<RefinedCvScreen> {
     final text = _view == CvView.original ? originalText : widget.result.refinedCv;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Refined CV')),
+      appBar: AppBar(title: const Text('Refined CV'), actions: const [HomeButton()]),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

@@ -3,14 +3,20 @@ import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/officer_progress_prefill.dart';
 import '../../core/services/profile_repository.dart';
 
 class OtpEntryScreen extends StatefulWidget {
-  OtpEntryScreen({super.key, required this.mobileNumber, AuthService? authService})
-      : authService = authService ?? AuthService();
+  OtpEntryScreen({
+    super.key,
+    required this.mobileNumber,
+    AuthService? authService,
+    this.fetchProgressPrefill = httpFetchProgressPrefill,
+  }) : authService = authService ?? AuthService();
 
   final String mobileNumber;
   final AuthService authService;
+  final FetchProgressPrefill fetchProgressPrefill;
 
   @override
   State<OtpEntryScreen> createState() => _OtpEntryScreenState();
@@ -42,6 +48,10 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
       if (!mounted) return;
       final repo = context.read<ProfileRepository>();
       repo.saveSession(result.token, result.account, refreshToken: result.refreshToken);
+      if (repo.profile == null) {
+        repo.setProgressPrefill(await widget.fetchProgressPrefill(repo));
+      }
+      if (!mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil(
         repo.profile != null ? AppRoutes.profile : AppRoutes.onboarding,
         (route) => false,

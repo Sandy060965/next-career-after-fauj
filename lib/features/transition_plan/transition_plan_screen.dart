@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import 'transition_phase_content.dart';
 
 class TransitionPlanScreen extends StatelessWidget {
@@ -27,7 +28,7 @@ class TransitionPlanScreen extends StatelessWidget {
     };
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Transition Plan')),
+      appBar: AppBar(title: const Text('My Transition Plan'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

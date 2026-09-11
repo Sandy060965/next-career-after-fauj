@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
 import 'network_models.dart';
 import 'network_opt_in_screen.dart';
 import 'network_service.dart';
@@ -78,7 +79,7 @@ class _NetworkDirectoryScreenState extends State<NetworkDirectoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Future Mentor Sign Up')),
+      appBar: AppBar(title: const Text('Future Mentor Sign Up'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

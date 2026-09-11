@@ -5,11 +5,13 @@ import { AI_COMPETENCIES } from './ai_competencies.js';
 import {
   handleRequestOtp,
   handleVerifyOtp,
+  handleGoogleSignIn,
   handleRefreshToken,
   handleLogout,
   handleMe,
   handleGrantEntitlement,
   handleSyncProgress,
+  handleGetProgress,
   handleSubmitSupportTicket,
   handleAdminListOfficers,
   handleAdminListSupportTickets,
@@ -17,6 +19,12 @@ import {
   handleAdminListAllowedPhones,
   handleAdminAddAllowedPhone,
   handleAdminRemoveAllowedPhone,
+  handleAdminListAllowedEmails,
+  handleAdminAddAllowedEmail,
+  handleAdminRemoveAllowedEmail,
+  handleAdminListPhoneRecoveryGrants,
+  handleAdminGrantPhoneRecovery,
+  handleAdminRevokePhoneRecoveryGrant,
   handleAdminListLoginHistory,
   handleAdminListCourseSubmissions,
   handleAdminApproveCourseSubmission,
@@ -106,7 +114,11 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
 
 const QUERY_SYSTEM_PROMPT = `Given an officer's CV, propose ONE concise job-search query string
 (role title + 1-2 key skills, e.g. "Head of Security manufacturing plant")
-suitable for a job-search API. Respond with ONLY JSON: {"query": "..."}`;
+suitable for a job-search API. If the CV text is unavailable (only a
+filename, no real content), propose a broad, generic query suited to an
+Indian Armed Forces officer transitioning to a civilian corporate role
+(e.g. "operations manager corporate India") instead of asking for a CV.
+Respond with ONLY JSON: {"query": "..."}`;
 
 const JOB_RANKING_SYSTEM_PROMPT = `You are given an officer's CV and a list of REAL job postings retrieved
 from a job-search API. Never invent, alter, or add postings — only select
@@ -117,7 +129,10 @@ top-company flag — do not change these values.
 
 Select and rank the postings that best fit the CV (up to 8). For each,
 write one concise sentence explaining why it fits the officer's real
-experience — grounded only in what the CV actually says.
+experience — grounded only in what the CV actually says. If the CV text is
+unavailable (only a filename, no real content), select up to 8 broadly
+relevant postings and say so plainly in each "fit_reason" instead of
+inventing a fit.
 
 Respond with ONLY valid JSON (no markdown fences) matching this shape:
 {
@@ -256,10 +271,23 @@ STRICT RULES:
   CV entirely rather than inventing filler content.
 - If the work experience list is entirely empty, say so plainly in "cv_text" (state that no work
   history was provided) rather than fabricating a plausible-sounding career.
+- Honours/awards are given as-is (e.g. "Vir Chakra (VrC)", "Chief of Army Staff Commendation Card")
+  — list them verbatim rather than translating or civilianizing the award name itself; they're
+  recognised credentials, not military jargon to be reworded. Each may also carry an optional
+  "bar" (a repeat of the same decoration — append e.g. ", Bar" to that award's line) and an optional
+  "citation" (a short achievement note — include it, still using only what was given).
+- Honours & Awards formatting: list gallantry decorations, distinguished-service decorations,
+  Mention-in-Despatches, Chief/Command-level commendations, and training honours (Sword of Honour,
+  Gold Medals, Scudder Medal) individually, one per line. If there are 3 or more routine campaign,
+  service, or commemorative medals, you may consolidate them into a single concise summary line
+  (e.g. "Recipient of 4 campaign and service medals during 22 years of commissioned service")
+  instead of four separate bullets, to avoid an over-long CV — but every medal given must still be
+  reflected in that summary's count, and 1-2 such medals should still be listed individually rather
+  than "summarized" as one.
 - Organize into a clean, standard civilian CV structure: a short professional summary (only if the
   officer provided one, or if it can be honestly composed from the work experience given),
-  Experience, Education, Certifications, and Skills sections — omit any section with nothing to put
-  in it.
+  Experience, Education, Certifications, Courses/Training, Honours & Awards, and Skills sections —
+  omit any section with nothing to put in it.
 
 Respond with ONLY valid JSON (no markdown fences, no commentary) matching this shape:
 {
@@ -313,6 +341,33 @@ Respond with ONLY valid JSON (no markdown fences, no commentary) matching this s
   "roadmap": [
     {"phase": "day30|day60|day90", "title": "...", "description": "...", "course_id": "<id from the course list or null>"}
   ]
+}`;
+
+const GENERATE_SAMPLE_JD_SYSTEM_PROMPT = `You are drafting a realistic, representative job description for a specific
+civilian corporate vertical and seniority tier, for an Indian Armed Forces
+officer to practise a CV-to-JD match against when he does not yet have a
+real job posting in hand.
+
+You are given a vertical name and a target role title (already fixed by a
+deterministic career ladder — do not change or second-guess it).
+
+STRICT RULES:
+- Write as a real Indian corporate employer would post it: a plausible
+  company type/industry blurb (never a specific real, named company), a
+  role title matching the given target, and responsibilities/requirements
+  genuinely typical for that vertical and seniority level in the Indian
+  market.
+- Do not reference any specific individual, CV, or service record — this is
+  a generic, representative posting for the role, not tailored to anyone.
+- Include: the role title, a 1-2 sentence company/context blurb, key
+  responsibilities (4-6 bullets), required qualifications/experience (4-6
+  bullets, including a realistic years-of-experience range consistent with
+  the given tier), and preferred skills (2-4 bullets).
+
+Respond with ONLY valid JSON (no markdown fences, no commentary) matching
+this shape:
+{
+  "jdText": "<the full job description as plain text, ready to display and export>"
 }`;
 
 const INTERVIEW_QUESTIONS_SYSTEM_PROMPT = `You are given a job description (JD) and, optionally, an officer's CV. Propose 5-8
@@ -457,10 +512,16 @@ function buildCvSection(cvText, cvPdfBase64) {
       ],
     };
   }
-  const isFilenameOnly =
-    /\.(pdf|docx?|txt)$/i.test(cvText.trim()) && cvText.trim().split(/\s+/).length <= 3;
-  const text = isFilenameOnly
-    ? `CV: [No CV text was extracted — only the filename "${cvText.trim()}" is available. ` +
+  // cvText is absent whenever the officer skipped CV upload at onboarding
+  // and hasn't added one since — treated identically to the "filename only,
+  // extraction failed" case below, since every prompt already has explicit
+  // instructions for "CV text is unavailable (only a filename, no real
+  // content)" and this is the same degraded scenario from the model's side.
+  const trimmed = (cvText || '').trim();
+  const isFilenameOnly = /\.(pdf|docx?|txt)$/i.test(trimmed) && trimmed.split(/\s+/).length <= 3;
+  const hasNoRealContent = trimmed.length === 0 || isFilenameOnly;
+  const text = hasNoRealContent
+    ? `CV: [No CV text was extracted${trimmed ? ` — only the filename "${trimmed}" is available` : ''}. ` +
       'There is no real CV content to analyze.]'
     : `CV:\n${cvText}`;
   return { isDocument: false, content: text };
@@ -516,8 +577,12 @@ function combineCvAndJd(cv, jd) {
 // ---------------------------------------------------------------------------
 async function handleFitmentAnalysis(body, env) {
   const { cvText, cvPdfBase64, jdText, jdPdfBase64 } = body;
-  if ((!jdText && !jdPdfBase64) || (!cvText && !cvPdfBase64)) {
-    return json({ error: 'jdText/jdPdfBase64 and cvText/cvPdfBase64 are required' }, 400);
+  // The JD is the actual target being matched against, so it stays required
+  // — there's no sensible "match with no JD" outcome. The CV is optional:
+  // an officer can now skip CV upload entirely, and FITMENT_SYSTEM_PROMPT
+  // already has explicit instructions for a CV marked unavailable below.
+  if (!jdText && !jdPdfBase64) {
+    return json({ error: 'jdText/jdPdfBase64 is required' }, 400);
   }
 
   const cv = buildCvSection(cvText, cvPdfBase64);
@@ -601,9 +666,6 @@ function matchesTitleKeywords(title, titleKeywords) {
 
 async function handleJobMatches(body, env) {
   const { cvText, cvPdfBase64, cityTier, overrideQuery, titleKeywords } = body;
-  if (!cvText && !cvPdfBase64) {
-    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
-  }
   if (!env.RAPIDAPI_KEY) {
     return json({ error: 'Job search is not configured (missing RAPIDAPI_KEY)' }, 500);
   }
@@ -706,9 +768,6 @@ async function handleJobMatches(body, env) {
 // ---------------------------------------------------------------------------
 async function handleLinkedInWriteup(body, env) {
   const { cvText, cvPdfBase64 } = body;
-  if (!cvText && !cvPdfBase64) {
-    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
-  }
 
   const cv = buildCvSection(cvText, cvPdfBase64);
   const userContent = cv.isDocument
@@ -877,9 +936,6 @@ async function handleListApprovedEquivalencies(env) {
 
 async function handleCivilianizeCv(body, env) {
   const { cvText, cvPdfBase64 } = body;
-  if (!cvText && !cvPdfBase64) {
-    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
-  }
 
   const cv = buildCvSection(cvText, cvPdfBase64);
   const userContent = cv.isDocument
@@ -906,9 +962,6 @@ async function handleTargetRoleStrategy(body, env) {
   const { cvText, cvPdfBase64, targets } = body;
   if (!Array.isArray(targets) || targets.length === 0) {
     return json({ error: 'targets is required' }, 400);
-  }
-  if (!cvText && !cvPdfBase64) {
-    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
   }
 
   const cv = buildCvSection(cvText, cvPdfBase64);
@@ -944,9 +997,6 @@ async function handleCvEvidence(body, env) {
   const { cvText, cvPdfBase64, verticals } = body;
   if (!Array.isArray(verticals) || verticals.length === 0) {
     return json({ error: 'verticals is required' }, 400);
-  }
-  if (!cvText && !cvPdfBase64) {
-    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
   }
 
   const cv = buildCvSection(cvText, cvPdfBase64);
@@ -1001,9 +1051,6 @@ async function handleBuildCv(body, env) {
 // ---------------------------------------------------------------------------
 async function handleAiReadiness(body, env) {
   const { cvText, cvPdfBase64, readinessScore, dimensionScores, releaseDate } = body;
-  if (!cvText && !cvPdfBase64) {
-    return json({ error: 'cvText or cvPdfBase64 is required' }, 400);
-  }
   if (typeof readinessScore !== 'number' || !dimensionScores) {
     return json({ error: 'readinessScore and dimensionScores are required' }, 400);
   }
@@ -1050,6 +1097,30 @@ async function handleAiReadiness(body, env) {
     cv_ai_bridge: parsed.cv_ai_bridge,
     roadmap,
   });
+}
+
+// ---------------------------------------------------------------------------
+// /generate-sample-jd — a stand-in JD for an officer with no real job
+// posting in hand yet, keyed to one of his own matched verticals/tiers.
+// Stateless: no D1 read/write, generated fresh on every call.
+// ---------------------------------------------------------------------------
+async function handleGenerateSampleJd(body, env) {
+  const { vertical, tier } = body;
+  if (!vertical || !tier) {
+    return json({ error: 'vertical and tier are required' }, 400);
+  }
+
+  const userContent = `Vertical: ${vertical}\nTarget role / tier: ${tier}`;
+  try {
+    const parsed = await callClaude(env, {
+      system: GENERATE_SAMPLE_JD_SYSTEM_PROMPT,
+      userContent,
+      maxTokens: 1536,
+    });
+    return json(parsed);
+  } catch (e) {
+    return json({ error: 'Model did not return valid JSON', detail: `${e}` }, 502);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1324,17 +1395,20 @@ export default {
     if (path === '/cv-evidence') return handleCvEvidence(body, env);
     if (path === '/build-cv') return handleBuildCv(body, env);
     if (path === '/ai-readiness') return handleAiReadiness(body, env);
+    if (path === '/generate-sample-jd') return handleGenerateSampleJd(body, env);
     if (path === '/interview-questions') return handleInterviewQuestions(body, env);
     if (path === '/mock-interview-feedback') return handleMockInterviewFeedback(body, env);
     if (path === '/compensation') return handleCompensation(body, env);
     if (path === '/assistant') return handleAssistant(body, env);
     if (path === '/auth/request-otp') return handleRequestOtp(body, env);
     if (path === '/auth/verify-otp') return handleVerifyOtp(request, body, env);
+    if (path === '/auth/google-signin') return handleGoogleSignIn(request, body, env);
     if (path === '/auth/refresh') return handleRefreshToken(body, env);
     if (path === '/auth/logout') return handleLogout(body, env);
     if (path === '/me') return handleMe(request, env);
     if (path === '/admin/grant-entitlement') return handleGrantEntitlement(request, body, env);
     if (path === '/officer-progress') return handleSyncProgress(request, body, env);
+    if (path === '/officer-progress/me') return handleGetProgress(request, env);
     if (path === '/support-ticket') return handleSubmitSupportTicket(request, body, env);
     if (path === '/admin/officers') return handleAdminListOfficers(request, env);
     if (path === '/admin/support-tickets') return handleAdminListSupportTickets(request, env);
@@ -1343,6 +1417,16 @@ export default {
     if (path === '/admin/add-allowed-phone') return handleAdminAddAllowedPhone(request, body, env);
     if (path === '/admin/remove-allowed-phone')
       return handleAdminRemoveAllowedPhone(request, body, env);
+    if (path === '/admin/allowed-emails') return handleAdminListAllowedEmails(request, env);
+    if (path === '/admin/add-allowed-email') return handleAdminAddAllowedEmail(request, body, env);
+    if (path === '/admin/remove-allowed-email')
+      return handleAdminRemoveAllowedEmail(request, body, env);
+    if (path === '/admin/phone-recovery-grants')
+      return handleAdminListPhoneRecoveryGrants(request, env);
+    if (path === '/admin/grant-phone-recovery')
+      return handleAdminGrantPhoneRecovery(request, body, env);
+    if (path === '/admin/revoke-phone-recovery')
+      return handleAdminRevokePhoneRecoveryGrant(request, body, env);
     if (path === '/admin/login-history') return handleAdminListLoginHistory(request, env);
     if (path === '/admin/course-submissions') return handleAdminListCourseSubmissions(request, env);
     if (path === '/admin/approve-course-submission')

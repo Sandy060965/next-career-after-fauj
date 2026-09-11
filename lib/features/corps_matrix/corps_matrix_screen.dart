@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/models/officer_profile.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import '../career_handbook/career_handbook_detail_screen.dart';
 import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
@@ -44,6 +45,7 @@ class _CorpsMatrixScreenState extends State<CorpsMatrixScreen> {
             tooltip: _byVertical ? 'Browse by Corps/Arm/Branch' : 'Browse by vertical',
             onPressed: () => setState(() => _byVertical = !_byVertical),
           ),
+          const HomeButton(),
         ],
       ),
       body: _byVertical ? _buildByVertical(context) : _buildByCorps(context),

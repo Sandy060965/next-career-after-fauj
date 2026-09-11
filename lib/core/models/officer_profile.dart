@@ -68,6 +68,8 @@ class OfficerProfile {
     this.cvExtractedText,
     this.cvPdfBytes,
     this.corpsOrArm,
+    this.photoFileName,
+    this.photoBytes,
   });
 
   final String rank;
@@ -99,8 +101,68 @@ class OfficerProfile {
   /// general vertical universe with no Corps/Arm-based signal.
   final String? corpsOrArm;
 
-  /// Excludes [cvPdfBytes] deliberately — it's persisted separately as a
-  /// file rather than inlined into a JSON blob.
+  /// Optional headshot for CV templates that show one — never collected
+  /// during onboarding, only offered from the CV templates gallery, and
+  /// entirely skippable. Same split as [cvFileName]/[cvPdfBytes]: the name
+  /// travels in the JSON profile blob, the bytes are persisted separately.
+  final String? photoFileName;
+  final Uint8List? photoBytes;
+
+  /// Returns a copy with just the CV fields replaced — for attaching or
+  /// replacing a CV after onboarding without re-collecting every other
+  /// already-saved field (rank, name, DOB, etc.).
+  OfficerProfile withUpdatedCv({
+    required String cvFileName,
+    String? cvExtractedText,
+    Uint8List? cvPdfBytes,
+  }) {
+    return OfficerProfile(
+      rank: rank,
+      fullName: fullName,
+      dateOfBirth: dateOfBirth,
+      workExperienceYears: workExperienceYears,
+      workExperienceMonths: workExperienceMonths,
+      releaseStatus: releaseStatus,
+      releaseDate: releaseDate,
+      service: service,
+      mobileNumber: mobileNumber,
+      email: email,
+      segment: segment,
+      cvFileName: cvFileName,
+      cvExtractedText: cvExtractedText,
+      cvPdfBytes: cvPdfBytes,
+      corpsOrArm: corpsOrArm,
+      photoFileName: photoFileName,
+      photoBytes: photoBytes,
+    );
+  }
+
+  /// Returns a copy with just the photo fields replaced — pass both null to
+  /// remove a previously-added photo.
+  OfficerProfile withUpdatedPhoto({String? photoFileName, Uint8List? photoBytes}) {
+    return OfficerProfile(
+      rank: rank,
+      fullName: fullName,
+      dateOfBirth: dateOfBirth,
+      workExperienceYears: workExperienceYears,
+      workExperienceMonths: workExperienceMonths,
+      releaseStatus: releaseStatus,
+      releaseDate: releaseDate,
+      service: service,
+      mobileNumber: mobileNumber,
+      email: email,
+      segment: segment,
+      cvFileName: cvFileName,
+      cvExtractedText: cvExtractedText,
+      cvPdfBytes: cvPdfBytes,
+      corpsOrArm: corpsOrArm,
+      photoFileName: photoFileName,
+      photoBytes: photoBytes,
+    );
+  }
+
+  /// Excludes [cvPdfBytes]/[photoBytes] deliberately — both are persisted
+  /// separately as files rather than inlined into a JSON blob.
   Map<String, dynamic> toJson() => {
         'rank': rank,
         'fullName': fullName,
@@ -116,9 +178,14 @@ class OfficerProfile {
         'cvFileName': cvFileName,
         'cvExtractedText': cvExtractedText,
         'corpsOrArm': corpsOrArm,
+        'photoFileName': photoFileName,
       };
 
-  factory OfficerProfile.fromJson(Map<String, dynamic> json, {Uint8List? cvPdfBytes}) {
+  factory OfficerProfile.fromJson(
+    Map<String, dynamic> json, {
+    Uint8List? cvPdfBytes,
+    Uint8List? photoBytes,
+  }) {
     return OfficerProfile(
       rank: json['rank'] as String,
       fullName: json['fullName'] as String,
@@ -135,6 +202,10 @@ class OfficerProfile {
       cvExtractedText: json['cvExtractedText'] as String?,
       cvPdfBytes: cvPdfBytes,
       corpsOrArm: json['corpsOrArm'] as String?,
+      // Added after OfficerProfile was already shipping — absent in an
+      // older cached profile, which should still parse rather than throw.
+      photoFileName: json['photoFileName'] as String?,
+      photoBytes: photoBytes,
     );
   }
 }

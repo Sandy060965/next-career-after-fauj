@@ -7,6 +7,8 @@ import '../../core/routing/app_routes.dart';
 import '../../core/services/authenticated_http.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
+import '../cv_upload/cv_upload_sheet.dart';
 
 /// The "Profile" tab root — account details and profile management only.
 /// The 25 feature modules themselves live under the Career, Jobs, and Learn
@@ -33,6 +35,7 @@ class ProfileScreen extends StatelessWidget {
             tooltip: 'Edit',
             onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding),
           ),
+          const HomeButton(),
         ],
       ),
       body: ListView(
@@ -77,7 +80,17 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _SectionCard(
             title: 'CV',
-            children: [_InfoRow(label: 'File', value: profile.cvFileName)],
+            children: profile.cvFileName.isEmpty
+                ? [
+                    const _InfoRow(label: 'File', value: 'Not uploaded'),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      key: const Key('addCvButton'),
+                      onPressed: () => showCvUploadSheet(context),
+                      child: const Text('Add CV'),
+                    ),
+                  ]
+                : [_InfoRow(label: 'File', value: profile.cvFileName)],
           ),
           const SizedBox(height: 16),
           SizedBox(

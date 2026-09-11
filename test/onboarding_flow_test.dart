@@ -9,9 +9,9 @@ import 'package:next_career_after_fauj/core/routing/app_routes.dart';
 import 'package:next_career_after_fauj/core/services/file_picker_service.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
-import 'package:next_career_after_fauj/core/utils/date_format.dart';
 import 'package:next_career_after_fauj/features/onboarding/onboarding_screen.dart';
 import 'package:next_career_after_fauj/features/profile/profile_screen.dart';
+import 'package:next_career_after_fauj/features/start_here/start_here_screen.dart';
 import 'package:provider/provider.dart';
 
 Widget _appUnderTest({required Future<PickedFile?> Function() pickFile, ProfileRepository? repository}) {
@@ -22,6 +22,7 @@ Widget _appUnderTest({required Future<PickedFile?> Function() pickFile, ProfileR
       initialRoute: AppRoutes.onboarding,
       routes: {
         AppRoutes.onboarding: (_) => OnboardingScreen(pickFile: pickFile),
+        AppRoutes.startHere: (_) => const StartHereScreen(),
         AppRoutes.profile: (_) => const ProfileScreen(),
       },
     ),
@@ -104,15 +105,17 @@ Future<void> _completeStepsUpToCvUpload(WidgetTester tester, {String? corpsOrArm
 
 void main() {
   testWidgets(
-    'CV-upload onboarding flow creates a profile and lands on Profile screen',
+    'CV-upload onboarding flow creates a profile and lands on the Start Here guided intro',
     (tester) async {
       tester.view.physicalSize = const Size(430, 2000);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
+      final repository = ProfileRepository();
       await tester.pumpWidget(
         _appUnderTest(
+          repository: repository,
           pickFile: () async => PickedFile(name: 'resume.pdf', bytes: Uint8List(0)),
         ),
       );
@@ -185,22 +188,77 @@ void main() {
       await tester.pump(const Duration(seconds: 6));
 
       final now = DateTime.now();
-      final expectedDob = formatDate(DateTime(now.year - 30, now.month, now.day));
-      final expectedReleaseDate = formatDate(now);
+      final expectedDob = DateTime(now.year - 30, now.month, now.day);
+      final expectedReleaseDate = DateTime(now.year, now.month, now.day);
 
-      expect(find.text('My Profile'), findsOneWidget);
-      expect(find.text('Major'), findsOneWidget);
-      expect(find.text('Maj. A Verma'), findsOneWidget);
-      expect(find.text(expectedDob), findsOneWidget);
-      expect(find.text('12 yrs 5 mos'), findsOneWidget);
-      expect(find.text('Tentative release date'), findsOneWidget);
-      expect(find.text(expectedReleaseDate), findsOneWidget);
-      expect(find.text('Army'), findsOneWidget);
-      expect(find.text(OfficerSegment.pmr.fullLabel), findsOneWidget);
-      expect(find.text('9876543210'), findsOneWidget);
-      expect(find.text('a.verma@example.com'), findsOneWidget);
-      expect(find.text('resume.pdf'), findsOneWidget);
-      expect(find.text('Service number'), findsNothing);
+      // A brand-new profile lands on the one-time guided intro, not
+      // straight back into the app.
+      expect(find.text('Welcome — a few quick steps first'), findsOneWidget);
+      expect(find.text('My Profile'), findsNothing);
+
+      final profile = repository.profile!;
+      expect(profile.rank, 'Major');
+      expect(profile.fullName, 'Maj. A Verma');
+      expect(profile.dateOfBirth, expectedDob);
+      expect(profile.workExperienceYears, 12);
+      expect(profile.workExperienceMonths, 5);
+      expect(profile.releaseStatus, ReleaseStatus.tentative);
+      expect(profile.releaseDate, expectedReleaseDate);
+      expect(profile.service, OfficerService.army);
+      expect(profile.segment, OfficerSegment.pmr);
+      expect(profile.mobileNumber, '9876543210');
+      expect(profile.email, 'a.verma@example.com');
+      expect(profile.cvFileName, 'resume.pdf');
+    },
+  );
+
+  testWidgets(
+    'submitting onboarding with no CV selected is not blocked and still creates a profile',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final repository = ProfileRepository();
+      await tester.pumpWidget(
+        _appUnderTest(repository: repository, pickFile: () async => null),
+      );
+      await _completeStepsUpToCvUpload(tester);
+
+      // No file picked — go straight to submit.
+      await tester.tap(find.byKey(const Key('continueButton')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Upload your CV to continue'), findsNothing);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Welcome — a few quick steps first'), findsOneWidget);
+      expect(repository.profile?.cvFileName, '');
+    },
+  );
+
+  testWidgets(
+    'the CV upload step offers an explicit "Skip for now" action that creates the profile',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final repository = ProfileRepository();
+      await tester.pumpWidget(
+        _appUnderTest(repository: repository, pickFile: () async => null),
+      );
+      await _completeStepsUpToCvUpload(tester);
+
+      expect(find.byKey(const Key('skipCvButton')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('skipCvButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Welcome — a few quick steps first'), findsOneWidget);
+      expect(repository.profile?.cvFileName, '');
     },
   );
 
@@ -234,7 +292,7 @@ void main() {
 
       final repository = ProfileRepository();
       final docxBytes = _buildDocxBytes(
-        'Experienced leader. Contact officer.name@example.com. Commanded a Battalion.',
+        'Experienced leader. Part of a Regiment. Commanded a Battalion.',
       );
 
       await tester.pumpWidget(
@@ -253,13 +311,13 @@ void main() {
 
       // The review dialog should appear with one row per unique flagged term.
       expect(find.text('Review before continuing'), findsOneWidget);
-      expect(find.byKey(const Key('redactionCheckbox_officer.name@example.com')), findsOneWidget);
+      expect(find.byKey(const Key('redactionCheckbox_Regiment')), findsOneWidget);
       expect(find.byKey(const Key('redactionCheckbox_Battalion')), findsOneWidget);
 
-      // Uncheck the email — keep it; leave the unit term checked — redact it.
+      // Uncheck Regiment — keep it; leave Battalion checked — redact it.
       // Still not pumpAndSettle: the dialog hasn't closed yet, so the
       // upload panel's spinner underneath is still animating.
-      await tester.tap(find.byKey(const Key('redactionCheckbox_officer.name@example.com')));
+      await tester.tap(find.byKey(const Key('redactionCheckbox_Regiment')));
       await tester.pump();
       await tester.tap(find.byKey(const Key('confirmRedactionReviewButton')));
       await tester.pumpAndSettle();
@@ -272,7 +330,7 @@ void main() {
       await tester.pump(const Duration(seconds: 6));
 
       final savedText = repository.profile?.cvExtractedText ?? '';
-      expect(savedText, contains('officer.name@example.com'));
+      expect(savedText, contains('Regiment'));
       expect(savedText, contains('[REDACTED]'));
       expect(savedText, isNot(contains('Battalion')));
     },
@@ -436,5 +494,43 @@ void main() {
     expect(find.text('Colonel'), findsNothing);
     expect(find.text('Select service first'), findsNothing); // service itself is still prefilled
     expect(find.text('Required'), findsNothing); // no validation run yet, just an empty field
+  });
+
+  testWidgets(
+      'a fresh sign-in with no local profile prefills rank/name/service from a backend-known '
+      'progress summary, but still requires consent before continuing',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = ProfileRepository()
+      ..setProgressPrefill(
+        const OfficerProgressPrefill(
+          rank: 'Colonel',
+          fullName: 'Col A K Sharma',
+          service: 'army',
+          segment: 'pmr',
+        ),
+      );
+
+    await tester.pumpWidget(
+      _appUnderTest(repository: repository, pickFile: () async => null),
+    );
+    await tester.pumpAndSettle();
+
+    // Rank/name/service came from the backend-known summary...
+    expect(find.text('Colonel'), findsOneWidget);
+    expect(find.text('Col A K Sharma'), findsOneWidget);
+    // ...but DOB/release date/mobile/email aren't tracked server-side and
+    // are left blank, and consent is never implicitly given by a prefill.
+    await tester.tap(find.byKey(const Key('continueButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Please fill in all required fields correctly.'), findsOneWidget);
+
+    // Consumed once — reading it again shouldn't still return the prefill.
+    expect(repository.progressPrefill, isNull);
   });
 }

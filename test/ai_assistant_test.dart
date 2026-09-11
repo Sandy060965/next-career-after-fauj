@@ -133,6 +133,47 @@ void main() {
     expect(field.controller?.text, 'Explain this corporate term: ');
   });
 
+  testWidgets(
+      '"Compare this JD" shows a hint that both pasting and uploading a JD file work, '
+      'dismissible and cleared once a message is sent', (tester) async {
+    final repo = ProfileRepository();
+
+    await tester.pumpWidget(
+      _wrap(
+        repository: repo,
+        child: AiAssistantScreen(
+          voiceInputService: _FakeVoiceInputService(),
+          sendMessage: ({required message, required history, profileContext, cvText, cvPdfBytes, attachmentName, attachmentText, attachmentPdfBytes}) async => 'reply',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('assistantQuickActionHint')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('quickAction_Compare this JD')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('assistantQuickActionHint')), findsOneWidget);
+    expect(find.textContaining('tap the 📎 icon to attach it'), findsOneWidget);
+
+    // Dismissible on its own.
+    await tester.tap(find.byKey(const Key('dismissQuickActionHintButton')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('assistantQuickActionHint')), findsNothing);
+
+    // Also clears once the officer actually sends a message.
+    await tester.tap(find.byKey(const Key('quickAction_Compare this JD')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('assistantQuickActionHint')), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('assistantInputField')), 'a JD pasted here');
+    await tester.tap(find.byKey(const Key('assistantSendButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('assistantQuickActionHint')), findsNothing);
+  });
+
   testWidgets('typing a message and sending it shows both the user turn and the reply',
       (tester) async {
     final repo = ProfileRepository();

@@ -28,6 +28,19 @@ compatibility_date = "2024-09-23"
 #                              /admin/grant-entitlement endpoint (manual
 #                              entitlement grants until a real payment
 #                              gateway exists) — never used by the app
+#   GOOGLE_CLIENT_ID         - the Web-application OAuth 2.0 Client ID from
+#                              Google Cloud Console (APIs & Services >
+#                              Credentials) — used to verify the `aud` claim
+#                              on Google Sign-In ID tokens
+#                              (/auth/google-signin). The same value is
+#                              passed to the Flutter client as
+#                              GOOGLE_SERVER_CLIENT_ID, which is what makes
+#                              the resulting ID token verifiable here.
+#                              Android/iOS sign-in also each need their own
+#                              OAuth client registered in the same GCP
+#                              project (package name+SHA-1 for Android,
+#                              bundle ID for iOS), though neither of those
+#                              client IDs is referenced in this Worker.
 
 # Officer accounts and entitlements (phone-OTP login).
 [[d1_databases]]

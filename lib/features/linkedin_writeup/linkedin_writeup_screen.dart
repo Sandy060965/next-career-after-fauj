@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import 'linkedin_writeup.dart';
 import 'linkedin_writeup_service.dart';
 
@@ -52,7 +53,7 @@ class _LinkedInWriteupScreenState extends State<LinkedInWriteupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('LinkedIn Write-up')),
+      appBar: AppBar(title: const Text('LinkedIn Write-up'), actions: const [HomeButton()]),
       body: _buildBody(),
     );
   }

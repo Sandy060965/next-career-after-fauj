@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:next_career_after_fauj/core/routing/app_routes.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_competency.dart';
@@ -14,7 +15,15 @@ import 'package:provider/provider.dart';
 Widget _wrap(ProfileRepository repository) {
   return ChangeNotifierProvider<ProfileRepository>.value(
     value: repository,
-    child: MaterialApp(theme: AppTheme.light, home: const CareerReadinessScreen()),
+    child: MaterialApp(
+      theme: AppTheme.light,
+      home: const CareerReadinessScreen(),
+      routes: {
+        AppRoutes.verticalFit: (_) => const Scaffold(body: Text('Vertical Fit Screen')),
+        AppRoutes.aiReadiness: (_) => const Scaffold(body: Text('AI Readiness Screen')),
+        AppRoutes.jdMatch: (_) => const Scaffold(body: Text('JD Match Screen')),
+      },
+    ),
   );
 }
 
@@ -50,9 +59,9 @@ void main() {
     expect(find.text('Complete the assessments below to see your Transition Readiness Index.'),
         findsOneWidget);
     expect(find.byKey(const Key('readinessAction_Career Fit')), findsOneWidget);
-    expect(find.byKey(const Key('readinessAction_CV & JD Fit')), findsOneWidget);
-    await tester.scrollUntilVisible(find.byKey(const Key('readinessAction_AI Readiness')), 300);
     expect(find.byKey(const Key('readinessAction_AI Readiness')), findsOneWidget);
+    await tester.scrollUntilVisible(find.byKey(const Key('readinessAction_CV & JD Fit')), 300);
+    expect(find.byKey(const Key('readinessAction_CV & JD Fit')), findsOneWidget);
   });
 
   testWidgets('shows a partial score when only some assessments are completed', (tester) async {
@@ -66,6 +75,7 @@ void main() {
     expect(tester.widget<Text>(find.byKey(const Key('overallReadinessScoreText'))).data, '60');
     expect(find.text('Based on 1 of 3 assessments completed.'), findsOneWidget);
     expect(find.byKey(const Key('readinessAction_Career Fit')), findsNothing);
+    await tester.scrollUntilVisible(find.byKey(const Key('readinessAction_CV & JD Fit')), 300);
     expect(find.byKey(const Key('readinessAction_CV & JD Fit')), findsOneWidget);
   });
 
@@ -110,6 +120,26 @@ void main() {
       // callout, once in the legend row — everything else appears once.
       expect(find.text(band), findsWidgets);
     }
+  });
+
+  testWidgets(
+      '"Retake this assessment" is offered for every completed dimension and navigates back '
+      'to it — a score here is never a locked, one-time verdict', (tester) async {
+    final repository = ProfileRepository();
+    repository.saveVerticalFitAssessment(const VerticalFitAssessment(ratings: {}));
+    repository.saveFitmentResult(_fitmentResult);
+    repository.saveAiReadinessResult(_aiReadinessResult);
+    await tester.pumpWidget(_wrap(repository));
+    await tester.pumpAndSettle();
+
+    for (final label in ['Career Fit', 'AI Readiness', 'CV & JD Fit']) {
+      await tester.scrollUntilVisible(find.byKey(ValueKey('retakeAction_$label')), 300);
+      expect(find.byKey(ValueKey('retakeAction_$label')), findsOneWidget, reason: label);
+    }
+
+    await tester.tap(find.byKey(const ValueKey('retakeAction_AI Readiness')));
+    await tester.pumpAndSettle();
+    expect(find.text('AI Readiness Screen'), findsOneWidget);
   });
 
   testWidgets('band legend and callout are hidden until all three assessments are done',

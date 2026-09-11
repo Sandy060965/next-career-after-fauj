@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/widgets/analysis_loading_indicator.dart';
+import '../../core/widgets/home_button.dart';
 import 'compensation_estimate.dart';
 import 'compensation_service.dart';
 
@@ -65,7 +66,10 @@ class _CompensationScreenState extends State<CompensationScreen> {
     final hasJdText = repo.lastJdText != null || repo.lastJdPdfBytes != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Compensation Guidance')),
+      appBar: AppBar(
+        title: const Text('Compensation Guidance'),
+        actions: const [HomeButton()],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

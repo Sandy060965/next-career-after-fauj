@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'reading_programme_book.dart';
 
 class ReadingProgrammeDetailScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class ReadingProgrammeDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(book.title)),
+      appBar: AppBar(title: Text(book.title), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

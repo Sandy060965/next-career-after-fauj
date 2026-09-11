@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'reading_programme_book.dart';
 import 'reading_programme_books.dart';
 import 'reading_programme_detail_screen.dart';
@@ -22,7 +23,10 @@ class ReadingProgrammeScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Corporate Transition - Reading Programme')),
+      appBar: AppBar(
+        title: const Text('Corporate Transition - Reading Programme'),
+        actions: const [HomeButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
@@ -123,7 +127,10 @@ class _ReadingSequenceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Recommended reading sequence')),
+      appBar: AppBar(
+        title: const Text('Recommended reading sequence'),
+        actions: const [HomeButton()],
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(24),
         itemCount: kReadingSequence.length,
@@ -150,7 +157,10 @@ class _TranslationMapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Military-to-corporate translation map')),
+      appBar: AppBar(
+        title: const Text('Military-to-corporate translation map'),
+        actions: const [HomeButton()],
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(24),
         itemCount: kMilitaryCorporateMap.length,
@@ -180,7 +190,7 @@ class _CautionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Important cautions')),
+      appBar: AppBar(title: const Text('Important cautions'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

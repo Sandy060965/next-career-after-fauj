@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import '../career_handbook/career_handbook_detail_screen.dart';
 import 'career_vertical.dart';
 import 'corps_affinity.dart';
@@ -24,7 +25,7 @@ class CareerPathsScreen extends StatelessWidget {
       });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Career Paths')),
+      appBar: AppBar(title: const Text('Career Paths'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [

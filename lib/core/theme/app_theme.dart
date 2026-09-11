@@ -19,6 +19,12 @@ class AppColors {
   static const Color oliveDeep = Color(0xFF34452F);
   static const Color navyDeep = Color(0xFF182B3A);
   static const Color brass = Color(0xFFB08D57);
+
+  /// A darkened, more saturated brass — unlike [brass] itself, this passes
+  /// WCAG 2.2 AA as text on [offWhite] (4.63:1) and [cardWhite] (5.01:1),
+  /// so it's safe where brass's warm identity is wanted but the surface is
+  /// actual text, not just an icon tint or a badge background.
+  static const Color brassDeep = Color(0xFF8A6A34);
   static const Color offWhite = Color(0xFFF7F6F2);
   static const Color cardWhite = Color(0xFFFFFFFF);
   static const Color charcoal = Color(0xFF202522);

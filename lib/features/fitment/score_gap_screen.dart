@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/routing/app_routes.dart';
+import '../../core/routing/guided_sequence.dart';
+import '../../core/widgets/home_button.dart';
 import 'fitment_result.dart';
 import 'gap_roadmap_screen.dart';
 import 'refined_cv_screen.dart';
@@ -17,7 +20,7 @@ class ScoreGapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Fitment Score')),
+      appBar: AppBar(title: const Text('Fitment Score'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -27,6 +30,19 @@ class ScoreGapScreen extends StatelessWidget {
             result.scoreRationale,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: OutlinedButton.icon(
+              // A fresh CV, a different target JD, or simply a better sense
+              // of what the role needs after exploring the rest of the app
+              // all change this score — matching again is always available,
+              // not a one-time check.
+              key: const Key('retakeJdMatchButton'),
+              onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.jdMatch),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Match against a different JD'),
+            ),
           ),
           const SizedBox(height: 16),
           _RecommendationCard(gapCount: result.requirementBreakdown
@@ -60,6 +76,8 @@ class ScoreGapScreen extends StatelessWidget {
               child: const Text('View gap roadmap'),
             ),
           ),
+          const SizedBox(height: 12),
+          const NextStepButton(completedStepKey: 'cvJdFit'),
         ],
       ),
     );
@@ -94,13 +112,15 @@ class _ScoreDial extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                '$score',
+                // Scaled to /100 to match how this same score is shown as
+                // "CV & JD Fit" on the Home dashboard's Transition Index.
+                '${score * 10}',
                 style: Theme.of(context)
                     .textTheme
                     .displayMedium
                     ?.copyWith(fontWeight: FontWeight.bold),
               ),
-              Text('out of 10', style: Theme.of(context).textTheme.bodySmall),
+              Text('out of 100', style: Theme.of(context).textTheme.bodySmall),
             ],
           ),
         ],

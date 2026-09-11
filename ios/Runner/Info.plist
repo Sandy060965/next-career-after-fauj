@@ -30,6 +30,26 @@
 	<string>Used only when you tap the microphone to dictate a practice interview answer.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Used only to transcribe your spoken practice answer into text on this device.</string>
+	<!-- Google Sign-In (iOS): the reversed Client ID of a separate iOS-type
+	     OAuth client from Google Cloud Console (Credentials > Create
+	     Credentials > OAuth Client ID > iOS), registered against this app's
+	     real bundle ID once CFBundleIdentifier is a concrete value rather
+	     than the $(PRODUCT_BUNDLE_IDENTIFIER) placeholder. This is a
+	     DIFFERENT OAuth client than the Web one used for GOOGLE_CLIENT_ID —
+	     never referenced in Dart code, only used by the OS to route the
+	     sign-in callback back into this app. REPLACE before an iOS build
+	     attempts Google Sign-In. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.REPLACE_WITH_IOS_CLIENT_ID_REVERSED</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

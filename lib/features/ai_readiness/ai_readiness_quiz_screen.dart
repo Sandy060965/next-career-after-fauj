@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import 'ai_readiness.dart';
 import 'ai_readiness_result_screen.dart';
 import 'ai_readiness_scenario.dart';
@@ -82,7 +83,7 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AI Readiness')),
+      appBar: AppBar(title: const Text('AI Readiness'), actions: const [HomeButton()]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

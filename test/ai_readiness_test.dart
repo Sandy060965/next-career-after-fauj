@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
+import 'package:next_career_after_fauj/core/routing/app_routes.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/ai_readiness/ai_readiness_quiz_screen.dart';
@@ -51,6 +52,14 @@ Widget _appUnderTest({
         analyzeAiReadiness: analyzeAiReadiness,
         questionsOverride: questions ?? _fixedTestQuestions(),
       ),
+      routes: {
+        // A fresh instance, matching what "Retake this assessment" on the
+        // result screen actually routes to in the real app (main.dart).
+        AppRoutes.aiReadiness: (_) => AiReadinessQuizScreen(
+              analyzeAiReadiness: analyzeAiReadiness,
+              questionsOverride: questions ?? _fixedTestQuestions(),
+            ),
+      },
     ),
   );
 }
@@ -202,5 +211,28 @@ void main() {
       expect(find.byKey(ValueKey('review_${q.id}')), findsOneWidget);
     }
     expect(find.textContaining('Correct answer:'), findsNothing);
+  });
+
+  testWidgets('"Retake this assessment" on the result screen re-opens a fresh quiz', (tester) async {
+    _setTallViewport(tester);
+    final questions = _fixedTestQuestions();
+    await tester.pumpWidget(_appUnderTest(questions: questions));
+    await tester.pumpAndSettle();
+
+    await _answerAll(
+      tester,
+      questions,
+      pickIndex: (q) => q.correctIndex!,
+      pickText: (q) => q.acceptedAnswers.first,
+    );
+    await tester.tap(find.byKey(const Key('submitAssessmentButton')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('retakeAiReadinessButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('How ready are you to work with AI?'), findsOneWidget);
+    // A fresh attempt starts unanswered, not pre-filled with the last score.
+    expect(find.byKey(const Key('submitAssessmentButton')), findsOneWidget);
   });
 }

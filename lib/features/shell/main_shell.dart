@@ -6,6 +6,7 @@ import '../../core/services/officer_progress_sync.dart';
 import '../../core/services/profile_repository.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../profile/profile_screen.dart';
+import 'app_sidebar.dart';
 import 'career_section_screen.dart';
 import 'jobs_section_screen.dart';
 import 'learn_section_screen.dart';
@@ -76,19 +77,9 @@ class _MainShellState extends State<MainShell> {
       return Scaffold(
         body: Row(
           children: [
-            NavigationRail(
+            AppSidebar(
               selectedIndex: _index,
               onDestinationSelected: (i) => setState(() => _index = i),
-              labelType: NavigationRailLabelType.all,
-              leading: const SizedBox(height: 16),
-              destinations: [
-                for (final d in _destinations)
-                  NavigationRailDestination(
-                    icon: Icon(d.icon),
-                    selectedIcon: Icon(d.selectedIcon),
-                    label: Text(d.label),
-                  ),
-              ],
             ),
             const VerticalDivider(width: 1),
             Expanded(child: body),

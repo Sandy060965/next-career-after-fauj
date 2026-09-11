@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'interview_question.dart';
 import '../../core/services/voice_input_service.dart';
+import '../../core/widgets/home_button.dart';
 
 class InterviewPracticeScreen extends StatefulWidget {
   InterviewPracticeScreen({super.key, required this.question, VoiceInputService? voiceInputService})
@@ -59,7 +60,7 @@ class _InterviewPracticeScreenState extends State<InterviewPracticeScreen> {
   Widget build(BuildContext context) {
     final category = widget.question.category;
     return Scaffold(
-      appBar: AppBar(title: const Text('Practice')),
+      appBar: AppBar(title: const Text('Practice'), actions: const [HomeButton()]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

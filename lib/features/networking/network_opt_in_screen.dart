@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
 import 'network_models.dart';
 import 'network_service.dart';
 
@@ -106,7 +107,7 @@ class _NetworkOptInScreenState extends State<NetworkOptInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pledge to Mentor')),
+      appBar: AppBar(title: const Text('Pledge to Mentor'), actions: const [HomeButton()]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(

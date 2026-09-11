@@ -79,9 +79,19 @@ void main() {
   group('ScoreGapScreen', () {
     testWidgets('shows the score, rationale, and expandable requirement notes',
         (tester) async {
+      // Tall enough that both requirement rows' status chips are actually
+      // built — a ListView is sliver-backed/lazy, so content genuinely
+      // below the viewport isn't in the tree at all, not just scrolled out.
+      tester.view.physicalSize = const Size(430, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
       await tester.pumpWidget(_wrap(const ScoreGapScreen(result: _result)));
 
-      expect(find.text('7'), findsOneWidget);
+      // Scaled to /100 to match the Transition Index's "CV & JD Fit" display.
+      expect(find.text('70'), findsOneWidget);
+      expect(find.text('out of 100'), findsOneWidget);
       expect(find.text('Solid overall match with one certification gap.'), findsOneWidget);
       expect(find.text('PMP certification'), findsOneWidget);
       expect(find.text('Gap'), findsOneWidget);
@@ -92,6 +102,30 @@ void main() {
       await tester.tap(find.text('PMP certification'));
       await tester.pumpAndSettle();
       expect(find.text('No formal certification listed on the CV.'), findsOneWidget);
+    });
+
+    testWidgets('"Match against a different JD" navigates to JD Match', (tester) async {
+      tester.view.physicalSize = const Size(430, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ProfileRepository>.value(
+          value: ProfileRepository(),
+          child: MaterialApp(
+            theme: AppTheme.light,
+            home: const ScoreGapScreen(result: _result),
+            routes: {
+              AppRoutes.jdMatch: (_) => const Scaffold(body: Text('JD Match Screen')),
+            },
+          ),
+        ),
+      );
+
+      await tester.tap(find.byKey(const Key('retakeJdMatchButton')));
+      await tester.pumpAndSettle();
+      expect(find.text('JD Match Screen'), findsOneWidget);
     });
 
     testWidgets('navigates to Refined CV and Gap Roadmap screens', (tester) async {

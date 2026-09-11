@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/models/officer_profile.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import 'financial_plan.dart';
 import 'military_pay_data.dart';
 
@@ -214,7 +215,10 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Financial & Cost-of-Living Calculator')),
+      appBar: AppBar(
+        title: const Text('Financial & Cost-of-Living Calculator'),
+        actions: const [HomeButton()],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(

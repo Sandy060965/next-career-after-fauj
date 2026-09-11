@@ -9,6 +9,7 @@ import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/services/transition_readiness.dart';
 import '../../core/services/voice_input_service.dart';
+import '../../core/widgets/home_button.dart';
 import 'ai_assistant_http_service.dart';
 import 'ai_assistant_service.dart';
 import 'assistant_message.dart';
@@ -20,7 +21,13 @@ Future<PickedFile?> _defaultPickAttachment() =>
     pickFileWithBytes(allowedExtensions: const ['pdf', 'docx', 'txt']);
 
 class _QuickAction {
-  const _QuickAction({required this.label, required this.icon, required this.prompt, this.sendImmediately = true});
+  const _QuickAction({
+    required this.label,
+    required this.icon,
+    required this.prompt,
+    this.sendImmediately = true,
+    this.hint,
+  });
 
   final String label;
   final IconData icon;
@@ -30,6 +37,13 @@ class _QuickAction {
   /// field (for prompts that need the officer to complete them — pasting a
   /// JD, naming a term) so nothing is sent half-finished.
   final bool sendImmediately;
+
+  /// Shown as a small banner above the input row once this action is picked
+  /// — for an action that needs the officer to supply something themselves,
+  /// this is where every way of supplying it is spelled out explicitly,
+  /// rather than relying on them to notice the paperclip button is also an
+  /// option for whatever this action asked for.
+  final String? hint;
 }
 
 const _quickActions = [
@@ -50,6 +64,8 @@ const _quickActions = [
     icon: Icons.compare_arrows_outlined,
     prompt: 'Here is a job description I am considering — how well does my profile match it?\n\n',
     sendImmediately: false,
+    hint: 'Paste the JD text below the prompt, or tap the 📎 icon to attach it as a PDF, DOCX or '
+        'TXT file instead — either way works.',
   ),
   _QuickAction(
     label: 'Prepare me for an interview',
@@ -139,6 +155,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   Uint8List? _attachmentPdfBytes;
   bool _isProcessingAttachment = false;
   String? _attachmentError;
+  String? _activeHint;
 
   @override
   void dispose() {
@@ -243,6 +260,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       _controller.text = action.prompt;
       _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
       _focusNode.requestFocus();
+      setState(() => _activeHint = action.hint);
     }
   }
 
@@ -265,6 +283,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       _controller.clear();
       _isSending = true;
       _error = null;
+      _activeHint = null;
     });
     _scrollToEnd();
 
@@ -308,7 +327,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('How can I help with your transition?')),
+      appBar: AppBar(
+        title: const Text('How can I help with your transition?'),
+        actions: const [HomeButton()],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -322,6 +344,41 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                     itemBuilder: (context, index) => _MessageBubble(message: _messages[index]),
                   ),
           ),
+          if (_activeHint != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Container(
+                key: const Key('assistantQuickActionHint'),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.onTertiaryContainer),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _activeHint!,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Theme.of(context).colorScheme.onTertiaryContainer),
+                      ),
+                    ),
+                    IconButton(
+                      key: const Key('dismissQuickActionHintButton'),
+                      icon: const Icon(Icons.close, size: 16),
+                      visualDensity: VisualDensity.compact,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                      onPressed: () => setState(() => _activeHint = null),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (_isSending)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8),

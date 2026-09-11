@@ -6,7 +6,7 @@
 class LoginEvent {
   const LoginEvent({
     required this.officerId,
-    required this.mobileNumber,
+    this.mobileNumber,
     this.userAgent,
     this.country,
     this.city,
@@ -14,7 +14,7 @@ class LoginEvent {
   });
 
   final String officerId;
-  final String mobileNumber;
+  final String? mobileNumber;
   final String? userAgent;
   final String? country;
   final String? city;
@@ -66,7 +66,7 @@ class LoginEvent {
 
   factory LoginEvent.fromJson(Map<String, dynamic> json) => LoginEvent(
         officerId: json['officerId'] as String,
-        mobileNumber: json['mobileNumber'] as String,
+        mobileNumber: json['mobileNumber'] as String?,
         userAgent: json['userAgent'] as String?,
         country: json['country'] as String?,
         city: json['city'] as String?,

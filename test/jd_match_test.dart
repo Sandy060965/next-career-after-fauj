@@ -12,6 +12,7 @@ import 'package:next_career_after_fauj/features/cv_civilianizer/civilianized_cv.
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_service.dart';
 import 'package:next_career_after_fauj/features/jd_match/jd_match_screen.dart';
+import 'package:next_career_after_fauj/features/jd_match/sample_jd_service.dart';
 import 'package:provider/provider.dart';
 
 /// Builds real, minimal .docx bytes (a zip containing just word/document.xml)
@@ -48,20 +49,53 @@ Future<FitmentResult> _stubAnalyzeFitment({
 }) async =>
     _stubResult;
 
+Future<String> _stubGenerateSampleJd({required String vertical, required String tier}) async =>
+    'Generated JD for $vertical at $tier level.';
+
 Widget _appUnderTest({
   required Future<PickedFile?> Function() pickFile,
   FitmentAnalyzer analyzeFitment = _stubAnalyzeFitment,
+  SampleJdGenerator generateSampleJd = _stubGenerateSampleJd,
+  ProfileRepository? repository,
 }) {
   return ChangeNotifierProvider(
-    create: (_) => ProfileRepository(),
+    create: (_) => repository ?? ProfileRepository(),
     child: MaterialApp(
       theme: AppTheme.light,
-      home: JdMatchScreen(pickFile: pickFile, analyzeFitment: analyzeFitment),
+      home: JdMatchScreen(
+        pickFile: pickFile,
+        analyzeFitment: analyzeFitment,
+        generateSampleJd: generateSampleJd,
+      ),
+      onGenerateRoute: (settings) => MaterialPageRoute(
+        builder: (_) => Scaffold(body: Text('route:${settings.name}')),
+      ),
     ),
   );
 }
 
 void main() {
+  testWidgets('the no-CV banner\'s Add CV button opens the CV upload sheet', (tester) async {
+    await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+    expect(find.byKey(const Key('jdMatchNoCvBanner')), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('jdMatchAddCvButton')));
+    await tester.tap(find.byKey(const Key('jdMatchAddCvButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Upload your CV'), findsOneWidget);
+  });
+
+  testWidgets('the no-CV banner\'s Build CV button navigates to CV Builder', (tester) async {
+    await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+    await tester.ensureVisible(find.byKey(const Key('jdMatchBuildCvButton')));
+    await tester.tap(find.byKey(const Key('jdMatchBuildCvButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('route:/cv-builder'), findsOneWidget);
+  });
+
   testWidgets('pasting a JD and checking match navigates to the fitment score screen',
       (tester) async {
     await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
@@ -81,7 +115,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Fitment Score'), findsOneWidget);
-    expect(find.text('8'), findsOneWidget);
+    // Scaled to /100 to match the Transition Index's "CV & JD Fit" display.
+    expect(find.text('80'), findsOneWidget);
   });
 
   testWidgets('tapping "Paste from clipboard" fills the JD field from the clipboard',
@@ -104,6 +139,9 @@ void main() {
 
     await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
 
+    // No CV on this fresh repository, so the "add a CV" banner pushes the
+    // paste button further down than the default test viewport shows.
+    await tester.ensureVisible(find.byKey(const Key('jdPasteButton')));
     await tester.tap(find.byKey(const Key('jdPasteButton')));
     await tester.pumpAndSettle();
 
@@ -136,6 +174,7 @@ void main() {
     await tester.tap(find.byKey(const Key('jdInput_upload')));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
     await tester.tap(find.byKey(const Key('checkMatchButton')));
     await tester.pumpAndSettle();
     expect(find.text('Upload a job description to continue'), findsOneWidget);
@@ -144,6 +183,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('job-description.docx'), findsWidgets);
 
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
     await tester.tap(find.byKey(const Key('checkMatchButton')));
     await tester.pumpAndSettle();
 
@@ -193,6 +233,7 @@ void main() {
     // No client-side extraction for PDF — no "reading" spinner/error state.
     expect(find.byType(CircularProgressIndicator), findsNothing);
 
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
     await tester.tap(find.byKey(const Key('checkMatchButton')));
     await tester.pumpAndSettle();
 
@@ -309,8 +350,136 @@ void main() {
 
     expect(find.textContaining("Couldn't read this file's text"), findsOneWidget);
 
+    await tester.ensureVisible(find.byKey(const Key('checkMatchButton')));
     await tester.tap(find.byKey(const Key('checkMatchButton')));
     await tester.pumpAndSettle();
     expect(find.text('Fitment Score'), findsNothing);
+  });
+
+  group('Generate a JD with AI', () {
+    testWidgets('selecting it hides Check match and shows the vertical picker', (tester) async {
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('jdInput_generate')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('checkMatchButton')), findsNothing);
+      expect(find.byKey(const Key('generateVerticalDropdown')), findsOneWidget);
+      expect(find.byKey(const Key('generateJdButton')), findsOneWidget);
+    });
+
+    testWidgets('the picker still populates with no completed Vertical Fit assessment',
+        (tester) async {
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('jdInput_generate')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.tap(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.pumpAndSettle();
+
+      // The full (unranked) universe is offered as dropdown menu items.
+      expect(find.text('Operations & Process Excellence — Operations Manager'), findsWidgets);
+    });
+
+    testWidgets('picking a vertical and generating shows the JD with Copy/Download',
+        (tester) async {
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('jdInput_generate')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.tap(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Operations & Process Excellence — Operations Manager').last);
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('generateJdButton')));
+      await tester.tap(find.byKey(const Key('generateJdButton')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Generated JD for Operations & Process Excellence at Operations Manager level.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('useGeneratedJdButton')), findsOneWidget);
+      expect(find.byKey(const Key('copyGeneratedJdButton')), findsOneWidget);
+      expect(find.byKey(const Key('downloadGeneratedJdButton')), findsOneWidget);
+      expect(find.byKey(const Key('checkMatchButton')), findsNothing);
+    });
+
+    testWidgets('Use this JD carries the text into Paste and reveals Check match', (tester) async {
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('jdInput_generate')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.tap(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Operations & Process Excellence — Operations Manager').last);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateJdButton')));
+      await tester.tap(find.byKey(const Key('generateJdButton')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('useGeneratedJdButton')));
+      await tester.tap(find.byKey(const Key('useGeneratedJdButton')));
+      await tester.pumpAndSettle();
+
+      // Back on the Paste tab, pre-filled, with Check match available again —
+      // no manual re-navigation or retyping needed.
+      expect(find.byKey(const Key('jdInput_paste')), findsOneWidget);
+      final field = tester.widget<TextFormField>(find.byKey(const Key('jdTextField')));
+      expect(
+        field.controller!.text,
+        'Generated JD for Operations & Process Excellence at Operations Manager level.',
+      );
+      expect(find.byKey(const Key('checkMatchButton')), findsOneWidget);
+    });
+
+    testWidgets('tapping Generate with no vertical picked shows an inline error', (tester) async {
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('jdInput_generate')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateJdButton')));
+      await tester.tap(find.byKey(const Key('generateJdButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pick a vertical to continue'), findsOneWidget);
+    });
+
+    testWidgets('Copy shows a confirmation snackbar', (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (MethodCall methodCall) async => null,
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+
+      await tester.pumpWidget(_appUnderTest(pickFile: () async => null));
+
+      await tester.tap(find.byKey(const Key('jdInput_generate')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.tap(find.byKey(const Key('generateVerticalDropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Operations & Process Excellence — Operations Manager').last);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('generateJdButton')));
+      await tester.tap(find.byKey(const Key('generateJdButton')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('copyGeneratedJdButton')));
+      await tester.tap(find.byKey(const Key('copyGeneratedJdButton')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('JD copied to clipboard'), findsOneWidget);
+    });
   });
 }

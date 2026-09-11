@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'ai_readiness_scenario.dart';
 
 /// Shown after an AI Readiness attempt so the officer can see exactly what
@@ -23,7 +24,7 @@ class AiReadinessReviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Review Your Answers')),
+      appBar: AppBar(title: const Text('Review Your Answers'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

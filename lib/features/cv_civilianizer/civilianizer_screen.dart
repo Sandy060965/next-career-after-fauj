@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/widgets/analysis_loading_indicator.dart';
+import '../../core/widgets/home_button.dart';
 import 'civilianized_cv.dart';
 import 'civilianizer_service.dart';
 
@@ -74,6 +75,7 @@ class _CivilianizerScreenState extends State<CivilianizerScreen> {
             tooltip: 'Regenerate',
             onPressed: _isLoading ? null : _generate,
           ),
+          const HomeButton(),
         ],
       ),
       body: _buildBody(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
 import '../corporate_language/corporate_language_guide_screen.dart';
@@ -18,7 +19,10 @@ class CareerHandbookScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Career Vertical Handbook')),
+      appBar: AppBar(
+        title: const Text('Career Vertical Handbook'),
+        actions: const [HomeButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
@@ -129,28 +133,40 @@ class _ComparisonTableScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final rows = kHandbookComparisonRows;
     return Scaffold(
-      appBar: AppBar(title: const Text('Compare all 34 verticals')),
+      appBar: AppBar(
+        title: const Text('Compare all 34 verticals'),
+        actions: const [HomeButton()],
+      ),
+      // Nested scroll views: the outer one is vertical so all 34 rows are
+      // reachable, the inner one horizontal so the wide table can still be
+      // panned sideways on narrow screens — a bare horizontal
+      // SingleChildScrollView around a DataTable never scrolls vertically,
+      // silently clipping every row past the viewport height.
       body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('Vertical')),
-            DataColumn(label: Text('Category')),
-            DataColumn(label: Text('Restriction')),
-            DataColumn(label: Text('Bridge certifications')),
-          ],
-          rows: [
-            for (final row in rows)
-              DataRow(
-                key: ValueKey('comparisonRow_${row.name}'),
-                cells: [
-                  DataCell(SizedBox(width: 200, child: Text(row.name))),
-                  DataCell(SizedBox(width: 160, child: Text(row.category))),
-                  DataCell(Text(row.restriction ?? '—')),
-                  DataCell(SizedBox(width: 260, child: Text(row.bridgeCertifications.join(', ')))),
-                ],
-              ),
-          ],
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('#')),
+              DataColumn(label: Text('Vertical')),
+              DataColumn(label: Text('Category')),
+              DataColumn(label: Text('Restriction')),
+              DataColumn(label: Text('Bridge certifications')),
+            ],
+            rows: [
+              for (var i = 0; i < rows.length; i++)
+                DataRow(
+                  key: ValueKey('comparisonRow_${rows[i].name}'),
+                  cells: [
+                    DataCell(Text('${i + 1}')),
+                    DataCell(SizedBox(width: 200, child: Text(rows[i].name))),
+                    DataCell(SizedBox(width: 160, child: Text(rows[i].category))),
+                    DataCell(Text(rows[i].restriction ?? '—')),
+                    DataCell(SizedBox(width: 260, child: Text(rows[i].bridgeCertifications.join(', ')))),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );

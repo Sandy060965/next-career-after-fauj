@@ -2,8 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/routing/app_routes.dart';
+import '../../core/routing/guided_sequence.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import '../career_handbook/career_handbook_detail_screen.dart';
+import '../cv_upload/cv_upload_sheet.dart';
 import '../career_paths/career_paths_screen.dart';
 import '../career_paths/career_vertical.dart';
 import '../career_paths/corps_affinity.dart';
@@ -126,8 +130,14 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final repo = context.watch<ProfileRepository>();
+    final profile = repo.profile;
+    final hasCv = repo.preferredCivilianCvText != null ||
+        (profile?.cvExtractedText?.isNotEmpty ?? false) ||
+        profile?.cvPdfBytes != null;
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Your Career Vertical Fit')),
+      appBar: AppBar(title: const Text('Your Career Vertical Fit'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -191,20 +201,23 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
               ),
           ],
           const SizedBox(height: 8),
-          if (_evidenceError != null) ...[
-            Text(_evidenceError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            const SizedBox(height: 8),
-          ],
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              key: Key(_evidence == null ? 'groundInCvButton' : 'regenerateCvEvidenceButton'),
-              onPressed: _isGroundingEvidence ? null : _groundInCv,
-              child: _isGroundingEvidence
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(_evidence == null ? 'Ground my results in my CV' : 'Regenerate CV evidence'),
+          if (hasCv) ...[
+            if (_evidenceError != null) ...[
+              Text(_evidenceError!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              const SizedBox(height: 8),
+            ],
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                key: Key(_evidence == null ? 'groundInCvButton' : 'regenerateCvEvidenceButton'),
+                onPressed: _isGroundingEvidence ? null : _groundInCv,
+                child: _isGroundingEvidence
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Text(_evidence == null ? 'Ground my results in my CV' : 'Regenerate CV evidence'),
+              ),
             ),
-          ),
+          ] else
+            _buildNoCvNotice(context, colorScheme),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
@@ -219,6 +232,61 @@ class _VerticalFitResultScreenState extends State<VerticalFitResultScreen> {
               ),
               child: const Text('Explore these in Career Paths'),
             ),
+          ),
+          const SizedBox(height: 12),
+          const NextStepButton(completedStepKey: 'verticalFit'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoCvNotice(BuildContext context, ColorScheme colorScheme) {
+    return Container(
+      key: const Key('verticalFitResultNoCvNotice'),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline, size: 20, color: colorScheme.onTertiaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Grounding these results in real evidence from your background needs a CV '
+                  "on file — add one to see how they hold up against what you've actually done.",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: colorScheme.onTertiaryContainer),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('verticalFitResultAddCvButton'),
+                  onPressed: () => showCvUploadSheet(context),
+                  child: const Text('Add CV'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('verticalFitResultBuildCvButton'),
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvBuilder),
+                  child: const Text('Build CV'),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
+import '../cv_upload/cv_upload_sheet.dart';
 import 'aptitude_question.dart';
 import 'cv_evidence_http_service.dart';
 import 'vertical_fit.dart';
@@ -46,8 +49,14 @@ class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final repo = context.watch<ProfileRepository>();
+    final profile = repo.profile;
+    final hasCv = repo.preferredCivilianCvText != null ||
+        (profile?.cvExtractedText?.isNotEmpty ?? false) ||
+        profile?.cvPdfBytes != null;
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Career Vertical Fit')),
+      appBar: AppBar(title: const Text('Career Vertical Fit'), actions: const [HomeButton()]),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -61,6 +70,10 @@ class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
               'part of any service record.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            if (!hasCv) ...[
+              const SizedBox(height: 12),
+              _buildNoCvNotice(context, colorScheme),
+            ],
             const SizedBox(height: 20),
             for (final group in DimensionGroup.values) ...[
               Text(group.label, style: Theme.of(context).textTheme.headlineSmall),
@@ -89,6 +102,60 @@ class _VerticalFitQuizScreenState extends State<VerticalFitQuizScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNoCvNotice(BuildContext context, ColorScheme colorScheme) {
+    return Container(
+      key: const Key('verticalFitNoCvNotice'),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.info_outline, size: 20, color: colorScheme.onTertiaryContainer),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'You can take this quiz without a CV. But to see your results grounded in '
+                  "real evidence from your background afterwards, you'll need a CV on file — "
+                  'add one now, or later from your results.',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: colorScheme.onTertiaryContainer),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('verticalFitAddCvButton'),
+                  onPressed: () => showCvUploadSheet(context),
+                  child: const Text('Add CV'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  key: const Key('verticalFitBuildCvButton'),
+                  onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cvBuilder),
+                  child: const Text('Build CV'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

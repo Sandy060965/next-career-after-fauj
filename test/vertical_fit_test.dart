@@ -68,7 +68,13 @@ Future<CvEvidenceResult> _noEvidenceFound({
 Widget _wrap(Widget child, {ProfileRepository? repository}) {
   return ChangeNotifierProvider<ProfileRepository>.value(
     value: repository ?? ProfileRepository(),
-    child: MaterialApp(theme: AppTheme.light, home: child),
+    child: MaterialApp(
+      theme: AppTheme.light,
+      home: child,
+      onGenerateRoute: (settings) => MaterialPageRoute(
+        builder: (_) => Scaffold(body: Text('route:${settings.name}')),
+      ),
+    ),
   );
 }
 
@@ -85,6 +91,32 @@ void main() {
       }
       expect(find.byType(SegmentedButton<int>), findsNWidgets(kAptitudeQuestions.length));
       expect(find.byKey(const Key('submitVerticalFitButton')), findsOneWidget);
+    });
+
+    testWidgets('shows a no-CV notice with Add CV / Build CV actions when no CV is on file',
+        (tester) async {
+      await tester.pumpWidget(_wrap(const VerticalFitQuizScreen()));
+
+      expect(find.byKey(const Key('verticalFitNoCvNotice')), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('verticalFitAddCvButton')));
+      await tester.tap(find.byKey(const Key('verticalFitAddCvButton')));
+      await tester.pumpAndSettle();
+      expect(find.text('Upload your CV'), findsOneWidget);
+      await tester.tapAt(const Offset(10, 10)); // dismiss the sheet
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('verticalFitBuildCvButton')));
+      await tester.tap(find.byKey(const Key('verticalFitBuildCvButton')));
+      await tester.pumpAndSettle();
+      expect(find.text('route:/cv-builder'), findsOneWidget);
+    });
+
+    testWidgets('hides the no-CV notice once a CV is on file', (tester) async {
+      final repo = ProfileRepository()..saveProfile(_profile());
+      await tester.pumpWidget(_wrap(const VerticalFitQuizScreen(), repository: repo));
+
+      expect(find.byKey(const Key('verticalFitNoCvNotice')), findsNothing);
     });
 
     testWidgets('submitting navigates to the result screen with 3 recommended verticals',
@@ -360,6 +392,29 @@ void main() {
   });
 
   group('VerticalFitResultScreen CV evidence grounding', () {
+    testWidgets(
+        'shows a no-CV notice instead of the Ground-in-CV button, and no "not found" evidence '
+        'lines, when there is no CV on file', (tester) async {
+      tester.view.physicalSize = const Size(430, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final assessment = VerticalFitAssessment(ratings: _skewedRatings);
+
+      await tester.pumpWidget(_wrap(VerticalFitResultScreen(assessment: assessment)));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('groundInCvButton')), findsNothing);
+      expect(find.byKey(const Key('verticalFitResultNoCvNotice')), findsOneWidget);
+      expect(find.textContaining('No CV evidence found'), findsNothing);
+
+      await tester.ensureVisible(find.byKey(const Key('verticalFitResultBuildCvButton')));
+      await tester.tap(find.byKey(const Key('verticalFitResultBuildCvButton')));
+      await tester.pumpAndSettle();
+      expect(find.text('route:/cv-builder'), findsOneWidget);
+    });
+
     testWidgets('ground-in-CV button calls the grounder and displays evidence', (tester) async {
       tester.view.physicalSize = const Size(430, 3000);
       tester.view.devicePixelRatio = 1.0;

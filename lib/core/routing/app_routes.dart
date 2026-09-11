@@ -3,6 +3,7 @@ class AppRoutes {
 
   static const String phoneVerification = '/verify-phone';
   static const String onboarding = '/';
+  static const String startHere = '/start-here';
   static const String profile = '/profile';
   static const String careerReadiness = '/career-readiness';
   static const String jdMatch = '/jd-match';
@@ -18,7 +19,6 @@ class AppRoutes {
   static const String compensation = '/compensation';
   static const String transitionPlan = '/transition-plan';
   static const String applicationTracker = '/application-tracker';
-  static const String skillEquivalency = '/skill-equivalency';
   static const String cvCivilianizer = '/civilianize-cv';
   static const String networkDirectory = '/network-directory';
   static const String financialPlanner = '/financial-planner';
@@ -32,4 +32,8 @@ class AppRoutes {
   static const String aiAssistant = '/ai-assistant';
   static const String supportTicket = '/support';
   static const String admin = '/admin';
+
+  /// Dev-only navigation shortcut — see debug_menu_screen.dart. Registered
+  /// only when the app is launched with --dart-define=SKIP_AUTH_FOR_TESTING.
+  static const String debugMenu = '/debug';
 }

@@ -1,7 +1,10 @@
-// Officer accounts and entitlements — phone-OTP login (via Twilio Verify),
-// a D1-backed officer record, and a signed session token. This is deliberately
-// separate from the x-app-key gate in index.js: x-app-key just proves a
-// request came from the app itself, this proves which officer is calling.
+// Officer accounts and entitlements — phone-OTP login (via Twilio Verify) or
+// Google Sign-In, a D1-backed officer record, and a signed session token.
+// This is deliberately separate from the x-app-key gate in index.js:
+// x-app-key just proves a request came from the app itself, this proves
+// which officer is calling.
+
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 // Duplicated from index.js's CORS_HEADERS (network.js does the same) rather
 // than shared via an import, to avoid a circular import with index.js.
@@ -122,12 +125,35 @@ function randomToken() {
 
 // Issues a fresh access+refresh token pair for [officer] and records the
 // refresh token's hash (never the raw token) in D1.
-async function issueSession(env, officer) {
+//
+// revokeOtherSessions is opt-in, not unconditional: it's passed true only at
+// an actual new sign-in (handleVerifyOtp, handleGoogleSignIn), which is what
+// implements "signing in elsewhere kicks out the old session" as a control
+// against two people sharing one identity. handleRefreshToken's routine
+// hourly silent refresh — which fires once per access-token TTL from every
+// device an officer is legitimately using at once — deliberately leaves
+// this false, or an officer using the app on phone and laptop together
+// would have each device's own refresh silently kill the other one.
+//
+// Accepted tradeoff: an already-issued access token on a now-revoked-
+// elsewhere device keeps working until it naturally expires (at most one
+// hour) or that device's next /auth/refresh call, which will now fail.
+// No access-token/jti blocklist is being built to close that bounded
+// window — not worth the added complexity for this threat model.
+async function issueSession(env, officer, { revokeOtherSessions = false } = {}) {
   const now = Math.floor(Date.now() / 1000);
   const accessToken = await signJwt(
     { sub: officer.id, mobile: officer.mobile_number, iat: now, exp: now + ACCESS_TOKEN_TTL_SECONDS },
     env.JWT_SECRET,
   );
+
+  if (revokeOtherSessions) {
+    await env.DB.prepare(
+      'UPDATE refresh_tokens SET revoked_at = ? WHERE officer_id = ? AND revoked_at IS NULL',
+    )
+      .bind(new Date(now * 1000).toISOString(), officer.id)
+      .run();
+  }
 
   const refreshToken = randomToken();
   const refreshTokenHash = await sha256Hex(refreshToken);
@@ -189,6 +215,28 @@ async function twilioVerifyCheck(env, e164Number, code) {
   return response.json();
 }
 
+// --- Google Sign-In -------------------------------------------------------
+// Verified via a real JWKS signature check against Google's published keys
+// (not the simpler tokeninfo endpoint, which Google's own docs say isn't
+// meant for production/high-volume use). createRemoteJWKSet caches the key
+// set itself and handles Google's own key rotation, at module scope so the
+// cache persists across requests within a Worker isolate.
+const GOOGLE_JWKS = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
+
+// Returns the verified ID token payload, or throws — callers map any
+// failure to a single 401 without distinguishing why, same posture as
+// verifyJwt().
+async function verifyGoogleIdToken(idToken, env) {
+  const { payload } = await jwtVerify(idToken, GOOGLE_JWKS, {
+    issuer: ['https://accounts.google.com', 'accounts.google.com'],
+    audience: env.GOOGLE_CLIENT_ID,
+  });
+  if (!payload.email || payload.email_verified !== true) {
+    throw new Error('Google account email is not verified');
+  }
+  return payload;
+}
+
 // --- OTP rate limiting ---------------------------------------------------
 // Each request here costs real money (one SMS via Twilio) and can be aimed
 // at a real person's phone as harassment — so this limits by the number
@@ -246,10 +294,51 @@ async function findOrCreateOfficer(env, mobileNumber) {
   return officer;
 }
 
+// Mirrors findOrCreateOfficer, keyed on email instead of mobile number —
+// Google Sign-In's equivalent of "find or create this officer's row".
+async function findOrCreateOfficerByEmail(env, email, googleSub) {
+  const existing = await env.DB.prepare('SELECT * FROM officers WHERE email = ?').bind(email).first();
+  if (existing) {
+    // Backfill google_sub for an officer row that predates this column —
+    // never blocks sign-in on the backfill succeeding.
+    if (!existing.google_sub && googleSub) {
+      await env.DB.prepare('UPDATE officers SET google_sub = ? WHERE id = ?').bind(googleSub, existing.id).run();
+      existing.google_sub = googleSub;
+    }
+    return existing;
+  }
+
+  const officer = {
+    id: crypto.randomUUID(),
+    mobile_number: null,
+    email,
+    google_sub: googleSub,
+    created_at: new Date().toISOString(),
+    entitlement_tier: 'free',
+    entitlement_expires_at: null,
+  };
+  await env.DB.prepare(
+    'INSERT INTO officers (id, mobile_number, email, google_sub, created_at, entitlement_tier, entitlement_expires_at) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?)',
+  )
+    .bind(
+      officer.id,
+      officer.mobile_number,
+      officer.email,
+      officer.google_sub,
+      officer.created_at,
+      officer.entitlement_tier,
+      officer.entitlement_expires_at,
+    )
+    .run();
+  return officer;
+}
+
 function officerResponseBody(officer) {
   return {
     id: officer.id,
     mobileNumber: officer.mobile_number,
+    email: officer.email ?? null,
     entitlementTier: officer.entitlement_tier,
     entitlementExpiresAt: officer.entitlement_expires_at,
   };
@@ -261,27 +350,27 @@ async function handleRequestOtp(body, env) {
   const mobileNumber = normalizeMobileNumber(body.mobileNumber);
   if (!mobileNumber) return json({ error: 'A valid 10-digit mobile number is required' }, 400);
 
-  // Beta gate: an already-registered officer can always request a fresh
-  // code (e.g. a new device), but a genuinely new number must be on the
-  // beta allowlist first — closes the gap where a shared Cloudflare Access
-  // email alone would otherwise let an uninvited person sign up with their
-  // own number. Checked before the rate limit / Twilio call so an
-  // unapproved number never actually gets an SMS sent to it.
-  const existingOfficer = await env.DB.prepare('SELECT id FROM officers WHERE mobile_number = ?')
-    .bind(mobileNumber)
+  // Phone-OTP is a recovery path now, not a self-service sign-in option —
+  // Google Sign-In is the only way to start a session unassisted. Every
+  // request here (whether the number already has an officer row or not)
+  // needs an active, non-expired, non-revoked grant issued by an admin for
+  // exactly this number, via the "Phone Recovery" admin tab. Checked before
+  // the rate limit / Twilio call so an ungranted number never gets an SMS.
+  const grant = await env.DB.prepare(
+    'SELECT id FROM phone_recovery_grants WHERE mobile_number = ? AND revoked_at IS NULL ' +
+      'AND expires_at > ? ORDER BY granted_at DESC LIMIT 1',
+  )
+    .bind(mobileNumber, new Date().toISOString())
     .first();
-  if (!existingOfficer) {
-    const allowlisted = await env.DB.prepare(
-      'SELECT mobile_number FROM phone_allowlist WHERE mobile_number = ?',
-    )
-      .bind(mobileNumber)
-      .first();
-    if (!allowlisted) {
-      return json(
-        { error: "This mobile number isn't on the beta tester list yet. Contact the app admin to be added." },
-        403,
-      );
-    }
+  if (!grant) {
+    return json(
+      {
+        error:
+          'Phone sign-in isn\'t enabled for this number right now. Sign in with Google instead, or ' +
+          'contact the app admin for temporary phone access.',
+      },
+      403,
+    );
   }
 
   const allowed = await checkAndRecordOtpRequest(env, mobileNumber);
@@ -314,7 +403,43 @@ async function handleVerifyOtp(request, body, env) {
   }
 
   const officer = await findOrCreateOfficer(env, mobileNumber);
-  const { accessToken, refreshToken } = await issueSession(env, officer);
+  const { accessToken, refreshToken } = await issueSession(env, officer, { revokeOtherSessions: true });
+  await recordLogin(request, env, officer);
+  return json({ token: accessToken, refreshToken, officer: officerResponseBody(officer) });
+}
+
+async function handleGoogleSignIn(request, body, env) {
+  const idToken = String(body.idToken ?? '');
+  if (!idToken) return json({ error: 'idToken is required' }, 400);
+
+  let payload;
+  try {
+    payload = await verifyGoogleIdToken(idToken, env);
+  } catch (e) {
+    console.error('verifyGoogleIdToken failed:', e.message);
+    return json({ error: 'Could not verify Google sign-in' }, 401);
+  }
+
+  const email = String(payload.email).toLowerCase();
+  const googleSub = String(payload.sub);
+
+  // Same beta gate as phone-OTP: an already-registered officer can always
+  // sign in again; a genuinely new email must be pre-approved.
+  const existingOfficer = await env.DB.prepare('SELECT id FROM officers WHERE email = ?').bind(email).first();
+  if (!existingOfficer) {
+    const allowlisted = await env.DB.prepare('SELECT email FROM email_allowlist WHERE email = ?')
+      .bind(email)
+      .first();
+    if (!allowlisted) {
+      return json(
+        { error: "This email isn't on the beta tester list yet. Contact the app admin to be added." },
+        403,
+      );
+    }
+  }
+
+  const officer = await findOrCreateOfficerByEmail(env, email, googleSub);
+  const { accessToken, refreshToken } = await issueSession(env, officer, { revokeOtherSessions: true });
   await recordLogin(request, env, officer);
   return json({ token: accessToken, refreshToken, officer: officerResponseBody(officer) });
 }
@@ -488,6 +613,33 @@ async function handleSyncProgress(request, body, env) {
   return json({ status: 'synced' });
 }
 
+// Lets a fresh sign-in on a device with no local profile (reinstall, new
+// device, cleared storage) prefill onboarding from whatever this officer
+// already reported via handleSyncProgress above, instead of starting
+// blank. Only the four fields officer_progress tracks — the rest of
+// onboarding (DOB, release date, corps/arm, CV) still isn't known
+// server-side and is re-entered regardless.
+async function handleGetProgress(request, env) {
+  const payload = await verifyJwt(bearerToken(request), env.JWT_SECRET);
+  if (!payload) return json({ error: 'Unauthorized' }, 401);
+
+  const progress = await env.DB.prepare(
+    'SELECT rank, full_name, service, segment FROM officer_progress WHERE officer_id = ?',
+  )
+    .bind(payload.sub)
+    .first();
+  if (!progress) return json({ progress: null });
+
+  return json({
+    progress: {
+      rank: progress.rank,
+      fullName: progress.full_name,
+      service: progress.service,
+      segment: progress.segment,
+    },
+  });
+}
+
 // --- Support tickets ---------------------------------------------------
 async function handleSubmitSupportTicket(request, body, env) {
   const payload = await verifyJwt(bearerToken(request), env.JWT_SECRET);
@@ -514,7 +666,7 @@ async function handleAdminListOfficers(request, env) {
   if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
 
   const { results } = await env.DB.prepare(
-    `SELECT o.id, o.mobile_number, o.created_at, o.entitlement_tier, o.entitlement_expires_at,
+    `SELECT o.id, o.mobile_number, o.email, o.created_at, o.entitlement_tier, o.entitlement_expires_at,
             p.rank, p.full_name, p.service, p.segment, p.readiness_score,
             p.readiness_dimensions_completed, p.readiness_dimensions_total, p.cv_uploaded,
             p.civilianized_cv_done, p.built_cv_done, p.jd_match_done, p.financial_plan_done,
@@ -528,6 +680,7 @@ async function handleAdminListOfficers(request, env) {
     officers: results.map((r) => ({
       id: r.id,
       mobileNumber: r.mobile_number,
+      email: r.email,
       createdAt: r.created_at,
       entitlementTier: r.entitlement_tier,
       entitlementExpiresAt: r.entitlement_expires_at,
@@ -632,6 +785,109 @@ async function handleAdminRemoveAllowedPhone(request, body, env) {
   return json({ status: 'removed' });
 }
 
+// --- Email allowlist (beta gate for Google Sign-In) -----------------------
+function normalizeEmail(raw) {
+  const email = String(raw ?? '').trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return null;
+  return email;
+}
+
+async function handleAdminListAllowedEmails(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const { results } = await env.DB.prepare(
+    'SELECT email, note, added_at FROM email_allowlist ORDER BY added_at DESC',
+  ).all();
+  return json({
+    emails: results.map((r) => ({
+      email: r.email,
+      note: r.note,
+      addedAt: r.added_at,
+    })),
+  });
+}
+
+async function handleAdminAddAllowedEmail(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const email = normalizeEmail(body.email);
+  if (!email) return json({ error: 'A valid email address is required' }, 400);
+
+  await env.DB.prepare(
+    'INSERT INTO email_allowlist (email, note, added_at) VALUES (?, ?, ?) ' +
+      'ON CONFLICT(email) DO UPDATE SET note = excluded.note',
+  )
+    .bind(email, body.note ?? null, new Date().toISOString())
+    .run();
+  return json({ status: 'added' });
+}
+
+async function handleAdminRemoveAllowedEmail(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const email = normalizeEmail(body.email);
+  if (!email) return json({ error: 'A valid email address is required' }, 400);
+
+  await env.DB.prepare('DELETE FROM email_allowlist WHERE email = ?').bind(email).run();
+  return json({ status: 'removed' });
+}
+
+// --- Phone recovery grants (admin-gated fallback when Google Sign-In ------
+// isn't working for a specific officer) ------------------------------------
+const PHONE_RECOVERY_GRANT_HOURS = 24;
+
+async function handleAdminListPhoneRecoveryGrants(request, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  // Every grant ever issued, not just active ones — this list is also the
+  // usage signal for "how many officers actually hit a Google sign-in
+  // problem," which is the reason this is gated per-grant rather than just
+  // hidden in the UI.
+  const { results } = await env.DB.prepare(
+    'SELECT id, mobile_number, note, granted_at, expires_at, revoked_at ' +
+      'FROM phone_recovery_grants ORDER BY granted_at DESC LIMIT 300',
+  ).all();
+  return json({
+    grants: results.map((r) => ({
+      id: r.id,
+      mobileNumber: r.mobile_number,
+      note: r.note,
+      grantedAt: r.granted_at,
+      expiresAt: r.expires_at,
+      revokedAt: r.revoked_at,
+    })),
+  });
+}
+
+async function handleAdminGrantPhoneRecovery(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const mobileNumber = normalizeMobileNumber(body.mobileNumber);
+  if (!mobileNumber) return json({ error: 'A valid 10-digit mobile number is required' }, 400);
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + PHONE_RECOVERY_GRANT_HOURS * 60 * 60 * 1000);
+  await env.DB.prepare(
+    'INSERT INTO phone_recovery_grants (id, mobile_number, note, granted_at, expires_at) ' +
+      'VALUES (?, ?, ?, ?, ?)',
+  )
+    .bind(crypto.randomUUID(), mobileNumber, body.note ?? null, now.toISOString(), expiresAt.toISOString())
+    .run();
+  return json({ status: 'granted', expiresAt: expiresAt.toISOString() });
+}
+
+async function handleAdminRevokePhoneRecoveryGrant(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const id = String(body.id ?? '');
+  if (!id) return json({ error: 'id is required' }, 400);
+
+  await env.DB.prepare('UPDATE phone_recovery_grants SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL')
+    .bind(new Date().toISOString(), id)
+    .run();
+  return json({ status: 'revoked' });
+}
+
 // --- Login history (admin visibility into device/location diversity) -----
 async function handleAdminListLoginHistory(request, env) {
   if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
@@ -730,11 +986,13 @@ async function handleAdminRejectCourseSubmission(request, body, env) {
 export {
   handleRequestOtp,
   handleVerifyOtp,
+  handleGoogleSignIn,
   handleRefreshToken,
   handleLogout,
   handleMe,
   handleGrantEntitlement,
   handleSyncProgress,
+  handleGetProgress,
   handleSubmitSupportTicket,
   handleAdminListOfficers,
   handleAdminListSupportTickets,
@@ -742,6 +1000,12 @@ export {
   handleAdminListAllowedPhones,
   handleAdminAddAllowedPhone,
   handleAdminRemoveAllowedPhone,
+  handleAdminListAllowedEmails,
+  handleAdminAddAllowedEmail,
+  handleAdminRemoveAllowedEmail,
+  handleAdminListPhoneRecoveryGrants,
+  handleAdminGrantPhoneRecovery,
+  handleAdminRevokePhoneRecoveryGrant,
   handleAdminListLoginHistory,
   handleAdminListCourseSubmissions,
   handleAdminApproveCourseSubmission,

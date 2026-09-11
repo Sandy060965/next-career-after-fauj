@@ -6,7 +6,8 @@
 class AdminOfficerSummary {
   const AdminOfficerSummary({
     required this.id,
-    required this.mobileNumber,
+    this.mobileNumber,
+    this.email,
     required this.createdAt,
     required this.entitlementTier,
     this.rank,
@@ -27,7 +28,8 @@ class AdminOfficerSummary {
   });
 
   final String id;
-  final String mobileNumber;
+  final String? mobileNumber;
+  final String? email;
   final DateTime createdAt;
   final String entitlementTier;
 
@@ -54,7 +56,8 @@ class AdminOfficerSummary {
 
   factory AdminOfficerSummary.fromJson(Map<String, dynamic> json) => AdminOfficerSummary(
         id: json['id'] as String,
-        mobileNumber: json['mobileNumber'] as String,
+        mobileNumber: json['mobileNumber'] as String?,
+        email: json['email'] as String?,
         createdAt: DateTime.parse(json['createdAt'] as String),
         entitlementTier: json['entitlementTier'] as String,
         rank: json['rank'] as String?,

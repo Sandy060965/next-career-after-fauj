@@ -5,13 +5,11 @@
 ///
 /// Deliberately doesn't cover PDFs — PDFs are sent to Claude as raw bytes,
 /// never extracted client-side, so there's no local text to scan.
-enum RedactionCategory { serviceNumber, email, phone, aadhaar, pan, militaryUnit }
+enum RedactionCategory { serviceNumber, aadhaar, pan, militaryUnit }
 
 extension RedactionCategoryLabel on RedactionCategory {
   String get label => switch (this) {
         RedactionCategory.serviceNumber => 'Service number',
-        RedactionCategory.email => 'Email address',
-        RedactionCategory.phone => 'Phone number',
         RedactionCategory.aadhaar => 'Aadhaar-like number',
         RedactionCategory.pan => 'PAN-like number',
         RedactionCategory.militaryUnit => 'Unit / formation term',
@@ -63,10 +61,6 @@ const _militaryUnitTerms = [
 final _patterns = <RedactionCategory, RegExp>{
   // Officer/JCO service number formats, e.g. "IC-12345", "SS 67890".
   RedactionCategory.serviceNumber: RegExp(r'\b(?:IC|SS|EC|JC|NC)[\s-]?\d{4,8}\b', caseSensitive: false),
-  // Each dot-segment of the domain must be followed by a word character, so
-  // a sentence-ending period right after the address isn't swallowed in.
-  RedactionCategory.email: RegExp(r'[\w.+-]+@[\w-]+(?:\.[\w-]+)+'),
-  RedactionCategory.phone: RegExp(r'(?:\+?91[\s-]?)?[6-9]\d{9}\b'),
   RedactionCategory.aadhaar: RegExp(r'\b\d{4}\s?\d{4}\s?\d{4}\b'),
   RedactionCategory.pan: RegExp(r'\b[A-Z]{5}\d{4}[A-Z]\b'),
 };

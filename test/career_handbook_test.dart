@@ -81,17 +81,33 @@ void main() {
     expect(find.byKey(const Key('handbookGlossaryButton')), findsOneWidget);
   });
 
-  testWidgets('the comparison table shows all 34 rows with a restriction column', (tester) async {
-    _setTallViewport(tester);
+  testWidgets(
+      'the comparison table numbers every row and all 34 are reachable by scrolling '
+      '(regression: a horizontal-only ScrollView silently clipped rows past the viewport)',
+      (tester) async {
+    // Deliberately NOT _setTallViewport here — a viewport tall enough to fit
+    // all 34 rows without scrolling is exactly what let the original bug
+    // (no vertical scroll wrapper around the DataTable) slip past this test.
     await tester.pumpWidget(_wrap(const CareerHandbookScreen()));
+    await tester.scrollUntilVisible(find.byKey(const Key('handbookComparisonTableButton')), 200);
     await tester.tap(find.byKey(const Key('handbookComparisonTableButton')));
     await tester.pumpAndSettle();
 
+    // Row numbering: the first vertical is row "1".
+    expect(find.text(kAllBrowsableVerticals.first.name), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
+
     // DataRow keys aren't discoverable via find.byKey (TableRow isn't a
-    // Widget), so this checks cell text directly instead.
+    // Widget), so this checks cell text directly, scrolling as needed to
+    // reach rows below the fold — this is the actual regression check.
     for (final vertical in kAllBrowsableVerticals) {
+      await tester.scrollUntilVisible(find.text(vertical.name), 200, scrollable: find.byType(Scrollable).first);
       expect(find.text(vertical.name), findsOneWidget);
     }
+
+    // The last vertical is numbered 34.
+    expect(find.text('${kAllBrowsableVerticals.length}'), findsOneWidget);
+
     // Spot check: the 9 medical and 5 JAG verticals are flagged, the rest are not.
     expect(find.text('Medical branches only'), findsNWidgets(9));
     expect(find.text('JAG branch only'), findsNWidgets(5));
@@ -144,13 +160,13 @@ void main() {
       expect(find.text('Medical branches only'), findsOneWidget);
     });
 
-    testWidgets('links to Career Vertical Fit, Skill Equivalency Matrix and Compensation Guidance',
+    testWidgets('links to Career Vertical Fit, Build My Civilian CV and Compensation Guidance',
         (tester) async {
       _setTallViewport(tester);
       await tester.pumpWidget(_wrap(CareerHandbookDetailScreen(vertical: generalVertical)));
 
       expect(find.text('Career Vertical Fit'), findsOneWidget);
-      expect(find.text('Skill Equivalency Matrix'), findsOneWidget);
+      expect(find.text('Build My Civilian CV'), findsOneWidget);
       expect(find.text('Compensation Guidance'), findsOneWidget);
     });
 

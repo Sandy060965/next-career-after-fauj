@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
 import '../application_tracker/add_edit_application_screen.dart';
 import '../career_paths/corps_affinity.dart';
 import 'india_cities.dart';
@@ -65,7 +66,7 @@ class _JobMatchesScreenState extends State<JobMatchesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Job Matches')),
+      appBar: AppBar(title: const Text('Job Matches'), actions: const [HomeButton()]),
       body: Column(
         children: [
           Padding(

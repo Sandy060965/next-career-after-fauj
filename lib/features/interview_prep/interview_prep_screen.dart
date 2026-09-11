@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/widgets/home_button.dart';
 import 'interview_practice_screen.dart';
 import 'interview_prep_service.dart';
 import 'interview_question.dart';
@@ -76,7 +77,7 @@ class _InterviewPrepScreenState extends State<InterviewPrepScreen> {
     final hasJdText = repo.lastJdText != null || repo.lastJdPdfBytes != null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Interview Prep')),
+      appBar: AppBar(title: const Text('Interview Prep'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'mock_interview_feedback.dart';
 import 'mock_interview_service.dart';
 import '../../core/services/voice_input_service.dart';
+import '../../core/widgets/home_button.dart';
 
 class MockInterviewScreen extends StatefulWidget {
   MockInterviewScreen({
@@ -109,7 +110,10 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mock Interview — Question ${_index + 1} of ${widget.questions.length}')),
+      appBar: AppBar(
+        title: Text('Mock Interview — Question ${_index + 1} of ${widget.questions.length}'),
+        actions: const [HomeButton()],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

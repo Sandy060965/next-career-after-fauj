@@ -16,6 +16,12 @@ class AdminLoginScreen extends StatefulWidget {
     this.fetchAllowedPhones = httpFetchAllowedPhones,
     this.addAllowedPhone = httpAddAllowedPhone,
     this.removeAllowedPhone = httpRemoveAllowedPhone,
+    this.fetchAllowedEmails = httpFetchAllowedEmails,
+    this.addAllowedEmail = httpAddAllowedEmail,
+    this.removeAllowedEmail = httpRemoveAllowedEmail,
+    this.fetchPhoneRecoveryGrants = httpFetchPhoneRecoveryGrants,
+    this.grantPhoneRecovery = httpGrantPhoneRecovery,
+    this.revokePhoneRecoveryGrant = httpRevokePhoneRecoveryGrant,
     this.fetchLoginHistory = httpFetchLoginHistory,
     this.fetchCourseSubmissions = httpFetchCourseSubmissions,
     this.approveCourseSubmission = httpApproveCourseSubmission,
@@ -28,6 +34,12 @@ class AdminLoginScreen extends StatefulWidget {
   final FetchAllowedPhones fetchAllowedPhones;
   final AddAllowedPhone addAllowedPhone;
   final RemoveAllowedPhone removeAllowedPhone;
+  final FetchAllowedEmails fetchAllowedEmails;
+  final AddAllowedEmail addAllowedEmail;
+  final RemoveAllowedEmail removeAllowedEmail;
+  final FetchPhoneRecoveryGrants fetchPhoneRecoveryGrants;
+  final GrantPhoneRecovery grantPhoneRecovery;
+  final RevokePhoneRecoveryGrant revokePhoneRecoveryGrant;
   final FetchLoginHistory fetchLoginHistory;
   final FetchCourseSubmissions fetchCourseSubmissions;
   final ApproveCourseSubmission approveCourseSubmission;
@@ -40,6 +52,7 @@ class AdminLoginScreen extends StatefulWidget {
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _controller = TextEditingController();
   bool _isChecking = false;
+  bool _isKeyVisible = false;
   String? _error;
 
   @override
@@ -73,6 +86,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
             fetchAllowedPhones: widget.fetchAllowedPhones,
             addAllowedPhone: widget.addAllowedPhone,
             removeAllowedPhone: widget.removeAllowedPhone,
+            fetchAllowedEmails: widget.fetchAllowedEmails,
+            addAllowedEmail: widget.addAllowedEmail,
+            removeAllowedEmail: widget.removeAllowedEmail,
+            fetchPhoneRecoveryGrants: widget.fetchPhoneRecoveryGrants,
+            grantPhoneRecovery: widget.grantPhoneRecovery,
+            revokePhoneRecoveryGrant: widget.revokePhoneRecoveryGrant,
             fetchLoginHistory: widget.fetchLoginHistory,
             fetchCourseSubmissions: widget.fetchCourseSubmissions,
             approveCourseSubmission: widget.approveCourseSubmission,
@@ -104,8 +123,16 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 TextField(
                   key: const Key('adminKeyField'),
                   controller: _controller,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Admin key'),
+                  obscureText: !_isKeyVisible,
+                  decoration: InputDecoration(
+                    labelText: 'Admin key',
+                    suffixIcon: IconButton(
+                      key: const Key('toggleAdminKeyVisibilityButton'),
+                      icon: Icon(_isKeyVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                      tooltip: _isKeyVisible ? 'Hide admin key' : 'Show admin key',
+                      onPressed: () => setState(() => _isKeyVisible = !_isKeyVisible),
+                    ),
+                  ),
                   onSubmitted: (_) => _unlock(),
                 ),
                 const SizedBox(height: 16),

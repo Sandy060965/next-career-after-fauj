@@ -63,7 +63,7 @@ void main() {
     final repo = ProfileRepository();
     await pumpAppAt(tester, repo);
 
-    expect(find.byKey(const Key('phoneField')), findsOneWidget);
+    expect(find.byKey(const Key('googleSignInButton')), findsOneWidget);
   });
 
   testWidgets(
@@ -72,7 +72,7 @@ void main() {
     final repo = ProfileRepository();
     await pumpAppAt(tester, repo, initialRoute: '/career-readiness');
 
-    expect(find.byKey(const Key('phoneField')), findsOneWidget);
+    expect(find.byKey(const Key('googleSignInButton')), findsOneWidget);
     expect(find.text('Transition Readiness Index'), findsNothing);
   });
 
@@ -81,7 +81,7 @@ void main() {
     final repo = ProfileRepository();
     await pumpAppAt(tester, repo, initialRoute: '/');
 
-    expect(find.byKey(const Key('phoneField')), findsOneWidget);
+    expect(find.byKey(const Key('googleSignInButton')), findsOneWidget);
   });
 
   testWidgets('the admin route is reachable with no officer session', (tester) async {
@@ -125,6 +125,56 @@ void main() {
 
     expect(find.byKey(const Key('mainNavBar')), findsOneWidget);
     expect(find.text('Officer Onboarding'), findsNothing);
+  });
+
+  testWidgets('requesting Start Here directly with no session redirects to phone verification',
+      (tester) async {
+    final repo = ProfileRepository();
+    await pumpAppAt(tester, repo, initialRoute: '/start-here');
+
+    expect(find.byKey(const Key('googleSignInButton')), findsOneWidget);
+    expect(find.text('Welcome — a few quick steps first'), findsNothing);
+  });
+
+  testWidgets('a signed-in officer on Start Here can skip straight to the dashboard, and the '
+      'guided-intro flag is remembered', (tester) async {
+    final repo = ProfileRepository(sessionStorage: _FakeSessionStorage());
+    await repo.saveSession(
+      'token',
+      const OfficerAccount(
+        id: 'officer-1',
+        mobileNumber: '9876543210',
+        entitlementTier: EntitlementTier.free,
+        entitlementExpiresAt: null,
+      ),
+      refreshToken: 'refresh',
+    );
+    repo.saveProfile(
+      OfficerProfile(
+        rank: 'Major',
+        fullName: 'Maj A Verma',
+        dateOfBirth: DateTime(1988, 5, 10),
+        workExperienceYears: 12,
+        workExperienceMonths: 0,
+        releaseStatus: ReleaseStatus.tentative,
+        releaseDate: DateTime(2027, 6, 30),
+        service: OfficerService.army,
+        mobileNumber: '9876543210',
+        email: 'a.verma@example.com',
+        segment: OfficerSegment.ssc,
+        cvFileName: '',
+      ),
+    );
+
+    await pumpAppAt(tester, repo, initialRoute: '/start-here');
+    expect(find.text('Welcome — a few quick steps first'), findsOneWidget);
+    expect(repo.hasSeenGuidedIntro, isFalse);
+
+    await tester.tap(find.byKey(const Key('skipStartHereButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mainNavBar')), findsOneWidget);
+    expect(repo.hasSeenGuidedIntro, isTrue);
   });
 
   testWidgets('a session with no profile yet lands on onboarding, not the dashboard', (tester) async {

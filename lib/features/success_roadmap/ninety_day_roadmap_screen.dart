@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'success_roadmap_item.dart';
 
 class NinetyDayRoadmapScreen extends StatelessWidget {
@@ -8,7 +9,7 @@ class NinetyDayRoadmapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Your First 90 Days')),
+      appBar: AppBar(title: const Text('Your First 90 Days'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

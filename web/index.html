@@ -32,6 +32,16 @@
   <meta name="theme-color" content="#34452F">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
+  <!-- Google Sign-In (web): the OAuth 2.0 Web-application Client ID from
+       Google Cloud Console — Credentials > Create Credentials > OAuth 2.0
+       Client ID > Web application. Must be the SAME client ID set as the
+       Worker's GOOGLE_CLIENT_ID secret and passed to the Flutter build as
+       --dart-define=GOOGLE_SERVER_CLIENT_ID=... — that shared value is what
+       lets an ID token minted here be verified server-side. Also requires
+       registering this app's origins (including http://localhost:8767 for
+       local dev) as Authorized JavaScript origins on that same client. -->
+  <meta name="google-signin-client_id" content="REPLACE_WITH_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com">
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 

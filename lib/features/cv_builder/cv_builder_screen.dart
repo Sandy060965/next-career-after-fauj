@@ -5,9 +5,13 @@ import 'package:provider/provider.dart';
 import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/widgets/analysis_loading_indicator.dart';
+import '../../core/widgets/home_button.dart';
+import '../skill_equivalency/course_civilianization_http_service.dart';
+import '../skill_equivalency/skill_equivalency.dart';
 import 'built_cv.dart';
 import 'cv_builder_intake.dart';
 import 'cv_builder_service.dart';
+import 'honours_awards.dart';
 
 class _WorkExperienceControllers {
   _WorkExperienceControllers({WorkExperienceEntry? initial})
@@ -76,12 +80,110 @@ class _CertificationControllers {
   }
 }
 
+/// Sentinel dropdown value that reveals a manual text field — for a real
+/// course/qualification not covered by the curated
+/// (lib/features/skill_equivalency/skill_equivalency.dart) list.
+const kOtherCourseOption = 'Other (please specify)';
+
+class _CourseControllers {
+  _CourseControllers({CourseEntry? initial})
+      : selected = _initialSelection(initial),
+        other = TextEditingController(
+          text: initial != null && _initialSelection(initial) == kOtherCourseOption
+              ? initial.name
+              : '',
+        ),
+        year = TextEditingController(text: initial?.year ?? '');
+
+  /// Restore-matching only ever checks the always-available curated list
+  /// (not any admin-approved additions, which load asynchronously and may
+  /// not have arrived yet at controller-construction time) — a cached
+  /// course that happens to match one of those still restores fine, just
+  /// as a manually-typed entry rather than a pre-selected dropdown value.
+  static String? _initialSelection(CourseEntry? initial) {
+    if (initial == null) return null;
+    return kSkillEquivalencies.any((e) => e.militaryTerm == initial.name)
+        ? initial.name
+        : kOtherCourseOption;
+  }
+
+  String? selected;
+  final TextEditingController other;
+  final TextEditingController year;
+
+  CourseEntry toEntry() => CourseEntry(
+        name: selected == kOtherCourseOption ? other.text.trim() : (selected ?? ''),
+        year: year.text.trim(),
+      );
+
+  void dispose() {
+    other.dispose();
+    year.dispose();
+  }
+}
+
+class _AwardControllers {
+  _AwardControllers({AwardEntry? initial})
+      : category = initial == null ? null : (categoryForAward(initial.name) ?? kOtherCategoryOption),
+        selected = _initialSelection(initial),
+        other = TextEditingController(
+          text: initial != null && _initialSelection(initial) == kOtherHonourOption
+              ? initial.name
+              : '',
+        ),
+        year = TextEditingController(text: initial?.year ?? ''),
+        bar = TextEditingController(text: initial?.bar ?? ''),
+        citation = TextEditingController(text: initial?.citation ?? '');
+
+  /// Null when the entry was manually typed (category was "Other / Not
+  /// Listed", which skips the award dropdown entirely) — otherwise the
+  /// curated award name itself.
+  static String? _initialSelection(AwardEntry? initial) {
+    if (initial == null) return null;
+    return categoryForAward(initial.name) != null ? initial.name : null;
+  }
+
+  String? category;
+  String? selected;
+  final TextEditingController other;
+  final TextEditingController year;
+  final TextEditingController bar;
+  final TextEditingController citation;
+
+  bool get _isManualEntry => category == kOtherCategoryOption || selected == kOtherHonourOption;
+
+  AwardEntry toEntry() => AwardEntry(
+        name: _isManualEntry ? other.text.trim() : (selected ?? ''),
+        year: year.text.trim(),
+        bar: bar.text.trim(),
+        citation: citation.text.trim(),
+      );
+
+  void dispose() {
+    other.dispose();
+    year.dispose();
+    bar.dispose();
+    citation.dispose();
+  }
+}
+
 class CvBuilderScreen extends StatefulWidget {
-  const CvBuilderScreen({super.key, this.buildCv = mockBuildCv});
+  const CvBuilderScreen({
+    super.key,
+    this.buildCv = mockBuildCv,
+    this.fetchApprovedEquivalencies = httpFetchApprovedEquivalencies,
+  });
 
   /// Overridable for testing; defaults to sample data until the Worker's
   /// /build-cv endpoint is wired in.
   final CvBuilder buildCv;
+
+  /// Admin-approved course equivalencies, merged with the curated
+  /// [kSkillEquivalencies] list for the Courses section's dropdown.
+  /// Overridable for testing; best-effort at the call site, same as the
+  /// former standalone Skill Equivalency screen — the curated list alone is
+  /// already complete and useful, so a failure here never blocks the form.
+  final Future<List<SkillEquivalency>> Function() fetchApprovedEquivalencies;
 
   @override
   State<CvBuilderScreen> createState() => _CvBuilderScreenState();
@@ -93,10 +195,18 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
   final List<_WorkExperienceControllers> _workExperience = [];
   final List<_EducationControllers> _education = [];
   final List<_CertificationControllers> _certifications = [];
+  final List<_CourseControllers> _courses = [];
+  final List<_AwardControllers> _awards = [];
 
   bool _isBuilding = false;
   String? _error;
   BuiltCv? _result;
+  List<SkillEquivalency> _approvedEquivalencies = const [];
+
+  List<SkillEquivalency> get _courseEquivalencies => [
+        ...kSkillEquivalencies,
+        ..._approvedEquivalencies,
+      ];
 
   @override
   void initState() {
@@ -108,9 +218,22 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
       _workExperience.addAll(cachedIntake.workExperience.map((e) => _WorkExperienceControllers(initial: e)));
       _education.addAll(cachedIntake.education.map((e) => _EducationControllers(initial: e)));
       _certifications.addAll(cachedIntake.certifications.map((e) => _CertificationControllers(initial: e)));
+      _courses.addAll(cachedIntake.courses.map((e) => _CourseControllers(initial: e)));
+      _awards.addAll(cachedIntake.honoursAwards.map((e) => _AwardControllers(initial: e)));
     }
     if (_workExperience.isEmpty) _workExperience.add(_WorkExperienceControllers());
     _result = context.read<ProfileRepository>().lastBuiltCv;
+    _loadApprovedEquivalencies();
+  }
+
+  Future<void> _loadApprovedEquivalencies() async {
+    try {
+      final approved = await widget.fetchApprovedEquivalencies();
+      if (!mounted) return;
+      setState(() => _approvedEquivalencies = approved);
+    } catch (_) {
+      // Best-effort — the curated list on its own is still complete and useful.
+    }
   }
 
   @override
@@ -126,6 +249,12 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
     for (final c in _certifications) {
       c.dispose();
     }
+    for (final c in _courses) {
+      c.dispose();
+    }
+    for (final c in _awards) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -138,6 +267,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         education: _education.map((c) => c.toEntry()).where((e) => e.degree.isNotEmpty).toList(),
         certifications:
             _certifications.map((c) => c.toEntry()).where((e) => e.name.isNotEmpty).toList(),
+        courses: _courses.map((c) => c.toEntry()).where((e) => e.name.isNotEmpty).toList(),
+        honoursAwards: _awards.map((c) => c.toEntry()).where((e) => e.name.isNotEmpty).toList(),
         skills: _skillsController.text.trim(),
       );
 
@@ -175,8 +306,12 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('Build My Civilian CV')),
+      appBar: AppBar(
+        title: const Text('Build My Civilian CV'),
+        actions: const [HomeButton()],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -186,6 +321,30 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               "For officers without a usable existing CV — type in what you've actually done and "
               "we'll organise it into a clean civilian CV. Nothing is invented beyond what you type.",
               style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.errorContainer.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.warning_amber_rounded, size: 20, color: colorScheme.error),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Kindly do not include any confidential details / data.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colorScheme.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -227,6 +386,26 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               onPressed: () => setState(() => _certifications.add(_CertificationControllers())),
               icon: const Icon(Icons.add),
               label: const Text('Add certification'),
+            ),
+            const SizedBox(height: 24),
+            Text('Courses / Training', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            for (var i = 0; i < _courses.length; i++) _buildCourseCard(i),
+            OutlinedButton.icon(
+              key: const Key('addCourseButton'),
+              onPressed: () => setState(() => _courses.add(_CourseControllers())),
+              icon: const Icon(Icons.add),
+              label: const Text('Add course'),
+            ),
+            const SizedBox(height: 24),
+            Text('Honours & Awards', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            for (var i = 0; i < _awards.length; i++) _buildAwardCard(i),
+            OutlinedButton.icon(
+              key: const Key('addAwardButton'),
+              onPressed: () => setState(() => _awards.add(_AwardControllers())),
+              icon: const Icon(Icons.add),
+              label: const Text('Add honour/award'),
             ),
             const SizedBox(height: 24),
             Text('Skills', style: Theme.of(context).textTheme.titleMedium),
@@ -315,7 +494,8 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
             TextFormField(
               key: ValueKey('durationField_$index'),
               controller: c.duration,
-              decoration: const InputDecoration(labelText: 'Duration (e.g. "2018-2021")'),
+              decoration:
+                  const InputDecoration(labelText: 'Duration (e.g. "Jul 2020 to Sep 2023")'),
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -408,6 +588,182 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
               onPressed: () => setState(() {
                 _certifications.removeAt(index).dispose();
               }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseCard(int index) {
+    final c = _courses[index];
+    final colorScheme = Theme.of(context).colorScheme;
+    SkillEquivalency? selectedEquivalency;
+    if (c.selected != null && c.selected != kOtherCourseOption) {
+      for (final equivalency in _courseEquivalencies) {
+        if (equivalency.militaryTerm == c.selected) {
+          selectedEquivalency = equivalency;
+          break;
+        }
+      }
+    }
+    return Card(
+      key: ValueKey('courseCard_$index'),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text('Course ${index + 1}', style: Theme.of(context).textTheme.titleSmall)),
+                IconButton(
+                  key: ValueKey('removeCourseButton_$index'),
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Remove this course',
+                  onPressed: () => setState(() {
+                    _courses.removeAt(index).dispose();
+                  }),
+                ),
+              ],
+            ),
+            DropdownButtonFormField<String>(
+              key: ValueKey('courseNameDropdown_$index'),
+              initialValue: c.selected,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Course or training name'),
+              items: [
+                // First, not last — with ~40 curated entries, an officer whose
+                // course isn't listed shouldn't have to scroll through all of
+                // them to reach the escape hatch.
+                const DropdownMenuItem(value: kOtherCourseOption, child: Text(kOtherCourseOption)),
+                for (final equivalency in _courseEquivalencies)
+                  DropdownMenuItem(value: equivalency.militaryTerm, child: Text(equivalency.militaryTerm)),
+              ],
+              onChanged: (v) => setState(() => c.selected = v),
+            ),
+            if (selectedEquivalency != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.arrow_downward, size: 16, color: colorScheme.primary),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      selectedEquivalency.civilianEquivalent,
+                      key: ValueKey('courseCivilianEquivalent_$index'),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            if (c.selected == kOtherCourseOption) ...[
+              const SizedBox(height: 12),
+              TextFormField(
+                key: ValueKey('courseOtherField_$index'),
+                controller: c.other,
+                decoration: const InputDecoration(labelText: 'Name the course or training'),
+              ),
+            ],
+            const SizedBox(height: 12),
+            TextFormField(
+              key: ValueKey('courseYearField_$index'),
+              controller: c.year,
+              decoration: const InputDecoration(labelText: 'Year'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAwardCard(int index) {
+    final a = _awards[index];
+    return Card(
+      key: ValueKey('awardCard_$index'),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text('Honour/award ${index + 1}', style: Theme.of(context).textTheme.titleSmall)),
+                IconButton(
+                  key: ValueKey('removeAwardButton_$index'),
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Remove this honour/award',
+                  onPressed: () => setState(() {
+                    _awards.removeAt(index).dispose();
+                  }),
+                ),
+              ],
+            ),
+            DropdownButtonFormField<String>(
+              key: ValueKey('honoursCategoryDropdown_$index'),
+              initialValue: a.category,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Category'),
+              items: [
+                for (final c in kHonourCategories) DropdownMenuItem(value: c.name, child: Text(c.name)),
+                const DropdownMenuItem(value: kOtherCategoryOption, child: Text(kOtherCategoryOption)),
+              ],
+              onChanged: (v) => setState(() {
+                a.category = v;
+                // A previously-picked award belonged to the old category —
+                // don't let it linger against a mismatched selection.
+                a.selected = null;
+                a.other.clear();
+              }),
+            ),
+            if (a.category != null && a.category != kOtherCategoryOption) ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                key: ValueKey('honoursDropdown_$index'),
+                initialValue: a.selected,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Honour / award'),
+                items: [
+                  for (final award in kHonourCategories.firstWhere((c) => c.name == a.category).awards)
+                    DropdownMenuItem(value: award, child: Text(award)),
+                  const DropdownMenuItem(value: kOtherHonourOption, child: Text(kOtherHonourOption)),
+                ],
+                onChanged: (v) => setState(() => a.selected = v),
+              ),
+            ],
+            if (a._isManualEntry) ...[
+              const SizedBox(height: 12),
+              TextFormField(
+                key: ValueKey('honoursOtherField_$index'),
+                controller: a.other,
+                decoration: const InputDecoration(labelText: 'Name the honour/award'),
+              ),
+            ],
+            const SizedBox(height: 12),
+            TextFormField(
+              key: ValueKey('honoursYearField_$index'),
+              controller: a.year,
+              decoration: const InputDecoration(labelText: 'Year (optional)'),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              key: ValueKey('honoursBarField_$index'),
+              controller: a.bar,
+              decoration: const InputDecoration(labelText: 'Bar / repeat award (optional)'),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              key: ValueKey('honoursCitationField_$index'),
+              controller: a.citation,
+              maxLines: 2,
+              decoration: const InputDecoration(labelText: 'Citation / achievement note (optional)'),
             ),
           ],
         ),

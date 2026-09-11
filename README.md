@@ -9,8 +9,9 @@ reading programme, and more). See [docs/PRD.md](docs/PRD.md) for the
 original product brief and [docs/EXECUTIVE_SUMMARY.md](docs/EXECUTIVE_SUMMARY.md)
 for a plain-language walkthrough of every module.
 
-**Status: pre-launch beta.** Real backend, real phone-OTP login, no payment
-gateway yet, not listed on any app store. See "What's not built yet" below.
+**Status: pre-launch beta.** Real backend, Google Sign-In as the primary
+login with phone-OTP kept as a fallback, no payment gateway yet, not listed
+on any app store. See "What's not built yet" below.
 
 ## Prerequisites
 
@@ -27,12 +28,18 @@ Backend section below) to be passed at build/run time — it's never
 hardcoded in source:
 
 ```
-flutter run --dart-define=APP_SHARED_KEY=<value>
+flutter run --dart-define=APP_SHARED_KEY=<value> --dart-define=GOOGLE_SERVER_CLIENT_ID=<value>
 ```
 
-Running without the flag still launches the app, but every backend-calling
-screen (JD Match, Compensation, CV tools, etc.) will show an "Unauthorized"
-error since the Worker rejects requests missing a valid key.
+`GOOGLE_SERVER_CLIENT_ID` is the Google Cloud OAuth 2.0 Web-application
+Client ID (Google Cloud Console > APIs & Services > Credentials) — the same
+value set as the Worker's `GOOGLE_CLIENT_ID` secret. Running without it still
+launches the app, but tapping "Sign in with Google" will fail; phone-OTP
+sign-in works regardless.
+
+Running without `APP_SHARED_KEY` still launches the app, but every
+backend-calling screen (JD Match, Compensation, CV tools, etc.) will show an
+"Unauthorized" error since the Worker rejects requests missing a valid key.
 
 For a UI-only preview that skips phone verification (no real OTP needed),
 add `--dart-define=SKIP_AUTH_FOR_TESTING=true` — debug-only, never set in a
@@ -47,20 +54,25 @@ without a real session, since this flag only bypasses the phone-verification
 flutter test
 ```
 
-246+ widget/unit tests across every module.
+348+ widget/unit tests across every module.
 
 ## Build
 
 **Web** (fastest path to a shareable link — see "Beta distribution" below):
 ```
-flutter build web --dart-define=APP_SHARED_KEY=<value>
+flutter build web --dart-define=APP_SHARED_KEY=<value> --dart-define=GOOGLE_SERVER_CLIENT_ID=<value>
 ```
 
 **Android:**
 ```
-flutter build apk --debug   --dart-define=APP_SHARED_KEY=<value>
-flutter build apk --release --dart-define=APP_SHARED_KEY=<value>
+flutter build apk --debug   --dart-define=APP_SHARED_KEY=<value> --dart-define=GOOGLE_SERVER_CLIENT_ID=<value>
+flutter build apk --release --dart-define=APP_SHARED_KEY=<value> --dart-define=GOOGLE_SERVER_CLIENT_ID=<value>
 ```
+Google Sign-In on Android additionally needs a real `applicationId` (see
+below) and an Android-type OAuth client in the same Google Cloud project,
+registered with that application ID and the build's SHA-1 signing
+fingerprint — otherwise the "Sign in with Google" button will fail even
+with a correct `GOOGLE_SERVER_CLIENT_ID`.
 Release APK is R8-minified but still signed with the debug keystore
 placeholder and uses the default `com.example.next_career_after_fauj`
 application ID — fine for sideloading beta testers, **not** Play Store
@@ -88,7 +100,8 @@ configured in this repo).
 that:
 - proxies AI analysis calls to the Anthropic API (keeping the API key off
   the client),
-- handles phone-OTP login via Twilio Verify and issues JWT session tokens,
+- handles Google Sign-In (primary) and phone-OTP login via Twilio Verify
+  (fallback) and issues JWT session tokens,
 - reads/writes a D1 database (`next-career-after-fauj-officers`) for officer
   accounts, entitlements, and mentor-pledge records,
 - proxies job-market data via the JSearch (RapidAPI) API.

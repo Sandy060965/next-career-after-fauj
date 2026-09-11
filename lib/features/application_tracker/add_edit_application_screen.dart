@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/job_application.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
+import '../../core/widgets/home_button.dart';
 
 /// Add a new application, or edit an existing one when [existing] is
 /// provided. All fields are the officer's own entry — nothing here is
@@ -107,7 +108,10 @@ class _AddEditApplicationScreenState extends State<AddEditApplicationScreen> {
   Widget build(BuildContext context) {
     final isEditing = widget.existing != null;
     return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'Edit application' : 'Add application')),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Edit application' : 'Add application'),
+        actions: const [HomeButton()],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(

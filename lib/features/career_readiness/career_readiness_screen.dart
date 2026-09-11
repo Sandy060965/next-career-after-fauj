@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/services/profile_repository.dart';
 import '../../core/services/transition_readiness.dart';
+import '../../core/widgets/home_button.dart';
 
 /// Renders the Transition Readiness Index — the aggregate of the three
 /// scoring assessments elsewhere in the app. All computation lives in
@@ -19,54 +20,68 @@ class CareerReadinessScreen extends StatelessWidget {
     final overallScore = summary.overallScore;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Transition Readiness Index')),
-      body: ListView(
+      appBar: AppBar(
+        title: const Text('Transition Readiness Index'),
+        actions: const [HomeButton()],
+      ),
+      // A plain Column, not ListView(children:) — this content is small and
+      // fixed (never more than ~4 cards plus the dimension list), so there's
+      // no reason to pay for sliver-backed lazy building. Confirmed the hard
+      // way: under the app's real theme, ListView(children:) here could
+      // silently stop building children partway down the list (some
+      // dimension cards — and the methodology card after them — never
+      // mounted, with no error raised), a class of bug a plain, always-fully
+      // laid-out Column can't have.
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        children: [
-          Center(child: _ScoreDial(score: overallScore, completedCount: completed.length)),
-          const SizedBox(height: 12),
-          Text(
-            overallScore == null
-                ? 'Complete the assessments below to see your Transition Readiness Index.'
-                : 'Based on ${completed.length} of ${summary.totalCount} assessments completed.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          if (summary.allCompleted && overallScore != null) ...[
-            const SizedBox(height: 16),
-            _ReadinessBandCard(score: overallScore, lowest: summary.lowestScoring!),
-            const SizedBox(height: 16),
-            const _ReadinessBandLegend(),
-          ],
-          const SizedBox(height: 24),
-          Text('By dimension', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          for (final dimension in summary.dimensions) _DimensionCard(dimension: dimension),
-          const SizedBox(height: 24),
-          Card(
-            key: const Key('methodologyCard'),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('How this is calculated', style: Theme.of(context).textTheme.titleSmall),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Each completed dimension is weighted equally (one-third each) — an '
-                    'explicit, visible product choice, not a scientifically derived formula. '
-                    "We'll recalibrate these weights once real outcome data exists (interview "
-                    'rate, offer rate, time-to-offer) to show which dimension actually predicts '
-                    'a successful transition.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(child: _ScoreDial(score: overallScore, completedCount: completed.length)),
+            const SizedBox(height: 12),
+            Text(
+              overallScore == null
+                  ? 'Complete the assessments below to see your Transition Readiness Index.'
+                  : 'Based on ${completed.length} of ${summary.totalCount} assessments completed.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            if (summary.allCompleted && overallScore != null) ...[
+              const SizedBox(height: 16),
+              _ReadinessBandCard(score: overallScore, lowest: summary.lowestScoring!),
+              const SizedBox(height: 16),
+              const _ReadinessBandLegend(),
+            ],
+            const SizedBox(height: 24),
+            Text('By dimension', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            for (final dimension in summary.dimensions) _DimensionCard(dimension: dimension),
+            const SizedBox(height: 24),
+            Card(
+              key: const Key('methodologyCard'),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('How this is calculated', style: Theme.of(context).textTheme.titleSmall),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Each completed dimension is weighted equally (one-third each) — an '
+                      'explicit, visible product choice, not a scientifically derived formula. '
+                      "We'll recalibrate these weights once real outcome data exists (interview "
+                      'rate, offer rate, time-to-offer) to show which dimension actually predicts '
+                      'a successful transition.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -246,12 +261,28 @@ class _DimensionCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(dimension.description, style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 10),
-            if (score != null)
+            if (score != null) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(value: score / 100, minHeight: 6),
-              )
-            else
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerLeft,
+                // Scores here aren't a one-time verdict — as an officer works
+                // through the rest of the app their answers (and this score)
+                // are expected to change, so retaking must stay reachable
+                // from the exact screen showing the score, not just from
+                // wherever the assessment happened to be started the first
+                // time.
+                child: TextButton.icon(
+                  key: ValueKey('retakeAction_${dimension.label}'),
+                  onPressed: () => Navigator.of(context).pushNamed(dimension.route),
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('Retake this assessment'),
+                ),
+              ),
+            ] else
               Align(
                 alignment: Alignment.centerLeft,
                 child: OutlinedButton(

@@ -38,16 +38,18 @@ import 'features/target_role/target_role_http_service.dart';
 import 'features/target_role/target_role_strategy_screen.dart';
 import 'features/vertical_fit/vertical_fit_quiz_screen.dart';
 import 'features/jd_match/jd_match_screen.dart';
+import 'features/jd_match/sample_jd_http_service.dart';
 import 'features/job_matches/job_matches_http_service.dart';
 import 'features/job_matches/job_matches_screen.dart';
 import 'features/admin/admin_login_screen.dart';
+import 'features/debug/debug_menu_screen.dart';
 import 'features/linkedin_writeup/linkedin_writeup_http_service.dart';
 import 'features/linkedin_writeup/linkedin_writeup_screen.dart';
 import 'features/networking/network_directory_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/skill_equivalency/course_civilianization_http_service.dart';
-import 'features/skill_equivalency/skill_equivalency_screen.dart';
+import 'features/start_here/start_here_screen.dart';
 import 'features/support/support_screen.dart';
 import 'features/transition_plan/transition_plan_screen.dart';
 
@@ -150,12 +152,13 @@ class NextCareerAfterFaujApp extends StatelessWidget {
   Map<String, WidgetBuilder> get _routeBuilders => {
     AppRoutes.phoneVerification: (_) => PhoneVerificationScreen(),
     AppRoutes.onboarding: (_) => const OnboardingScreen(),
+    AppRoutes.startHere: (_) => const StartHereScreen(),
     AppRoutes.profile: (_) => MainShell(syncProgress: syncProgress),
     AppRoutes.aiAssistant: (_) =>
         AiAssistantScreen(sendMessage: httpSendAssistantMessage),
     AppRoutes.careerReadiness: (_) => const CareerReadinessScreen(),
-    AppRoutes.jdMatch: (_) =>
-        const JdMatchScreen(analyzeFitment: httpAnalyzeFitment),
+    AppRoutes.jdMatch: (_) => const JdMatchScreen(
+        analyzeFitment: httpAnalyzeFitment, generateSampleJd: httpGenerateSampleJd),
     AppRoutes.verticalFit: (_) => const VerticalFitQuizScreen(),
     AppRoutes.careerPaths: (_) => const CareerPathsScreen(),
     AppRoutes.refinedCv: (_) => const RefinedCvEntryScreen(),
@@ -175,11 +178,10 @@ class NextCareerAfterFaujApp extends StatelessWidget {
         estimateCompensation: httpEstimateCompensation),
     AppRoutes.transitionPlan: (_) => const TransitionPlanScreen(),
     AppRoutes.applicationTracker: (_) => const ApplicationTrackerScreen(),
-    AppRoutes.skillEquivalency: (_) =>
-        const SkillEquivalencyScreen(civilianizeCourse: httpCivilianizeCourse),
     AppRoutes.cvCivilianizer: (_) =>
         const CivilianizerScreen(civilianizeCv: httpCivilianizeCv),
-    AppRoutes.cvBuilder: (_) => const CvBuilderScreen(buildCv: httpBuildCv),
+    AppRoutes.cvBuilder: (_) => const CvBuilderScreen(
+        buildCv: httpBuildCv, fetchApprovedEquivalencies: httpFetchApprovedEquivalencies),
     AppRoutes.cvWritingGuide: (_) => const CvWritingGuideScreen(),
     AppRoutes.careerHandbook: (_) => const CareerHandbookScreen(),
     AppRoutes.corpsMatrix: (_) => const CorpsMatrixScreen(),
@@ -192,5 +194,6 @@ class NextCareerAfterFaujApp extends StatelessWidget {
         generateStrategy: httpGenerateTargetRoleStrategy),
     AppRoutes.supportTicket: (_) => const SupportScreen(),
     AppRoutes.admin: (_) => const AdminLoginScreen(),
+    if (_skipAuthForTesting) AppRoutes.debugMenu: (_) => const DebugMenuScreen(),
   };
 }

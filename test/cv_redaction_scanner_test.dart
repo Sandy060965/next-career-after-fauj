@@ -9,17 +9,14 @@ void main() {
           isTrue);
     });
 
-    test('flags an email address', () {
+    test('does not flag an email address — contact info, not unit-identifying', () {
       final matches = scanForRedactions('Reach me at officer.name@example.com for details.');
-      expect(
-        matches.any((m) => m.category == RedactionCategory.email && m.text == 'officer.name@example.com'),
-        isTrue,
-      );
+      expect(matches, isEmpty);
     });
 
-    test('flags a 10-digit Indian mobile number', () {
+    test('does not flag a 10-digit Indian mobile number — contact info, not unit-identifying', () {
       final matches = scanForRedactions('Mobile: 9876543210');
-      expect(matches.any((m) => m.category == RedactionCategory.phone && m.text == '9876543210'), isTrue);
+      expect(matches, isEmpty);
     });
 
     test('flags an Aadhaar-shaped 12-digit number', () {

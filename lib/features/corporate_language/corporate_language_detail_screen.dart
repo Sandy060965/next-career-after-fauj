@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'corporate_language_term.dart';
 
 class CorporateLanguageDetailScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class CorporateLanguageDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(entry.term)),
+      appBar: AppBar(title: Text(entry.term), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [

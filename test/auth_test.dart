@@ -38,8 +38,16 @@ class _FakeAuthService extends AuthService {
   }
 }
 
+// PhoneVerificationScreen/OtpEntryScreen default fetchProgressPrefill to the
+// real HTTP call — every test must override it to a no-op, or it'll fire a
+// real network call against the live backend and hang pumpAndSettle.
+Future<OfficerProgressPrefill?> _noProgressPrefill(ProfileRepository repo) async => null;
+
 Widget _wrapPhoneScreen(AuthService authService) {
-  return MaterialApp(theme: AppTheme.light, home: PhoneVerificationScreen(authService: authService));
+  return MaterialApp(
+    theme: AppTheme.light,
+    home: PhoneVerificationScreen(authService: authService, fetchProgressPrefill: _noProgressPrefill),
+  );
 }
 
 Widget _wrapOtpScreen(AuthService authService, {ProfileRepository? repository}) {
@@ -49,7 +57,11 @@ Widget _wrapOtpScreen(AuthService authService, {ProfileRepository? repository}) 
       theme: AppTheme.light,
       initialRoute: '/otp',
       routes: {
-        '/otp': (_) => OtpEntryScreen(mobileNumber: '9876543210', authService: authService),
+        '/otp': (_) => OtpEntryScreen(
+              mobileNumber: '9876543210',
+              authService: authService,
+              fetchProgressPrefill: _noProgressPrefill,
+            ),
         AppRoutes.onboarding: (_) => const Scaffold(body: Text('Onboarding screen')),
         AppRoutes.profile: (_) => const Scaffold(body: Text('Profile screen')),
       },
@@ -62,6 +74,8 @@ void main() {
     testWidgets('rejects an invalid mobile number without calling the service', (tester) async {
       final authService = _FakeAuthService();
       await tester.pumpWidget(_wrapPhoneScreen(authService));
+      await tester.tap(find.byKey(const Key('troubleSigningInButton')));
+      await tester.pump();
 
       await tester.enterText(find.byKey(const Key('phoneField')), '123');
       await tester.tap(find.byKey(const Key('sendCodeButton')));
@@ -74,6 +88,8 @@ void main() {
     testWidgets('sends the code and navigates to OTP entry on a valid number', (tester) async {
       final authService = _FakeAuthService();
       await tester.pumpWidget(_wrapPhoneScreen(authService));
+      await tester.tap(find.byKey(const Key('troubleSigningInButton')));
+      await tester.pump();
 
       await tester.enterText(find.byKey(const Key('phoneField')), '9876543210');
       await tester.tap(find.byKey(const Key('sendCodeButton')));
@@ -87,6 +103,8 @@ void main() {
     testWidgets('shows an error message when the service call fails', (tester) async {
       final authService = _FakeAuthService(requestOtpError: AuthException('Could not send code'));
       await tester.pumpWidget(_wrapPhoneScreen(authService));
+      await tester.tap(find.byKey(const Key('troubleSigningInButton')));
+      await tester.pump();
 
       await tester.enterText(find.byKey(const Key('phoneField')), '9876543210');
       await tester.tap(find.byKey(const Key('sendCodeButton')));

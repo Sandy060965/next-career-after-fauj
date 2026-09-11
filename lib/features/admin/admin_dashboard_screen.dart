@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'admin_http_service.dart';
 import 'admin_officer_summary.dart';
+import 'allowed_email_summary.dart';
 import 'allowed_phone_summary.dart';
 import 'course_submission_summary.dart';
 import 'login_event.dart';
+import 'phone_recovery_grant.dart';
 import 'support_ticket_summary.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -17,6 +20,12 @@ class AdminDashboardScreen extends StatefulWidget {
     this.fetchAllowedPhones = httpFetchAllowedPhones,
     this.addAllowedPhone = httpAddAllowedPhone,
     this.removeAllowedPhone = httpRemoveAllowedPhone,
+    this.fetchAllowedEmails = httpFetchAllowedEmails,
+    this.addAllowedEmail = httpAddAllowedEmail,
+    this.removeAllowedEmail = httpRemoveAllowedEmail,
+    this.fetchPhoneRecoveryGrants = httpFetchPhoneRecoveryGrants,
+    this.grantPhoneRecovery = httpGrantPhoneRecovery,
+    this.revokePhoneRecoveryGrant = httpRevokePhoneRecoveryGrant,
     this.fetchLoginHistory = httpFetchLoginHistory,
     this.fetchCourseSubmissions = httpFetchCourseSubmissions,
     this.approveCourseSubmission = httpApproveCourseSubmission,
@@ -30,6 +39,12 @@ class AdminDashboardScreen extends StatefulWidget {
   final FetchAllowedPhones fetchAllowedPhones;
   final AddAllowedPhone addAllowedPhone;
   final RemoveAllowedPhone removeAllowedPhone;
+  final FetchAllowedEmails fetchAllowedEmails;
+  final AddAllowedEmail addAllowedEmail;
+  final RemoveAllowedEmail removeAllowedEmail;
+  final FetchPhoneRecoveryGrants fetchPhoneRecoveryGrants;
+  final GrantPhoneRecovery grantPhoneRecovery;
+  final RevokePhoneRecoveryGrant revokePhoneRecoveryGrant;
   final FetchLoginHistory fetchLoginHistory;
   final FetchCourseSubmissions fetchCourseSubmissions;
   final ApproveCourseSubmission approveCourseSubmission;
@@ -45,6 +60,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   List<AdminOfficerSummary> _officers = const [];
   List<SupportTicketSummary> _tickets = const [];
   List<AllowedPhoneSummary> _allowedPhones = const [];
+  List<AllowedEmailSummary> _allowedEmails = const [];
+  List<PhoneRecoveryGrant> _phoneRecoveryGrants = const [];
   List<LoginEvent> _logins = const [];
   List<CourseSubmissionSummary> _courseSubmissions = const [];
 
@@ -64,6 +81,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         widget.fetchOfficers(widget.adminKey),
         widget.fetchSupportTickets(widget.adminKey),
         widget.fetchAllowedPhones(widget.adminKey),
+        widget.fetchAllowedEmails(widget.adminKey),
+        widget.fetchPhoneRecoveryGrants(widget.adminKey),
         widget.fetchLoginHistory(widget.adminKey),
         widget.fetchCourseSubmissions(widget.adminKey),
       ]);
@@ -72,8 +91,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         _officers = results[0] as List<AdminOfficerSummary>;
         _tickets = results[1] as List<SupportTicketSummary>;
         _allowedPhones = results[2] as List<AllowedPhoneSummary>;
-        _logins = results[3] as List<LoginEvent>;
-        _courseSubmissions = results[4] as List<CourseSubmissionSummary>;
+        _allowedEmails = results[3] as List<AllowedEmailSummary>;
+        _phoneRecoveryGrants = results[4] as List<PhoneRecoveryGrant>;
+        _logins = results[5] as List<LoginEvent>;
+        _courseSubmissions = results[6] as List<CourseSubmissionSummary>;
         _isLoading = false;
       });
     } catch (e) {
@@ -124,6 +145,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
+  Future<void> _addEmail(String email, String? note) async {
+    try {
+      await widget.addAllowedEmail(widget.adminKey, email, note);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  Future<void> _removeEmail(String email) async {
+    try {
+      await widget.removeAllowedEmail(widget.adminKey, email);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  Future<void> _grantPhoneRecovery(String mobileNumber, String? note) async {
+    try {
+      await widget.grantPhoneRecovery(widget.adminKey, mobileNumber, note);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  Future<void> _revokePhoneRecoveryGrant(String id) async {
+    try {
+      await widget.revokePhoneRecoveryGrant(widget.adminKey, id);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
   Future<void> _approveCourse(String id) async {
     try {
       await widget.approveCourseSubmission(widget.adminKey, id);
@@ -154,8 +227,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     final openTickets = _tickets.where((t) => !t.isResolved).length;
     final pendingCourses = _courseSubmissions.where((s) => s.isPending).length;
+    final activeGrants = _phoneRecoveryGrants.where((g) => g.isActive).length;
     return DefaultTabController(
-      length: 4,
+      length: 6,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Admin Dashboard'),
@@ -166,6 +240,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               tooltip: 'Refresh',
               onPressed: _isLoading ? null : _load,
             ),
+            const HomeButton(),
           ],
           bottom: TabBar(
             isScrollable: true,
@@ -173,6 +248,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               Tab(text: 'Officers (${_officers.length})'),
               Tab(text: 'Support Tickets ($openTickets open)'),
               Tab(text: 'Allowed Numbers (${_allowedPhones.length})'),
+              Tab(text: 'Allowed Emails (${_allowedEmails.length})'),
+              Tab(text: 'Phone Recovery ($activeGrants active)'),
               Tab(text: 'Course Submissions ($pendingCourses pending)'),
             ],
           ),
@@ -194,6 +271,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         phones: _allowedPhones,
                         onAdd: _addPhone,
                         onRemove: _removePhone,
+                      ),
+                      _AllowedEmailsTab(
+                        emails: _allowedEmails,
+                        onAdd: _addEmail,
+                        onRemove: _removeEmail,
+                      ),
+                      _PhoneRecoveryTab(
+                        grants: _phoneRecoveryGrants,
+                        totalOfficers: _officers.length,
+                        onGrant: _grantPhoneRecovery,
+                        onRevoke: _revokePhoneRecoveryGrant,
                       ),
                       _CourseSubmissionsTab(
                         submissions: _courseSubmissions,
@@ -255,7 +343,7 @@ class _OfficerCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    displayName.isEmpty ? o.mobileNumber : displayName,
+                    displayName.isEmpty ? (o.mobileNumber ?? o.email ?? 'Unknown officer') : displayName,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -264,7 +352,7 @@ class _OfficerCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '${o.mobileNumber} • signed up ${_formatDate(o.createdAt)}',
+              '${o.mobileNumber ?? o.email ?? 'no contact on file'} • signed up ${_formatDate(o.createdAt)}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
@@ -580,6 +668,302 @@ class _AllowedPhonesTabState extends State<_AllowedPhonesTab> {
                           tooltip: 'Remove',
                           onPressed: () => widget.onRemove(phone.mobileNumber),
                         ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AllowedEmailsTab extends StatefulWidget {
+  const _AllowedEmailsTab({required this.emails, required this.onAdd, required this.onRemove});
+
+  final List<AllowedEmailSummary> emails;
+  final Future<void> Function(String email, String? note) onAdd;
+  final ValueChanged<String> onRemove;
+
+  @override
+  State<_AllowedEmailsTab> createState() => _AllowedEmailsTabState();
+}
+
+class _AllowedEmailsTabState extends State<_AllowedEmailsTab> {
+  final _emailController = TextEditingController();
+  final _noteController = TextEditingController();
+  bool _isAdding = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) return;
+    setState(() => _isAdding = true);
+    await widget.onAdd(email, _noteController.text.trim());
+    if (!mounted) return;
+    setState(() {
+      _isAdding = false;
+      _emailController.clear();
+      _noteController.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'A brand-new email must be on this list before it can sign in with Google '
+                    "and complete sign-up. Officers who've already signed up aren't affected.",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          key: const Key('newAllowedEmailField'),
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(labelText: 'Email address'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          key: const Key('newAllowedEmailNoteField'),
+                          controller: _noteController,
+                          decoration: const InputDecoration(labelText: 'Note (optional)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      key: const Key('addAllowedEmailButton'),
+                      onPressed: _isAdding ? null : _submit,
+                      child: _isAdding
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Add'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: widget.emails.isEmpty
+              ? const Center(child: Text('No emails added yet — every new Google sign-up is blocked.'))
+              : ListView.builder(
+                  key: const Key('adminAllowedEmailsList'),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: widget.emails.length,
+                  itemBuilder: (context, index) {
+                    final email = widget.emails[index];
+                    return Card(
+                      key: ValueKey('allowedEmailCard_${email.email}'),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        title: Text(email.email),
+                        subtitle: Text(
+                          [
+                            if (email.note != null && email.note!.isNotEmpty) email.note,
+                            'added ${_formatDate(email.addedAt)}',
+                          ].join(' • '),
+                        ),
+                        trailing: IconButton(
+                          key: ValueKey('removeAllowedEmailButton_${email.email}'),
+                          icon: const Icon(Icons.delete_outline),
+                          tooltip: 'Remove',
+                          onPressed: () => widget.onRemove(email.email),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PhoneRecoveryTab extends StatefulWidget {
+  const _PhoneRecoveryTab({
+    required this.grants,
+    required this.totalOfficers,
+    required this.onGrant,
+    required this.onRevoke,
+  });
+
+  final List<PhoneRecoveryGrant> grants;
+  final int totalOfficers;
+  final Future<void> Function(String mobileNumber, String? note) onGrant;
+  final ValueChanged<String> onRevoke;
+
+  @override
+  State<_PhoneRecoveryTab> createState() => _PhoneRecoveryTabState();
+}
+
+class _PhoneRecoveryTabState extends State<_PhoneRecoveryTab> {
+  final _numberController = TextEditingController();
+  final _noteController = TextEditingController();
+  bool _isGranting = false;
+
+  @override
+  void dispose() {
+    _numberController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final number = _numberController.text.trim();
+    if (number.length != 10) return;
+    setState(() => _isGranting = true);
+    await widget.onGrant(number, _noteController.text.trim());
+    if (!mounted) return;
+    setState(() {
+      _isGranting = false;
+      _numberController.clear();
+      _noteController.clear();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Distinct numbers ever granted, against total officers — a rough
+    // reading of "what fraction of the beta actually hit a Google
+    // sign-in problem", the reason this is tracked as a running history
+    // rather than deleted once a grant expires.
+    final distinctNumbersGranted = widget.grants.map((g) => g.mobileNumber).toSet().length;
+    final sharePercent =
+        widget.totalOfficers == 0 ? null : (distinctNumbersGranted / widget.totalOfficers * 100).round();
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Phone-OTP is a recovery path now, not a self-service option — Google '
+                    'Sign-In is the only way an officer signs in on their own. Granting a '
+                    'number here lets it use phone-OTP for 24 hours, for one officer who\'s '
+                    'told you Google isn\'t working for them.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    sharePercent == null
+                        ? '$distinctNumbersGranted number(s) have ever needed a grant.'
+                        : '$distinctNumbersGranted of ${widget.totalOfficers} officers ($sharePercent%) '
+                            'have ever needed a grant.',
+                    key: const Key('phoneRecoveryShareText'),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          key: const Key('newPhoneRecoveryNumberField'),
+                          controller: _numberController,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(labelText: '10-digit mobile number'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          key: const Key('newPhoneRecoveryNoteField'),
+                          controller: _noteController,
+                          decoration: const InputDecoration(labelText: 'Note (optional)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      key: const Key('grantPhoneRecoveryButton'),
+                      onPressed: _isGranting ? null : _submit,
+                      child: _isGranting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Grant 24h phone recovery'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: widget.grants.isEmpty
+              ? const Center(child: Text('No phone recovery grants issued yet.'))
+              : ListView.builder(
+                  key: const Key('phoneRecoveryGrantsList'),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: widget.grants.length,
+                  itemBuilder: (context, index) {
+                    final grant = widget.grants[index];
+                    final colorScheme = Theme.of(context).colorScheme;
+                    final status = grant.revokedAt != null
+                        ? 'Revoked'
+                        : grant.isActive
+                            ? 'Active until ${_formatDate(grant.expiresAt)}'
+                            : 'Expired';
+                    return Card(
+                      key: ValueKey('phoneRecoveryGrantCard_${grant.id}'),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: ListTile(
+                        title: Text(grant.mobileNumber),
+                        subtitle: Text(
+                          [
+                            if (grant.note != null && grant.note!.isNotEmpty) grant.note,
+                            'granted ${_formatDate(grant.grantedAt)}',
+                            status,
+                          ].join(' • '),
+                        ),
+                        trailing: grant.isActive
+                            ? IconButton(
+                                key: ValueKey('revokePhoneRecoveryButton_${grant.id}'),
+                                icon: Icon(Icons.block, color: colorScheme.error),
+                                tooltip: 'Revoke',
+                                onPressed: () => widget.onRevoke(grant.id),
+                              )
+                            : null,
                       ),
                     );
                   },

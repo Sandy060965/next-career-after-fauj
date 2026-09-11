@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/widgets/home_button.dart';
 import 'corporate_language_detail_screen.dart';
 import 'corporate_language_support.dart';
 import 'corporate_language_term.dart';
@@ -96,7 +97,10 @@ class _CorporateLanguageGuideScreenState extends State<CorporateLanguageGuideScr
             .toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Corporate Language Guide')),
+      appBar: AppBar(
+        title: const Text('Corporate Language Guide'),
+        actions: const [HomeButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
@@ -278,7 +282,7 @@ class _TermListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = terms ?? kCorporateLanguageTerms.where((t) => t.priorityTier == tier).toList();
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(title), actions: const [HomeButton()]),
       body: ListView(
         children: [
           for (final entry in items)
@@ -303,7 +307,7 @@ class _MindsetBridgeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mindset bridge')),
+      appBar: AppBar(title: const Text('Mindset bridge'), actions: const [HomeButton()]),
       body: ListView.separated(
         padding: const EdgeInsets.all(24),
         itemCount: kMindsetBridge.length,
@@ -332,7 +336,10 @@ class _ConfusedTermsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Commonly confused terms')),
+      appBar: AppBar(
+        title: const Text('Commonly confused terms'),
+        actions: const [HomeButton()],
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(24),
         itemCount: kConfusedTermPairs.length,
@@ -370,7 +377,10 @@ class _MeetingPhrasesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('What you\'ll hear in your first meetings')),
+      appBar: AppBar(
+        title: const Text('What you\'ll hear in your first meetings'),
+        actions: const [HomeButton()],
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(24),
         itemCount: kMeetingPhrases.length,
@@ -408,7 +418,10 @@ class _RoleListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Role-specific quick reference')),
+      appBar: AppBar(
+        title: const Text('Role-specific quick reference'),
+        actions: const [HomeButton()],
+      ),
       body: ListView(
         children: [
           for (final r in kRoleQuickReferences)

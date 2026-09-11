@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/routing/app_routes.dart';
+import '../../core/routing/guided_sequence.dart';
+import '../../core/widgets/home_button.dart';
 import 'ai_course.dart';
 import 'ai_readiness.dart';
 import 'ai_readiness_review_screen.dart';
@@ -52,7 +55,7 @@ class AiReadinessResultScreen extends StatelessWidget {
     final weakest = entries.reduce((a, b) => b.value < a.value ? b : a);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Your AI Readiness')),
+      appBar: AppBar(title: const Text('Your AI Readiness'), actions: const [HomeButton()]),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -63,24 +66,39 @@ class AiReadinessResultScreen extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          if (reviewQuestions != null && reviewAnswers != null) ...[
-            const SizedBox(height: 12),
-            Center(
-              child: OutlinedButton.icon(
-                key: const Key('reviewAnswersButton'),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => AiReadinessReviewScreen(
-                      questions: reviewQuestions!,
-                      answers: reviewAnswers!,
+          const SizedBox(height: 12),
+          Center(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                if (reviewQuestions != null && reviewAnswers != null)
+                  OutlinedButton.icon(
+                    key: const Key('reviewAnswersButton'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => AiReadinessReviewScreen(
+                          questions: reviewQuestions!,
+                          answers: reviewAnswers!,
+                        ),
+                      ),
                     ),
+                    icon: const Icon(Icons.fact_check_outlined),
+                    label: const Text('Review your answers'),
                   ),
+                // As your understanding of corporate AI use develops, your
+                // judgement (and score) will too — this is deliberately a
+                // real retest each time, not a locked-in first attempt.
+                OutlinedButton.icon(
+                  key: const Key('retakeAiReadinessButton'),
+                  onPressed: () => Navigator.of(context).pushReplacementNamed(AppRoutes.aiReadiness),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Retake this assessment'),
                 ),
-                icon: const Icon(Icons.fact_check_outlined),
-                label: const Text('Review your answers'),
-              ),
+              ],
             ),
-          ],
+          ),
           const SizedBox(height: 24),
           Text('Your capabilities', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -137,6 +155,8 @@ class AiReadinessResultScreen extends StatelessWidget {
           Text('Your 90-day roadmap', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           for (final phase in RoadmapPhase.values) ..._roadmapSection(context, phase),
+          const SizedBox(height: 24),
+          const NextStepButton(completedStepKey: 'aiReadiness'),
         ],
       ),
     );

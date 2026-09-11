@@ -107,8 +107,11 @@ that:
 - proxies job-market data via the JSearch (RapidAPI) API.
 
 See `wrangler.toml` for the full secrets list and use `npx wrangler secret
-put <NAME>` / `npx wrangler deploy` from inside `backend/cloudflare-worker/`
-to (re)deploy. There's currently no CI — every deploy is manual.
+put <NAME>` to set/rotate them. To (re)deploy, either run `npx wrangler
+deploy` from inside `backend/cloudflare-worker/` yourself, or trigger the
+**Deploy Backend Worker** GitHub Actions workflow (see "Deploying" below)
+— both do the same thing, the workflow just doesn't need Node installed
+locally.
 
 ## Web hosting
 
@@ -117,9 +120,13 @@ what used to be called "Cloudflare Pages" — Cloudflare folded Pages into
 Workers) — a different project from the API backend above:
 
 ```
-flutter build web --release --dart-define=APP_SHARED_KEY=<value>
+flutter build web --release --dart-define=APP_SHARED_KEY=<value> \
+  --dart-define=GOOGLE_SERVER_CLIENT_ID=<value>
 npx wrangler deploy   # from the repo root — uses wrangler.jsonc
 ```
+
+Or trigger the **Deploy Web App** GitHub Actions workflow instead of
+running those two commands locally — see "Deploying" below.
 
 Live at: **https://nextcareerafterfauj.com** (custom domain, registered
 via Cloudflare Registrar and connected as this Worker's custom domain —
@@ -130,6 +137,30 @@ resolves too, but isn't the one to share).
 compiled output), not `web` (the source scaffold) — `wrangler deploy`
 auto-detects the wrong one by default if `wrangler.jsonc` doesn't already
 exist, since `web/` also contains an `index.html`.
+
+### Deploying
+
+Both `.github/workflows/deploy-web.yml` and `.github/workflows/deploy-
+backend.yml` are **manual-only** (`workflow_dispatch`) — nothing deploys
+on push or merge. Ship a change from the GitHub UI: Actions tab -> pick
+the workflow -> **Run workflow**. That deliberate click matters here more
+than usual: this is a live beta with real officer accounts, so a
+merge-triggered auto-deploy would ship a bad `main` (which has happened
+mid-session before) straight to them with no checkpoint.
+
+One-time setup, in the repo's Settings -> Secrets and variables ->
+Actions:
+
+| Name | Kind | Used by | Value |
+|---|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | Secret | both workflows | A Cloudflare API token scoped to *Account -> Workers Scripts -> Edit* (the dashboard's "Edit Cloudflare Workers" template token covers this) |
+| `APP_SHARED_KEY` | Secret | deploy-web | Same value already set as a secret on the backend Worker — the app sends it as the `x-app-key` header, so both sides must agree |
+| `GOOGLE_SERVER_CLIENT_ID` | Variable | deploy-web | The Google OAuth Web-application Client ID — not sensitive (it's public in the compiled JS either way), so a repo *variable* rather than a secret |
+
+The backend Worker's own runtime secrets (`ANTHROPIC_API_KEY`, `TWILIO_*`,
+`JWT_SECRET`, `ADMIN_SECRET`, `GOOGLE_CLIENT_ID`, `RAPIDAPI_KEY`) live on
+the Worker itself via `wrangler secret put` and are untouched by either
+workflow — they don't need to be GitHub secrets too.
 
 ### Access control
 
@@ -160,7 +191,9 @@ Profile → Help & Support.
   applicationId + signing config; iOS needs Apple Developer setup (the
   web build above works fine on iOS in the meantime, just not as an
   installed app).
-- **CI/CD** — no automated test/build/deploy pipeline.
+- **CI/CD** — deploy is a manual button-press (see "Deploying" above),
+  not automatic on push/merge; there's also no automated `flutter
+  test`/`flutter analyze` run on PRs yet.
 
 ## Beta distribution
 

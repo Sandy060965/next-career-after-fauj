@@ -1,0 +1,30 @@
+name: Deploy Backend Worker
+
+# Manual only — see deploy-web.yml for why. Runtime secrets (ANTHROPIC_API_KEY,
+# TWILIO_*, JWT_SECRET, ADMIN_SECRET, GOOGLE_CLIENT_ID, APP_SHARED_KEY,
+# RAPIDAPI_KEY) already live on the Worker itself via `wrangler secret put`
+# and are untouched by `wrangler deploy` — this workflow only needs
+# CLOUDFLARE_API_TOKEN to push the updated code.
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/cloudflare-worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: backend/cloudflare-worker
+          command: deploy

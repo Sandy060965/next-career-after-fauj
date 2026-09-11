@@ -1,0 +1,32 @@
+name: Deploy Web App
+
+# Manual only — this ships straight to real officers using the app, so it
+# should be a deliberate "yes, ship this" click (Actions tab -> this
+# workflow -> Run workflow), not something that fires on every push.
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.0'
+          channel: 'stable'
+
+      - run: flutter pub get
+
+      - run: |
+          flutter build web --release \
+            --dart-define=APP_SHARED_KEY=${{ secrets.APP_SHARED_KEY }} \
+            --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ vars.GOOGLE_SERVER_CLIENT_ID }}
+
+      # wrangler.jsonc's assets.directory points at build/web, which the
+      # step above just produced.
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy

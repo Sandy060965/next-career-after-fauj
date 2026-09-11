@@ -252,6 +252,14 @@ const List<ModulePhase> kLearnModules = [
             'addressing people, email and meeting etiquette, statutory conduct boundaries and '
             'more — to reduce avoidable friction in your first months.',
       ),
+      ModuleEntry(
+        keyName: 'learningResourcesButton',
+        route: AppRoutes.learningResources,
+        label: 'Learning Resources Library',
+        description: 'Hand-verified free, low-cost and professional courses and certifications — '
+            'across AI, data, operations, finance, HR, security, governance and more — to close the '
+            'specific gaps your assessments identify.',
+      ),
     ],
   ),
 ];

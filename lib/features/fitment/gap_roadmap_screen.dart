@@ -5,6 +5,8 @@ import '../../core/models/officer_profile.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/utils/date_format.dart';
 import '../../core/widgets/home_button.dart';
+import '../learning_resources/learning_resource_detail_screen.dart';
+import '../learning_resources/learning_resource_matcher.dart';
 import 'fitment_result.dart';
 
 class GapRoadmapScreen extends StatelessWidget {
@@ -110,6 +112,7 @@ class _RoadmapStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final matches = matchResourcesForGap('${item.title} ${item.closesGap}', limit: 2);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,6 +159,42 @@ class _RoadmapStep extends StatelessWidget {
                       'Time to acquire: ${item.timeToAcquire}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
+                    if (matches.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        'Suggested learning',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: colorScheme.primary,
+                              letterSpacing: 0.6,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      for (final resource in matches)
+                        InkWell(
+                          key: Key('matchedResource_${item.title}_${resource.id}'),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => LearningResourceDetailScreen(resource: resource),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3),
+                            child: Row(
+                              children: [
+                                Icon(Icons.menu_book_outlined, size: 16, color: colorScheme.primary),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    '${resource.name} — ${resource.provider}',
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ],
                 ),
               ),

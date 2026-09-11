@@ -244,6 +244,25 @@ void main() {
 
       expect(find.textContaining('Already released'), findsOneWidget);
     });
+
+    testWidgets('shows a matched learning resource for a roadmap item whose text hits a known tag',
+        (tester) async {
+      tester.view.physicalSize = const Size(430, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(_wrap(const GapRoadmapScreen(result: _result)));
+
+      expect(find.text('Suggested learning'), findsWidgets);
+      expect(find.textContaining('PMP certification'), findsWidgets);
+      expect(find.byKey(const Key('matchedResource_PMP_pmi-pmp')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('matchedResource_PMP_pmi-pmp')));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(AppBar, 'PMP certification'), findsOneWidget);
+    });
   });
 
   group('Standalone fitment entry screens', () {

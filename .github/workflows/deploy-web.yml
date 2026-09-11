@@ -25,8 +25,12 @@ jobs:
             --dart-define=GOOGLE_SERVER_CLIENT_ID=${{ vars.GOOGLE_SERVER_CLIENT_ID }}
 
       # wrangler.jsonc's assets.directory points at build/web, which the
-      # step above just produced.
+      # step above just produced. wrangler-action defaults to an old
+      # Wrangler (3.x) that doesn't understand an assets-only Worker with
+      # no `main` script — pin a 4.x that does, matching what `npx
+      # wrangler deploy` resolves to locally.
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: '4.131.1'
           command: deploy

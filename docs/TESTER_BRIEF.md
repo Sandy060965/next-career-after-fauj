@@ -93,7 +93,14 @@ You don't need to use every module, but if you can, please try:
    output makes sense to you.
 6. **Compensation Guidance** — read the "reading a corporate offer"
    section — does it make sense, is anything missing?
-7. Anything else that's relevant to where you are in your own transition.
+7. **The Learn tab** — under "Prepare," try the new **Corporate Culture &
+   Work Environment** and **Business Etiquette & Professional Conduct**
+   guides, and the **Learning Resources Library** (also linked straight off
+   your Gap Roadmap results). Under "Build Your CV," open the **CV
+   Examples Library** from the CV Writing Guide screen and look up your
+   own service/rank/career-track — does it read as realistic for your
+   level, or generic?
+8. Anything else that's relevant to where you are in your own transition.
 
 ## What to report
 

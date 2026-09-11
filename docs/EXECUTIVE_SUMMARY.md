@@ -37,6 +37,12 @@ themselves fall into seven natural groups:
 - **CV Writing Guide** — fixed, hand-authored reference content: recommended
   CV structure and section-by-section guidance, plus 6 downloadable
   templates.
+- **CV Examples Library** — 54 fictional-composite CVs, one for every
+  service/rank/career-track combination, rendered through the same 20
+  templates as the officer's own CV — a reference-quality Executive
+  Profile, Career Highlights, and rank-appropriate Professional Experience
+  (years of service, appointment count, and courses all scaled to that
+  rank) to show what "good" looks like at their own level.
 
 ## 2. Where to aim — career exploration
 
@@ -85,6 +91,11 @@ themselves fall into seven natural groups:
   relevant to civilian roles.
 - **Interview Prep** — a question bank plus JD-specific mock interview
   practice with answer analysis.
+- **Learning Resources Library** — a hand-verified catalogue of free,
+  low-cost, and professional courses/certifications across AI, data,
+  operations, finance, HR, security, governance, and more — matched
+  automatically into Gap Roadmap results, so a specific skills gap points
+  straight at a specific, real resource to close it.
 
 ## 5. The transition itself
 
@@ -105,6 +116,16 @@ themselves fall into seven natural groups:
 - **Corporate Transition – Reading Programme** — a staged, 22-book reading
   list (a 5-book minimum for the time-constrained), each book explaining
   the specific military-to-corporate gap it addresses and when to read it.
+- **Corporate Culture & Work Environment** — a 20-section guide to how
+  authority, decisions, hierarchy, and performance are read differently in
+  a corporate or PSU environment, and how to adapt without losing the
+  strengths that came from service.
+- **Business Etiquette & Professional Conduct** — a 22-section day-to-day
+  guide to workplace etiquette, communication norms, and professional
+  boundaries — addressing people, email and meeting etiquette, and
+  statutory conduct boundaries (POSH, whistleblowing, insider information,
+  conflict of interest) — to reduce avoidable friction in the first
+  months.
 
 ## 7. Community
 

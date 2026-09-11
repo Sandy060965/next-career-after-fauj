@@ -82,5 +82,64 @@ void main() {
         expect(bytes, isNotEmpty, reason: '${template.id} (bare data) produced no bytes');
       }
     });
+
+    test('business_leader and executive_navy render careerHighlights without error', () async {
+      final fonts = await CvPdfFonts.load();
+      final withoutHighlights = _sampleData();
+      final withHighlights = CvTemplateData(
+        fullName: withoutHighlights.fullName,
+        rank: withoutHighlights.rank,
+        serviceLabel: withoutHighlights.serviceLabel,
+        summary: withoutHighlights.summary,
+        skills: withoutHighlights.skills,
+        careerHighlights: const [
+          'Led a major transformation programme spanning multiple locations.',
+          'Reduced operating costs by double digits within one budget cycle.',
+        ],
+        workExperience: withoutHighlights.workExperience,
+      );
+
+      for (final id in ['business_leader', 'executive_navy']) {
+        final template = kCvPdfTemplates.firstWhere((t) => t.id == id);
+        final bytesWith = await template.build(withHighlights, fonts).save();
+        expect(bytesWith, isNotEmpty, reason: id);
+      }
+    });
+
+    // Regression guard for a real bug found while building the 54-example CV
+    // Library: buildExecutiveSidebar wraps its whole page body in a single
+    // pw.Row, whose cross axis (height) can't be split across pages by the
+    // pdf package's Flex-based pagination (only a Row's main/horizontal axis
+    // splits cleanly) — so sufficiently detailed data throws a "won't fit"
+    // exception instead of flowing to a second page. business_leader avoids
+    // this because its page body is a pw.Column (vertical main axis matches
+    // the page-break axis, so Flex can split it by child normally).
+    test('business_leader accommodates dense, multi-section data without throwing', () async {
+      final fonts = await CvPdfFonts.load();
+      final template = kCvPdfTemplates.firstWhere((t) => t.id == 'business_leader');
+      final dense = CvTemplateData(
+        fullName: 'A K Sharma',
+        rank: 'Lieutenant General',
+        serviceLabel: 'Army',
+        summary: List.filled(3, _sampleData().summary).join(' '),
+        skills: List.generate(10, (i) => 'Competency Area $i'),
+        careerHighlights: List.generate(6, (i) => 'A detailed, sentence-length career highlight number $i.'),
+        workExperience: List.generate(
+          3,
+          (i) => WorkExperienceEntry(
+            roleTitle: 'Senior Appointment $i',
+            organizationType: '',
+            duration: '20${10 + i}–20${13 + i}',
+            responsibilities: List.generate(5, (j) => 'A detailed responsibility bullet number $j.').join('\n'),
+          ),
+        ),
+        education: _sampleData().education,
+        courses: _sampleData().courses,
+        honoursAwards: List.generate(3, (i) => AwardEntry(name: 'Award $i', year: '201$i')),
+      );
+
+      final bytes = await template.build(dense, fonts).save();
+      expect(bytes, isNotEmpty);
+    });
   });
 }

@@ -106,6 +106,11 @@ pw.Document buildExecutiveSidebar(CvTemplateData data, CvPdfFonts fonts, CvTempl
                       pw.Text(data.summary, style: styles.body),
                       pw.SizedBox(height: 16),
                     ],
+                    if (data.careerHighlights.isNotEmpty) ...[
+                      cvSectionHeading('Career Highlights', styles),
+                      cvBulletList(data.careerHighlights.join('\n'), styles),
+                      pw.SizedBox(height: 16),
+                    ],
                     if (data.workExperience.isNotEmpty) ...[
                       cvSectionHeading('Professional Experience', styles),
                       for (final e in data.workExperience)

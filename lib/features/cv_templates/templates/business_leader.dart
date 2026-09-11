@@ -9,7 +9,8 @@ import '../cv_template_theme.dart';
 /// A row of four labelled leadership-pillar boxes (Strategy / Operations /
 /// People / Growth — a positioning motif, not officer-specific data) under
 /// a dark header band, then Professional Experience and Education & Awards.
-pw.Document buildBusinessLeader(CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
+pw.Document buildBusinessLeader(
+    CvTemplateData data, CvPdfFonts fonts, CvTemplateTheme theme) {
   final styles = CvTextStyles(fonts, theme);
   const pillars = ['Strategy', 'Operations', 'People', 'Growth'];
 
@@ -23,7 +24,11 @@ pw.Document buildBusinessLeader(CvTemplateData data, CvPdfFonts fonts, CvTemplat
             borderRadius: const pw.BorderRadius.all(pw.Radius.circular(3)),
           ),
           alignment: pw.Alignment.center,
-          child: pw.Text(label, style: pw.TextStyle(font: fonts.interSemiBold, fontSize: 9, color: theme.primary)),
+          child: pw.Text(label,
+              style: pw.TextStyle(
+                  font: fonts.interSemiBold,
+                  fontSize: 9,
+                  color: theme.primary)),
         ),
       );
 
@@ -41,15 +46,29 @@ pw.Document buildBusinessLeader(CvTemplateData data, CvPdfFonts fonts, CvTemplat
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(data.titleLine, style: pw.TextStyle(font: fonts.interBold, fontSize: 22, color: PdfColors.white)),
+              pw.Text(data.titleLine,
+                  style: pw.TextStyle(
+                      font: fonts.interBold,
+                      fontSize: 22,
+                      color: PdfColors.white)),
               pw.SizedBox(height: 3),
               pw.Text(
-                [data.serviceLabel, data.corpsOrArm].whereType<String>().where((s) => s.isNotEmpty).join(' • '),
-                style: pw.TextStyle(font: fonts.interRegular, fontSize: 10, color: PdfColor.fromHex('#FFFFFFCC')),
+                [data.serviceLabel, data.corpsOrArm]
+                    .whereType<String>()
+                    .where((s) => s.isNotEmpty)
+                    .join(' • '),
+                style: pw.TextStyle(
+                    font: fonts.interRegular,
+                    fontSize: 10,
+                    color: PdfColor.fromHex('#FFFFFFCC')),
               ),
               if (cvContactLine(data).isNotEmpty) ...[
                 pw.SizedBox(height: 4),
-                pw.Text(cvContactLine(data), style: pw.TextStyle(font: fonts.interRegular, fontSize: 9, color: PdfColor.fromHex('#FFFFFFCC'))),
+                pw.Text(cvContactLine(data),
+                    style: pw.TextStyle(
+                        font: fonts.interRegular,
+                        fontSize: 9,
+                        color: PdfColor.fromHex('#FFFFFFCC'))),
               ],
             ],
           ),
@@ -64,6 +83,16 @@ pw.Document buildBusinessLeader(CvTemplateData data, CvPdfFonts fonts, CvTemplat
               if (data.summary.trim().isNotEmpty) ...[
                 cvSectionHeading('Leadership Profile', styles),
                 pw.Text(data.summary, style: styles.body),
+                pw.SizedBox(height: 14),
+              ],
+              if (data.careerHighlights.isNotEmpty) ...[
+                cvSectionHeading('Career Highlights', styles),
+                cvBulletList(data.careerHighlights.join('\n'), styles),
+                pw.SizedBox(height: 14),
+              ],
+              if (data.skills.isNotEmpty) ...[
+                cvSectionHeading('Core Competencies', styles),
+                cvSkillTags(data.skills, styles),
                 pw.SizedBox(height: 14),
               ],
               if (data.workExperience.isNotEmpty) ...[
@@ -86,7 +115,9 @@ pw.Document buildBusinessLeader(CvTemplateData data, CvPdfFonts fonts, CvTemplat
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           cvSectionHeading('Education', styles),
-                          for (final ed in data.education) cvSimpleLine('${ed.degree}, ${ed.institution}', ed.year, styles),
+                          for (final ed in data.education)
+                            cvSimpleLine('${ed.degree}, ${ed.institution}',
+                                ed.year, styles),
                         ],
                       ),
                     ),
@@ -97,7 +128,8 @@ pw.Document buildBusinessLeader(CvTemplateData data, CvPdfFonts fonts, CvTemplat
                         crossAxisAlignment: pw.CrossAxisAlignment.start,
                         children: [
                           cvSectionHeading('Awards', styles),
-                          for (final a in data.honoursAwards) cvSimpleLine(a.name, a.year, styles),
+                          for (final a in data.honoursAwards)
+                            cvSimpleLine(a.name, a.year, styles),
                         ],
                       ),
                     ),

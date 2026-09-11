@@ -39,6 +39,45 @@ void main() {
       }
     });
 
+    test('every example has career highlights and uses the unified template', () {
+      for (final example in kCvExamples) {
+        expect(example.data.careerHighlights, isNotEmpty,
+            reason: '${example.serviceLabel} ${example.rank} missing careerHighlights');
+        expect(example.templateId, 'business_leader',
+            reason: '${example.serviceLabel} ${example.rank} should use the unified template');
+      }
+    });
+
+    test('every work-experience entry has three tailored, non-placeholder roles', () {
+      for (final example in kCvExamples) {
+        expect(example.data.workExperience.length, 3,
+            reason: '${example.serviceLabel} ${example.rank} should have 3 work-experience entries');
+        for (final entry in example.data.workExperience) {
+          expect(entry.responsibilities, isNot(contains('[XX]')),
+              reason: '${example.serviceLabel} ${example.rank}: ${entry.roleTitle} still has an unfilled placeholder');
+          expect(entry.responsibilities.split('\n').length, greaterThanOrEqualTo(4),
+              reason: '${example.serviceLabel} ${example.rank}: ${entry.roleTitle} has too few bullets');
+        }
+      }
+    });
+
+    test('content is genuinely differentiated by seniority tier, not reused verbatim across ranks', () {
+      final juniorOps = kCvExamples.firstWhere(
+        (e) => e.serviceLabel == 'Army' && e.rank == 'Major' && e.archetype == CvExampleArchetype.operationsAndGeneralManagement,
+      );
+      final flagOps = kCvExamples.firstWhere(
+        (e) =>
+            e.serviceLabel == 'Army' &&
+            e.rank == 'Lieutenant General' &&
+            e.archetype == CvExampleArchetype.operationsAndGeneralManagement,
+      );
+      expect(juniorOps.data.summary, isNot(equals(flagOps.data.summary)));
+      expect(
+        juniorOps.data.workExperience.first.responsibilities,
+        isNot(equals(flagOps.data.workExperience.first.responsibilities)),
+      );
+    });
+
     // A full pass (fonts + all 54 examples through their assigned template) in
     // a single test avoids loading the bundled fonts 54 times over.
     test('every example renders non-empty PDF bytes through its assigned template', () async {

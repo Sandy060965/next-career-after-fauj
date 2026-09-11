@@ -19,6 +19,7 @@ class CvTemplateData {
     this.photoBytes,
     this.summary = '',
     this.skills = const [],
+    this.careerHighlights = const [],
     this.workExperience = const [],
     this.education = const [],
     this.certifications = const [],
@@ -35,6 +36,12 @@ class CvTemplateData {
   final Uint8List? photoBytes;
   final String summary;
   final List<String> skills;
+
+  /// Short, scannable achievement lines rendered as their own section
+  /// (e.g. between the profile summary and professional experience) —
+  /// distinct from [skills]/competencies and from the per-role bullets
+  /// inside [workExperience]. Empty means the section is simply omitted.
+  final List<String> careerHighlights;
   final List<WorkExperienceEntry> workExperience;
   final List<EducationEntry> education;
   final List<CertificationEntry> certifications;

@@ -30,6 +30,8 @@ class AppRoutes {
   static const String corpsMatrix = '/corps-vertical-matrix';
   static const String corporateLanguageGuide = '/corporate-language-guide';
   static const String readingProgramme = '/reading-programme';
+  static const String corporateCultureGuide = '/corporate-culture-guide';
+  static const String businessEtiquetteGuide = '/business-etiquette-guide';
   static const String aiAssistant = '/ai-assistant';
   static const String supportTicket = '/support';
   static const String admin = '/admin';

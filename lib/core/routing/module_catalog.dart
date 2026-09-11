@@ -236,6 +236,22 @@ const List<ModulePhase> kLearnModules = [
             'additional questions likely for your specific role once you\'ve run JD Match — then '
             'run a mock interview and get constructive AI feedback on your answers.',
       ),
+      ModuleEntry(
+        keyName: 'corporateCultureGuideButton',
+        route: AppRoutes.corporateCultureGuide,
+        label: 'Corporate Culture & Work Environment',
+        description: 'How authority, decisions, hierarchy and performance are read differently '
+            'in a corporate or PSU environment — and how to adapt without losing the strengths '
+            'you bring from service.',
+      ),
+      ModuleEntry(
+        keyName: 'businessEtiquetteGuideButton',
+        route: AppRoutes.businessEtiquetteGuide,
+        label: 'Business Etiquette & Professional Conduct',
+        description: 'Day-to-day etiquette, communication norms and professional boundaries — '
+            'addressing people, email and meeting etiquette, statutory conduct boundaries and '
+            'more — to reduce avoidable friction in your first months.',
+      ),
     ],
   ),
 ];

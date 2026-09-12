@@ -210,6 +210,14 @@ const List<ModulePhase> kLearnModules = [
         description: 'A reference guide and templates for structuring a strong civilian CV yourself.',
       ),
       ModuleEntry(
+        keyName: 'cvExamplesButton',
+        route: AppRoutes.cvExamples,
+        label: 'CV Examples Library',
+        description: '54 fictional-composite CVs, one for every service/rank/career-track '
+            'combination, rendered through the same templates as your own CV — a reference for '
+            'what a strong CV looks like at your own level.',
+      ),
+      ModuleEntry(
         keyName: 'corporateLanguageGuideButton',
         route: AppRoutes.corporateLanguageGuide,
         label: 'Corporate Language Guide',

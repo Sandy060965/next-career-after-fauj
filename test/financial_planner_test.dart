@@ -341,8 +341,27 @@ void main() {
           .firstWhere((p) => p.service == OfficerService.army && p.rank == DefenceRank.major && p.yearsOfService == 10);
       final major14 = illustrativeMilitaryProfiles
           .firstWhere((p) => p.service == OfficerService.army && p.rank == DefenceRank.major && p.yearsOfService == 14);
-      expect(major10.basicPay, 61300);
+      // Major is a time-scale promotion at ~6 years of service (real,
+      // sourced), so a "10 years of service" milestone has already drawn 4
+      // annual increments — index 5 (69,000), not index 1 (61,300, "just
+      // promoted") — matching how many years they've plainly been a Major.
+      expect(major10.basicPay, 69000);
       expect(major14.basicPay, greaterThan(major10.basicPay));
+    });
+
+    test('a Colonel at 25 years of service shows pay reflecting years already spent at that '
+        'rank, not day-one Colonel pay', () {
+      // Colonel is a selection-grade promotion typically reached at ~16
+      // years of service, so by 25 years of total service that officer has
+      // plainly been a Colonel for ~9 years — a real, reported bug was that
+      // this milestone showed the Level 13 matrix's very first (lowest)
+      // figure instead.
+      final col25 = illustrativeMilitaryProfiles.firstWhere(
+        (p) => p.service == OfficerService.army && p.rank == DefenceRank.col && p.yearsOfService == 25,
+      );
+      const level13FirstIndexPay = 130600;
+      expect(col25.basicPay, greaterThan(level13FirstIndexPay));
+      expect(col25.basicPay, 170400);
     });
   });
 
@@ -415,7 +434,7 @@ void main() {
 
       final basicPayField =
           tester.widget<TextFormField>(find.byKey(const Key('militaryBasicPayField')));
-      expect(basicPayField.controller!.text, '61300');
+      expect(basicPayField.controller!.text, '69000');
       final yearsField =
           tester.widget<TextFormField>(find.byKey(const Key('yearsOfServiceField')));
       expect(yearsField.controller!.text, '10');

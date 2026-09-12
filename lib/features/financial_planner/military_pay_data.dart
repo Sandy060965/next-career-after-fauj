@@ -118,70 +118,92 @@ class IllustrativeMilitaryProfile {
   num get basicPay => rank.basicPayAtIndex(matrixIndex);
 }
 
+/// Years of commissioned service at which each rank is typically first
+/// reached — used below to derive how many annual increments an officer at
+/// a given total-years-of-service milestone has actually drawn at that
+/// rank, rather than showing "just promoted, day one" pay for someone who
+/// (per the milestone's own stated years of service) has plainly been at
+/// that rank for years already. Major and Lieutenant Colonel are automatic
+/// time-scale promotions with well-established timing; Colonel and above
+/// are selection-grade (merit-based, so actual timing varies by officer) —
+/// Colonel's ~15–17 year range is taken here as 16, a midpoint, not a
+/// guarantee. Real career progression varies by officer, arm and service;
+/// treat every milestone below as an illustrative starting point, not a
+/// forecast of any individual's actual pay.
+const _firstReachedAtYears = {
+  DefenceRank.major: 6,
+  DefenceRank.ltCol: 13,
+  DefenceRank.col: 16,
+  DefenceRank.brig: 25,
+  DefenceRank.majGen: 32,
+  DefenceRank.ltGen: 36,
+};
+
+/// [basicPayAtIndex] clamps out-of-range values to the matrix's real
+/// bounds, so this never needs its own bounds-checking.
+int _matrixIndexFor(DefenceRank rank, int yearsOfService) =>
+    yearsOfService - _firstReachedAtYears[rank]! + 1;
+
 /// The 8 rank/tenure milestones requested, each shown for all three
-/// services. Where two milestones share a rank (Major-equivalent at 10 &
-/// 14 years, to bracket typical SSC exit; Colonel-equivalent at 25 & 30
-/// years), the later one adds one matrix increment per additional year in
-/// that rank — everywhere else the milestone is shown at that rank's
-/// starting basic pay (matrix index 1), i.e. "just promoted." Real career
-/// progression varies by officer, arm and service; treat these as
-/// illustrative starting points, not a forecast.
+/// services — matrixIndex is always derived from [_firstReachedAtYears],
+/// never a hand-picked literal, so every milestone's implied years-in-rank
+/// stays consistent with the same promotion-timing assumption.
 final List<IllustrativeMilitaryProfile> illustrativeMilitaryProfiles = [
   for (final service in OfficerService.values) ...[
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.major,
       yearsOfService: 10,
-      matrixIndex: 1,
+      matrixIndex: _matrixIndexFor(DefenceRank.major, 10),
       note: 'SSC officer, early exit window',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.major,
       yearsOfService: 14,
-      matrixIndex: 5,
+      matrixIndex: _matrixIndexFor(DefenceRank.major, 14),
       note: 'SSC officer, extended tenure exit window',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.ltCol,
       yearsOfService: 20,
-      matrixIndex: 1,
+      matrixIndex: _matrixIndexFor(DefenceRank.ltCol, 20),
       note: 'Time-scale promotion, mid-career',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.col,
       yearsOfService: 25,
-      matrixIndex: 1,
+      matrixIndex: _matrixIndexFor(DefenceRank.col, 25),
       note: 'Select-grade promotion',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.col,
       yearsOfService: 30,
-      matrixIndex: 6,
+      matrixIndex: _matrixIndexFor(DefenceRank.col, 30),
       note: 'Extended tenure at rank',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.brig,
       yearsOfService: 35,
-      matrixIndex: 1,
+      matrixIndex: _matrixIndexFor(DefenceRank.brig, 35),
       note: 'Select-grade promotion',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.majGen,
       yearsOfService: 37,
-      matrixIndex: 1,
+      matrixIndex: _matrixIndexFor(DefenceRank.majGen, 37),
       note: 'Select-grade promotion, apex scale — no MSP',
     ),
     IllustrativeMilitaryProfile(
       service: service,
       rank: DefenceRank.ltGen,
       yearsOfService: 39,
-      matrixIndex: 1,
+      matrixIndex: _matrixIndexFor(DefenceRank.ltGen, 39),
       note: 'Select-grade promotion, apex scale — no MSP',
     ),
   ],

@@ -27,9 +27,13 @@ jobs:
       # Pinned to match package.json's wrangler devDependency (^4.123.0),
       # rather than whatever older default wrangler-action would otherwise
       # install — see deploy-web.yml for the version-mismatch this avoids.
+      # wrangler-action's `workingDirectory` doesn't reliably change where
+      # `wrangler deploy` resolves its config from — it was picking up the
+      # repo-root wrangler.jsonc (the frontend's) instead of this Worker's
+      # wrangler.toml. Pointing at the config explicitly sidesteps that.
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           wranglerVersion: '4.131.1'
           workingDirectory: backend/cloudflare-worker
-          command: deploy
+          command: deploy --config backend/cloudflare-worker/wrangler.toml

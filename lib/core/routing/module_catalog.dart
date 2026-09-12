@@ -129,6 +129,18 @@ const List<ModulePhase> kCareerModules = [
 
 const List<ModulePhase> kJobsModules = [
   ModulePhase(
+    title: 'Transition Planning',
+    modules: [
+      ModuleEntry(
+        keyName: 'transitionPlanButton',
+        route: AppRoutes.transitionPlan,
+        label: 'My Transition Plan',
+        description: 'Phase-by-phase guidance for the run-up to release, tailored to how many '
+            'months you have left.',
+      ),
+    ],
+  ),
+  ModulePhase(
     title: 'Active Job Search',
     modules: [
       ModuleEntry(

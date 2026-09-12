@@ -9,12 +9,38 @@ import '../../core/services/transition_readiness.dart';
 int _moduleCount(List<ModulePhase> phases) =>
     phases.fold(0, (sum, phase) => sum + phase.modules.length);
 
+/// AI Assistant is deliberately NOT in [kCareerModules]/[kJobsModules]/
+/// [kLearnModules] — those three lists double as the real button data for
+/// the Career/Jobs/Learn section tabs and the wide-screen sidebar (see
+/// core/routing/module_catalog.dart), and AI Assistant isn't opened from a
+/// tab list at all: it's the sparkle floating button shown on every screen.
+/// This list exists only so "How This App Works" can still count and
+/// describe it, without adding a second, redundant entry point anywhere in
+/// the app's actual navigation.
+const List<ModulePhase> _kAlwaysAvailableModules = [
+  ModulePhase(
+    title: 'Reachable From Every Screen',
+    modules: [
+      ModuleEntry(
+        keyName: 'aiAssistantButton',
+        route: AppRoutes.aiAssistant,
+        label: 'AI Assistant',
+        description: 'Shown as a separate floating button (the sparkle icon) on every screen, not '
+            'just here — ask open-ended questions by typing or speaking, grounded only in your own '
+            'real, already-computed data.',
+      ),
+    ],
+  ),
+];
+
 /// The app's real, current module count — computed from the same catalog
 /// the "How This App Works" guide numbers modules from, so it can never go
 /// stale the way a hand-typed number would the next time a module is added,
 /// renamed, or retired.
-final kTotalModuleCount =
-    _moduleCount(kCareerModules) + _moduleCount(kJobsModules) + _moduleCount(kLearnModules);
+final kTotalModuleCount = _moduleCount(kCareerModules) +
+    _moduleCount(kJobsModules) +
+    _moduleCount(kLearnModules) +
+    _moduleCount(_kAlwaysAvailableModules);
 
 /// A single deterministic next-action candidate — always tied to real,
 /// persisted state (never a fabricated count or invented recommendation).
@@ -225,6 +251,14 @@ class _InstructionsCard extends StatelessWidget {
               intro: 'Build your documents and your vocabulary.',
               phases: kLearnModules,
               startNumber: 1 + _moduleCount(kCareerModules) + _moduleCount(kJobsModules),
+            ),
+            _ModuleCategorySection(
+              title: 'Always Available',
+              color: null,
+              intro: 'Not tied to Career, Jobs, or Learn — reachable from anywhere in the app.',
+              phases: _kAlwaysAvailableModules,
+              startNumber:
+                  1 + _moduleCount(kCareerModules) + _moduleCount(kJobsModules) + _moduleCount(kLearnModules),
             ),
             const _ModuleCategorySection(
               title: 'Profile',

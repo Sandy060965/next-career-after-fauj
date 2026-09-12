@@ -162,4 +162,31 @@ void main() {
       }
     }
   });
+
+  // AI Assistant is deliberately absent from kCareerModules/kJobsModules/
+  // kLearnModules (see dashboard_screen.dart's _kAlwaysAvailableModules doc
+  // comment) so it never gets a second, redundant button anywhere in the
+  // Career/Jobs/Learn tabs or the wide-screen sidebar — those all render
+  // straight from those three lists. It still needs to show up in "How This
+  // App Works" so the guide's count matches the feedback form's module list.
+  testWidgets('"How This App Works" lists AI Assistant as an Always Available '
+      'entry, not a Career/Jobs/Learn module', (tester) async {
+    _setTallViewport(tester);
+    await tester.pumpWidget(_wrap(ProfileRepository()));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('instructionsExpansionTile')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Always Available'), findsOneWidget);
+    expect(find.text('Reachable From Every Screen'), findsOneWidget);
+    expect(
+      find.textContaining('Shown as a separate floating button'),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Numbered 1–$kTotalModuleCount'),
+      findsOneWidget,
+    );
+  });
 }

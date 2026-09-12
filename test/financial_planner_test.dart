@@ -89,10 +89,11 @@ void main() {
           monthlyRentDelta: 20000,
           monthlyHealthcareDelta: 5000,
           monthlySchoolFeeDelta: -2000,
+          monthlyTransportDelta: 3000,
         ),
       );
-      expect(result.monthlyCostOfLivingDelta, 23000);
-      expect(result.effectiveMonthlyGuaranteed, 100000 - 23000);
+      expect(result.monthlyCostOfLivingDelta, 26000);
+      expect(result.effectiveMonthlyGuaranteed, 100000 - 26000);
     });
 
     test('negotiation guidance differs for pensioners vs. non-pensioners', () {

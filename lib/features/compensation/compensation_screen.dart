@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/models/guide_section.dart';
 import '../../core/routing/app_routes.dart';
 import '../../core/services/profile_repository.dart';
 import '../../core/widgets/analysis_loading_indicator.dart';
 import '../../core/widgets/home_button.dart';
 import 'compensation_estimate.dart';
+import 'compensation_guidance_sections.dart';
 import 'compensation_service.dart';
 
 class CompensationScreen extends StatefulWidget {
@@ -227,17 +229,17 @@ class _CompensationScreenState extends State<CompensationScreen> {
 }
 
 /// Plain-language orientation on how service and corporate compensation
-/// actually compare — deliberately has no rupee figures or formulas of its
-/// own. Anything numeric belongs in the Financial & Cost-of-Living
-/// Calculator, where the officer enters their own real figures; this
-/// section only explains what to look for and why, so it never goes
-/// stale.
+/// actually compare — deliberately has no rupee figures of its own beyond
+/// clearly-labelled illustrative examples. Every real number the officer
+/// needs comes from the Financial & Cost-of-Living Calculator below, where
+/// they enter their own figures. Content lives in
+/// compensation_guidance_sections.dart, one collapsible section at a time
+/// so this doesn't turn into an unreadable single scroll.
 class _CompensationEducationSection extends StatelessWidget {
   const _CompensationEducationSection();
 
   @override
   Widget build(BuildContext context) {
-    final titleStyle = Theme.of(context).textTheme.titleMedium;
     final bodyStyle = Theme.of(context).textTheme.bodyMedium;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,49 +247,14 @@ class _CompensationEducationSection extends StatelessWidget {
         Text('Reading a corporate offer', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 12),
         Text(
-          "A corporate CTC letter and your service pay slip aren't measuring the same thing. "
-          'Before comparing headline numbers, account for three things a CTC figure hides.',
+          'A practical guide to deconstructing any corporate offer, understanding what its '
+          'components actually mean, and comparing it fairly against your military compensation — '
+          'tap a topic to expand it.',
           style: bodyStyle,
         ),
-        const SizedBox(height: 20),
-        const _EducationCard(
-          title: 'What you have now that never shows as cash',
-          body: "Subsidised or free accommodation, ECHS medical cover, CSD purchases, children's "
-              "school fee concessions — none of this appears in your pay slip's monthly figure, but "
-              "losing it is a real cost. Use the calculator below to put a number on what you'd have "
-              'to spend to replace it.',
-        ),
-        const SizedBox(height: 12),
-        const _EducationCard(
-          title: "What's deferred, not current",
-          body: 'Pension and retirement gratuity are real and valuable, but they are not part of your '
-              "current spending power, and a corporate offer doesn't need to replace them — they "
-              "continue regardless of what you do next. Don't let a recruiter's bigger headline "
-              'number distract from comparing like with like: current economic value against current '
-              'economic value.',
-        ),
-        const SizedBox(height: 12),
-        const _EducationCard(
-          title: 'What the move itself will cost you',
-          body: 'A posting in a metro usually means market-rate rent, private schooling, and private '
-              'health cover — costs service life may have shielded you from. A bigger salary in a '
-              'costlier city can be a pay cut in real terms once you net these out.',
-        ),
-        const SizedBox(height: 24),
-        Text('Negotiating the offer', style: titleStyle),
-        const SizedBox(height: 8),
-        Text(
-          '• Ask for the CTC breakup in writing — fixed, variable, and benefits as separate lines, '
-          'not one headline number. Variable pay is a target, not a promise.\n'
-          '• Negotiate the fixed component first. If it falls short of your break-even number, a '
-          "larger bonus or ESOP grant doesn't close that gap — treat it as upside on top, not a fix.\n"
-          '• Ask for what service life gave you by default and a corporate offer usually has to be '
-          'asked for: a relocation or joining allowance, and a health cover that matches your '
-          "family's current access.\n"
-          '• Know your own floor before the call. Run your numbers in the calculator below and use '
-          "the break-even figure as your minimum, not the recruiter's opening offer.",
-          style: bodyStyle,
-        ),
+        const SizedBox(height: 16),
+        for (final section in kCompensationGuidanceSections)
+          _GuidanceSectionTile(key: ValueKey(section.title), section: section),
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
@@ -302,25 +269,83 @@ class _CompensationEducationSection extends StatelessWidget {
   }
 }
 
-class _EducationCard extends StatelessWidget {
-  const _EducationCard({required this.title, required this.body});
+class _GuidanceSectionTile extends StatelessWidget {
+  const _GuidanceSectionTile({super.key, required this.section});
 
-  final String title;
-  final String body;
+  final GuideSection section;
 
   @override
   Widget build(BuildContext context) {
+    final bodyStyle = Theme.of(context).textTheme.bodyMedium;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 6),
-            Text(body, style: Theme.of(context).textTheme.bodyMedium),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ExpansionTile(
+        key: ValueKey('compensationSection_${section.title}'),
+        title: Text(section.title, style: Theme.of(context).textTheme.titleSmall),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final paragraph in section.paragraphs) ...[
+            Text(paragraph, style: bodyStyle),
+            const SizedBox(height: 12),
           ],
-        ),
+          if (section.referenceTable != null) ...[
+            _GuidanceTable(table: section.referenceTable!),
+            const SizedBox(height: 8),
+          ],
+          if (section.checklistItems.isNotEmpty) ...[
+            for (final item in section.checklistItems)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.check_circle_outline, size: 18, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(item, style: bodyStyle)),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 4),
+          ],
+          if (section.closingNote != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                section.closingNote!,
+                style: bodyStyle?.copyWith(fontStyle: FontStyle.italic),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuidanceTable extends StatelessWidget {
+  const _GuidanceTable({required this.table});
+
+  final GuideReferenceTable table;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        headingRowColor: WidgetStateProperty.all(colorScheme.surfaceContainerHighest),
+        columns: [
+          for (final header in table.columnHeaders)
+            DataColumn(label: Text(header, style: Theme.of(context).textTheme.labelLarge)),
+        ],
+        rows: [
+          for (final row in table.rows)
+            DataRow(cells: [for (final cell in row) DataCell(SizedBox(width: 200, child: Text(cell)))]),
+        ],
       ),
     );
   }

@@ -31,6 +31,7 @@ class FinancialPlanInput {
     this.monthlyRentDelta = 0,
     this.monthlyHealthcareDelta = 0,
     this.monthlySchoolFeeDelta = 0,
+    this.monthlyTransportDelta = 0,
     this.desiredRiskPremiumPercent = 10,
     this.service,
     this.rank,
@@ -81,6 +82,7 @@ class FinancialPlanInput {
   final num monthlyRentDelta;
   final num monthlyHealthcareDelta;
   final num monthlySchoolFeeDelta;
+  final num monthlyTransportDelta;
 
   /// The officer's own margin, above pure break-even, for the uncertainty
   /// of a new role vs. guaranteed service tenure — a personal judgement
@@ -156,6 +158,7 @@ class FinancialPlanInput {
         'monthlyRentDelta': monthlyRentDelta,
         'monthlyHealthcareDelta': monthlyHealthcareDelta,
         'monthlySchoolFeeDelta': monthlySchoolFeeDelta,
+        'monthlyTransportDelta': monthlyTransportDelta,
         'desiredRiskPremiumPercent': desiredRiskPremiumPercent,
         'service': service?.name,
         'rank': rank?.name,
@@ -190,6 +193,7 @@ class FinancialPlanInput {
         monthlyRentDelta: json['monthlyRentDelta'] as num,
         monthlyHealthcareDelta: json['monthlyHealthcareDelta'] as num,
         monthlySchoolFeeDelta: json['monthlySchoolFeeDelta'] as num,
+        monthlyTransportDelta: json['monthlyTransportDelta'] as num? ?? 0,
         desiredRiskPremiumPercent: json['desiredRiskPremiumPercent'] as num? ?? 10,
         service: (json['service'] as String?) != null
             ? OfficerService.values.byName(json['service'] as String)
@@ -349,8 +353,10 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
   final netMonthlyGuaranteed = (grossGuaranteed - taxGuaranteed) / 12;
   final netMonthlyWithVariable = (grossWithVariable - taxWithVariable) / 12;
 
-  final monthlyCostOfLivingDelta =
-      input.monthlyRentDelta + input.monthlyHealthcareDelta + input.monthlySchoolFeeDelta;
+  final monthlyCostOfLivingDelta = input.monthlyRentDelta +
+      input.monthlyHealthcareDelta +
+      input.monthlySchoolFeeDelta +
+      input.monthlyTransportDelta;
 
   // --- Military side (Output Specification O-01 to O-03) ---
   final monthlyCashBasicMsp = input.militaryBasicPay + input.militaryMsp;

@@ -34,6 +34,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
   late final TextEditingController _rentDeltaController;
   late final TextEditingController _healthcareDeltaController;
   late final TextEditingController _schoolFeeDeltaController;
+  late final TextEditingController _transportDeltaController;
   late final TextEditingController _riskPremiumController;
 
   // Military pay
@@ -93,6 +94,8 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
         TextEditingController(text: _numOrEmpty(existing?.monthlyHealthcareDelta ?? 0));
     _schoolFeeDeltaController =
         TextEditingController(text: _numOrEmpty(existing?.monthlySchoolFeeDelta ?? 0));
+    _transportDeltaController =
+        TextEditingController(text: _numOrEmpty(existing?.monthlyTransportDelta ?? 0));
     _riskPremiumController =
         TextEditingController(text: _numOrEmpty(existing?.desiredRiskPremiumPercent ?? 10));
     _yearsOfServiceController = TextEditingController(
@@ -142,6 +145,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
     _rentDeltaController.dispose();
     _healthcareDeltaController.dispose();
     _schoolFeeDeltaController.dispose();
+    _transportDeltaController.dispose();
     _riskPremiumController.dispose();
     _yearsOfServiceController.dispose();
     _militaryBasicPayController.dispose();
@@ -186,6 +190,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
       monthlyRentDelta: _parse(_rentDeltaController.text),
       monthlyHealthcareDelta: _parse(_healthcareDeltaController.text),
       monthlySchoolFeeDelta: _parse(_schoolFeeDeltaController.text),
+      monthlyTransportDelta: _parse(_transportDeltaController.text),
       desiredRiskPremiumPercent: _parse(_riskPremiumController.text, fallback: 10),
       service: _service,
       rank: _rank,
@@ -539,6 +544,15 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 keyboardType: const TextInputType.numberWithOptions(signed: true),
                 decoration: const InputDecoration(
                   labelText: "Extra monthly children's education cost (₹)",
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                key: const Key('transportDeltaField'),
+                controller: _transportDeltaController,
+                keyboardType: const TextInputType.numberWithOptions(signed: true),
+                decoration: const InputDecoration(
+                  labelText: 'Extra monthly transport cost — car EMI, fuel, parking, driver (₹)',
                 ),
               ),
               const SizedBox(height: 16),

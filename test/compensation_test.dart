@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/compensation/compensation_estimate.dart';
+import 'package:next_career_after_fauj/features/compensation/compensation_guidance_sections.dart';
 import 'package:next_career_after_fauj/features/compensation/compensation_screen.dart';
 import 'package:next_career_after_fauj/features/fitment/fitment_result.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +65,26 @@ Widget _wrap(Widget child, {ProfileRepository? repository}) {
 }
 
 void main() {
+  testWidgets('shows every guidance section title, collapsed, and expands one on tap',
+      (tester) async {
+    await tester.pumpWidget(_wrap(const CompensationScreen(estimateCompensation: _stubEstimate)));
+    await tester.pumpAndSettle();
+
+    for (final section in kCompensationGuidanceSections) {
+      expect(find.text(section.title), findsOneWidget, reason: 'missing title for ${section.title}');
+    }
+
+    // Collapsed by default — a body-only section's paragraph isn't in the tree yet.
+    final bodySection = kCompensationGuidanceSections
+        .firstWhere((s) => s.paragraphs.isNotEmpty && s.closingNote == null);
+    expect(find.text(bodySection.paragraphs.first), findsNothing);
+
+    await tester.tap(find.byKey(ValueKey('compensationSection_${bodySection.title}')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(bodySection.paragraphs.first), findsOneWidget);
+  });
+
   testWidgets('prompts to run JD Match when no JD is cached yet', (tester) async {
     await tester.pumpWidget(_wrap(const CompensationScreen(estimateCompensation: _stubEstimate)));
     await tester.pumpAndSettle();

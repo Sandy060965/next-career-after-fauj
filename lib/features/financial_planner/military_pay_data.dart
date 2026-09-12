@@ -139,10 +139,53 @@ const _firstReachedAtYears = {
   DefenceRank.ltGen: 36,
 };
 
-/// [basicPayAtIndex] clamps out-of-range values to the matrix's real
-/// bounds, so this never needs its own bounds-checking.
-int _matrixIndexFor(DefenceRank rank, int yearsOfService) =>
-    yearsOfService - _firstReachedAtYears[rank]! + 1;
+/// Promotion order — matches [DefenceRank]'s own declaration order, but
+/// named explicitly here since the simulation below depends on that order
+/// being "next rank up," not just enum declaration convenience.
+const _rankOrder = [
+  DefenceRank.major,
+  DefenceRank.ltCol,
+  DefenceRank.col,
+  DefenceRank.brig,
+  DefenceRank.majGen,
+  DefenceRank.ltGen,
+];
+
+/// Simulates one continuous career from Major's first year through to
+/// [targetYearsOfService] at [targetRank], applying annual increments
+/// within each rank and, at every promotion, the real 7th CPC "pay
+/// protection" rule: a promotion is placed at the first cell in the new
+/// level whose value exceeds what the officer was drawing the moment
+/// before promotion — never reset to that level's own floor. Basic pay
+/// computed this way rises monotonically with both rank and total years of
+/// service by construction, which a naive "years-in-this-rank + 1" index
+/// (the previous version of this function) did not guarantee: a rank
+/// reached late with few years-in-rank could otherwise show lower pay than
+/// a junior rank held for many years, even though a real promotion can
+/// never cut pay.
+int _matrixIndexFor(DefenceRank targetRank, int targetYearsOfService) {
+  var index = 1;
+  for (var i = 0; i < _rankOrder.length; i++) {
+    final rank = _rankOrder[i];
+    final startYear = _firstReachedAtYears[rank]!;
+    final isTarget = rank == targetRank;
+    final nextStartYear = i + 1 < _rankOrder.length ? _firstReachedAtYears[_rankOrder[i + 1]]! : null;
+    final endYear = isTarget ? targetYearsOfService : (nextStartYear ?? targetYearsOfService);
+    final yearsInThisRank = endYear - startYear;
+    index = (index + yearsInThisRank).clamp(1, rank.payMatrix.length);
+    if (isTarget) return index;
+
+    // Promote: find the pay-protected placement in the next level.
+    final payBeforePromotion = rank.basicPayAtIndex(index);
+    final nextMatrix = _rankOrder[i + 1].payMatrix;
+    var nextIndex = 1;
+    while (nextIndex < nextMatrix.length && nextMatrix[nextIndex - 1] <= payBeforePromotion) {
+      nextIndex++;
+    }
+    index = nextIndex;
+  }
+  return index; // Unreachable for any (rank, years) pair actually used below.
+}
 
 /// The 8 rank/tenure milestones requested, each shown for all three
 /// services — matrixIndex is always derived from [_firstReachedAtYears],

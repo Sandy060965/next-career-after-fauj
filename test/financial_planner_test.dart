@@ -383,7 +383,30 @@ void main() {
       );
       const level13FirstIndexPay = 130600;
       expect(col25.basicPay, greaterThan(level13FirstIndexPay));
-      expect(col25.basicPay, 170400);
+      expect(col25.basicPay, 175500);
+    });
+
+    test('basic pay rises monotonically across every milestone, never lower for a senior/later '
+        'rank than a junior/earlier one', () {
+      // A second real, reported bug: an earlier version reset each rank's
+      // pay to that level's own floor on promotion instead of applying pay
+      // protection (never placing a promoted officer below what they drew
+      // the moment before), which let e.g. a 35-year Brigadier show less
+      // pay than a 30-year Colonel. The 8 milestones are already ordered by
+      // both rank and years of service, so basic pay must strictly
+      // increase down the list for every service.
+      for (final service in OfficerService.values) {
+        final milestones =
+            illustrativeMilitaryProfiles.where((p) => p.service == service).toList();
+        for (var i = 1; i < milestones.length; i++) {
+          expect(
+            milestones[i].basicPay,
+            greaterThanOrEqualTo(milestones[i - 1].basicPay),
+            reason: '${milestones[i].label} should not be paid less than '
+                '${milestones[i - 1].label}',
+          );
+        }
+      }
     });
   });
 

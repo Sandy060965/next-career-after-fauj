@@ -347,6 +347,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 controller: _dependentChildrenController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(labelText: 'Dependent children'),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -354,7 +355,19 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 controller: _schoolCostComparableController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
-                  labelText: 'Comparable private school cost, per child (₹/year)',
+                  labelText: 'Comparable private school cost — PER CHILD (₹/year)',
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '= ₹${_fmt(_parse(_schoolCostComparableController.text) * _parse(_dependentChildrenController.text).toInt())}'
+                  '/year total for '
+                  '${_parse(_dependentChildrenController.text).toInt()} '
+                  "child${_parse(_dependentChildrenController.text).toInt() == 1 ? '' : 'ren'} — this "
+                  'is the figure compared against the total below.',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
               const SizedBox(height: 16),
@@ -363,9 +376,10 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 controller: _schoolCostActualController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
-                  labelText: 'What you actually pay today — total for all children combined (₹/year)',
+                  labelText: 'What you actually pay today — TOTAL for all children combined (₹/year)',
                   helperText: 'Not per child — the combined figure across every dependent child.',
                 ),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 24),
               _sectionHeader(context, 'Medical (ECHS)'),

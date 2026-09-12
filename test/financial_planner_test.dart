@@ -516,6 +516,29 @@ void main() {
       expect(find.text('· CSD/other savings'), findsOneWidget);
     });
 
+    testWidgets(
+        'the per-child school cost field shows a live total as the officer types, so the '
+        'per-child vs. total distinction is never ambiguous', (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('dependentChildrenField')), '2');
+      await tester.enterText(find.byKey(const Key('schoolCostComparableField')), '180000');
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('360,000'), findsOneWidget);
+      expect(find.textContaining('total for 2 children'), findsOneWidget);
+
+      // Changing either input updates the live total immediately.
+      await tester.enterText(find.byKey(const Key('dependentChildrenField')), '3');
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('540,000'), findsOneWidget);
+      expect(find.textContaining('total for 3 children'), findsOneWidget);
+    });
+
     testWidgets('Target is flagged once it drifts too far above real market data', (tester) async {
       _setTallViewport(tester);
       final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));

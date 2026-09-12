@@ -144,7 +144,7 @@ void main() {
 
     // Every one of the 20 templates against Lieutenant General-scale data —
     // 13 appointments (3 detailed + 10 brief) and 9 courses, the densest the
-    // CV Examples Library actually produces. Regression guard for the same
+    // Sample CV Library actually produces. Regression guard for the same
     // "Row can't paginate vertically" bug above, now checked across all 20
     // template IDs rather than just business_leader/executive_navy — found
     // to affect 13 of the 20 while rolling Career Highlights out further:

@@ -37,7 +37,7 @@ themselves fall into seven natural groups:
 - **CV Writing Guide** — fixed, hand-authored reference content: recommended
   CV structure and section-by-section guidance, plus 6 downloadable
   templates.
-- **CV Examples Library** — 54 fictional-composite CVs, one for every
+- **Sample CV Library** — 54 fictional-composite CVs, one for every
   service/rank/career-track combination, rendered through the same 20
   templates as the officer's own CV — a reference-quality Executive
   Profile, Career Highlights, and rank-appropriate Professional Experience

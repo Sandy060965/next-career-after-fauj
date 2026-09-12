@@ -84,7 +84,7 @@ class _CvExamplesScreenState extends State<CvExamplesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CV Examples Library'),
+        title: const Text('Sample CV Library'),
         actions: const [HomeButton()],
       ),
       body: ListView(

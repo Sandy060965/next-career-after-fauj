@@ -53,6 +53,7 @@ class _CompensationScreenState extends State<CompensationScreen> {
         _estimate = estimate;
         _isLoading = false;
       });
+      if (estimate.hasMarketData) repository.saveCompensationEstimate(estimate);
     } catch (e) {
       if (!mounted) return;
       setState(() {

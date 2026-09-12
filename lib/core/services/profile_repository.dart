@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/ai_readiness/ai_readiness.dart';
+import '../../features/compensation/compensation_estimate.dart';
 import '../../features/cv_builder/built_cv.dart';
 import '../../features/cv_builder/cv_builder_intake.dart';
 import '../../features/cv_civilianizer/civilianized_cv.dart';
@@ -95,8 +96,21 @@ class ProfileRepository extends ChangeNotifier {
   bool _hasSeenGuidedIntro = false;
   bool _hasVisitedSkillEquivalency = false;
   OfficerProgressPrefill? _progressPrefill;
+  CompensationEstimate? _lastCompensationEstimate;
 
   OfficerProfile? get profile => _profile;
+
+  /// In-memory only (never persisted) — the real market-data result from
+  /// the last Compensation Guidance lookup, if any this session. Lets the
+  /// Financial Planner cap a "Stretch" negotiation figure at a real market
+  /// ceiling instead of an invented multiplier, rather than persisting a
+  /// market estimate that could silently go stale across app restarts.
+  CompensationEstimate? get lastCompensationEstimate => _lastCompensationEstimate;
+
+  void saveCompensationEstimate(CompensationEstimate estimate) {
+    _lastCompensationEstimate = estimate;
+    notifyListeners();
+  }
 
   /// In-memory only (never persisted) — set right after a sign-in that
   /// found no local profile, consumed once by OnboardingScreen to prefill
@@ -429,6 +443,7 @@ class ProfileRepository extends ChangeNotifier {
     _lastFitmentResult = null;
     _lastJdText = null;
     _lastJdPdfBytes = null;
+    _lastCompensationEstimate = null;
     _lastVerticalFitAssessment = null;
     _lastAiReadinessResult = null;
     _sessionToken = null;

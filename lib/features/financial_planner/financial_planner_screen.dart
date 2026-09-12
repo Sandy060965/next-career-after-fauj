@@ -29,6 +29,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
   late final TextEditingController _corporateMedicalController;
   late final TextEditingController _corporateHousingEducationController;
   late final TextEditingController _joiningBonusController;
+  late final TextEditingController _equityValueController;
 
   // Cost-of-living change
   late final TextEditingController _rentDeltaController;
@@ -89,6 +90,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
     _corporateHousingEducationController =
         TextEditingController(text: _numOrEmpty(existing?.corporateHousingEducationSupport ?? 0));
     _joiningBonusController = TextEditingController(text: _numOrEmpty(existing?.joiningBonusOneTime ?? 0));
+    _equityValueController = TextEditingController(text: _numOrEmpty(existing?.annualEquityValue ?? 0));
     _rentDeltaController = TextEditingController(text: _numOrEmpty(existing?.monthlyRentDelta ?? 0));
     _healthcareDeltaController =
         TextEditingController(text: _numOrEmpty(existing?.monthlyHealthcareDelta ?? 0));
@@ -142,6 +144,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
     _corporateMedicalController.dispose();
     _corporateHousingEducationController.dispose();
     _joiningBonusController.dispose();
+    _equityValueController.dispose();
     _rentDeltaController.dispose();
     _healthcareDeltaController.dispose();
     _schoolFeeDeltaController.dispose();
@@ -187,6 +190,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
       corporateMedicalValue: _parse(_corporateMedicalController.text),
       corporateHousingEducationSupport: _parse(_corporateHousingEducationController.text),
       joiningBonusOneTime: _parse(_joiningBonusController.text),
+      annualEquityValue: _parse(_equityValueController.text),
       monthlyRentDelta: _parse(_rentDeltaController.text),
       monthlyHealthcareDelta: _parse(_healthcareDeltaController.text),
       monthlySchoolFeeDelta: _parse(_schoolFeeDeltaController.text),
@@ -512,6 +516,18 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                   labelText: 'Joining/signing bonus, optional — one-time (₹)',
                 ),
               ),
+              const SizedBox(height: 16),
+              TextFormField(
+                key: const Key('equityValueField'),
+                controller: _equityValueController,
+                keyboardType: const TextInputType.numberWithOptions(),
+                decoration: const InputDecoration(
+                  labelText: 'ESOP/RSU headline value, optional — annual (₹)',
+                  helperText: 'Shown separately, never as guaranteed cash — value conservatively, '
+                      'especially if unlisted or unvested.',
+                  helperMaxLines: 2,
+                ),
+              ),
               const SizedBox(height: 24),
               _sectionHeader(context, 'Cost-of-living change'),
               Text(
@@ -738,9 +754,15 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
               children: [
                 Text('The corporate offer', style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8),
+                _AmountRow('Headline CTC (fixed + target variable + equity)', result.headlineCtc),
                 _AmountRow('Guaranteed compensation', result.corporateGuaranteedCompensation),
                 _AmountRow('Risk-adjusted (incl. weighted variable)',
                     result.corporateRiskAdjustedCompensation),
+                if (result.annualEquityValue != 0)
+                  _AmountRow(
+                    'Equity — headline value, not guaranteed cash',
+                    result.annualEquityValue,
+                  ),
               ],
             ),
           ),
@@ -755,13 +777,49 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 Text('Does this offer clear the bar?', style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8),
                 _AmountRow('Transition cost adjustment', result.transitionCostAdjustmentAnnual),
-                _AmountRow('Break-even compensation needed', result.breakEvenCorporateCompensation),
-                _AmountRow('Recommended target (with your risk margin)',
-                    result.recommendedTargetCompensation),
+                const Divider(),
+                _AmountRow('Floor — minimum acceptable (break-even)',
+                    result.breakEvenCorporateCompensation),
+                _AmountRow(
+                  'Target — recommended (break-even + your risk margin)',
+                  result.recommendedTargetCompensation,
+                  emphasize: true,
+                ),
+                _StretchRow(target: result.recommendedTargetCompensation),
                 const Divider(),
                 _AmountRow('Economic gap (offer vs. break-even)', result.economicGap, emphasize: true),
               ],
             ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: ExpansionTile(
+            key: const Key('fullCalculationTile'),
+            title: Text('See the full calculation', style: Theme.of(context).textTheme.titleSmall),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _AmountRow('O-01 · Military cash compensation', result.militaryCashCompensation),
+              _AmountRow(
+                'O-02 · Military current economic value',
+                result.militaryCurrentEconomicCompensation,
+              ),
+              _AmountRow('O-03 · Deferred/retirement value (pension)',
+                  result.militaryDeferredAnnualEquivalent),
+              _AmountRow('O-04 · Corporate guaranteed compensation',
+                  result.corporateGuaranteedCompensation),
+              _AmountRow('O-05 · Corporate risk-adjusted compensation',
+                  result.corporateRiskAdjustedCompensation),
+              _AmountRow('O-06 · Transition cost adjustment', result.transitionCostAdjustmentAnnual),
+              _AmountRow('O-07 · Corporate break-even (O-02 + O-06)',
+                  result.breakEvenCorporateCompensation),
+              _AmountRow(
+                'O-08 · Recommended target (O-07 × your risk margin)',
+                result.recommendedTargetCompensation,
+              ),
+              _AmountRow('O-09 · Economic gap (O-05 − O-02 − O-06)', result.economicGap),
+            ],
           ),
         ),
         const SizedBox(height: 16),
@@ -822,6 +880,36 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
         RegExp(r'\B(?=(\d{3})+(?!\d))'),
         (match) => ',',
       );
+}
+
+/// "Stretch" only ever shows a number when it can be grounded in the real
+/// market-data range Compensation Guidance already fetched (JSearch's
+/// estimated-salary API, cached in ProfileRepository.lastCompensationEstimate)
+/// — never an invented multiplier on top of Target. With no cached market
+/// data this explains why, rather than fabricating a plausible-looking figure.
+class _StretchRow extends StatelessWidget {
+  const _StretchRow({required this.target});
+
+  final num target;
+
+  @override
+  Widget build(BuildContext context) {
+    final marketMax = context.watch<ProfileRepository>().lastCompensationEstimate?.maxSalary;
+    if (marketMax == null || marketMax <= 0) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text(
+          'Stretch — not shown yet. Run JD Match against a real job description, then check '
+          'Compensation Guidance, so this can be capped at a real market figure instead of a '
+          'guessed one.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+        ),
+      );
+    }
+    final uncappedStretch = target * 1.15;
+    final stretch = uncappedStretch < marketMax ? uncappedStretch : marketMax;
+    return _AmountRow('Stretch — negotiation ceiling (capped at real market data)', stretch);
+  }
 }
 
 class _AmountRow extends StatelessWidget {

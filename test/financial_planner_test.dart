@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
+import 'package:next_career_after_fauj/features/compensation/compensation_estimate.dart';
 import 'package:next_career_after_fauj/features/financial_planner/financial_plan.dart';
 import 'package:next_career_after_fauj/features/financial_planner/financial_planner_screen.dart';
 import 'package:next_career_after_fauj/features/financial_planner/military_pay_data.dart';
@@ -232,6 +233,59 @@ void main() {
           withoutOneTimes.militaryCurrentEconomicCompensation);
       expect(withOneTimes.corporateGuaranteedCompensation, withoutOneTimes.corporateGuaranteedCompensation);
     });
+
+    test('headline CTC is guaranteed compensation plus full variable and equity, unweighted', () {
+      final result = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 2000000,
+          annualVariablePay: 500000,
+          variableAchievementPercent: 80,
+          annualEquityValue: 300000,
+        ),
+      );
+      expect(result.headlineCtc, 2000000 + 500000 + 300000);
+      // Risk-adjusted uses the achievement %, unlike headline CTC.
+      expect(result.corporateRiskAdjustedCompensation, 2000000 + 500000 * 0.8);
+    });
+
+    test('flags variable-heavy and equity-heavy offers only once they cross their thresholds', () {
+      final variableHeavy = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1000000,
+          annualVariablePay: 400000, // 400k / 1.4M = ~28.6% > 25%
+        ),
+      );
+      expect(variableHeavy.negotiationGuidance, contains('performance-linked variable pay'));
+
+      final variableLight = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1000000,
+          annualVariablePay: 100000, // 100k / 1.1M = ~9% < 25%
+        ),
+      );
+      expect(variableLight.negotiationGuidance, isNot(contains('performance-linked variable pay')));
+
+      final equityHeavy = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1000000,
+          annualEquityValue: 200000, // 200k / 1.2M = ~16.7% > 10%
+        ),
+      );
+      expect(equityHeavy.negotiationGuidance, contains('Equity (ESOP/RSU)'));
+
+      final equityLight = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1000000,
+          annualEquityValue: 50000, // 50k / 1.05M = ~4.8% < 10%
+        ),
+      );
+      expect(equityLight.negotiationGuidance, isNot(contains('Equity (ESOP/RSU)')));
+    });
   });
 
   group('illustrativeMilitaryProfiles', () {
@@ -345,6 +399,57 @@ void main() {
       expect(find.byKey(const Key('financialPlanResult')), findsOneWidget);
       expect(find.text('60000'), findsOneWidget);
       expect(find.text('1500000'), findsOneWidget);
+    });
+
+    testWidgets('the full calculation panel expands to show every O-01 to O-09 output',
+        (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('fixedPayField')), '1200000');
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
+      await tester.tap(find.byKey(const Key('calculateButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('O-01 ·'), findsNothing);
+      await tester.ensureVisible(find.byKey(const Key('fullCalculationTile')));
+      await tester.tap(find.byKey(const Key('fullCalculationTile')));
+      await tester.pumpAndSettle();
+
+      for (final id in ['O-01', 'O-02', 'O-03', 'O-04', 'O-05', 'O-06', 'O-07', 'O-08', 'O-09']) {
+        expect(find.textContaining('$id ·'), findsOneWidget, reason: 'missing $id');
+      }
+    });
+
+    testWidgets('Stretch stays unshown with no cached market data, and appears once one exists',
+        (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('fixedPayField')), '1200000');
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
+      await tester.tap(find.byKey(const Key('calculateButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('not shown yet'), findsOneWidget);
+      expect(find.textContaining('negotiation ceiling'), findsNothing);
+
+      repo.saveCompensationEstimate(
+        const CompensationEstimate(
+          jobTitle: 'COO',
+          location: 'Mumbai',
+          maxSalary: 2000000,
+          negotiationGuidance: 'n/a',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('not shown yet'), findsNothing);
+      expect(find.textContaining('negotiation ceiling'), findsOneWidget);
     });
   });
 }

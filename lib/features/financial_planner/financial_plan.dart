@@ -28,6 +28,7 @@ class FinancialPlanInput {
     this.corporateMedicalValue = 0,
     this.corporateHousingEducationSupport = 0,
     this.joiningBonusOneTime = 0,
+    this.annualEquityValue = 0,
     this.monthlyRentDelta = 0,
     this.monthlyHealthcareDelta = 0,
     this.monthlySchoolFeeDelta = 0,
@@ -76,6 +77,15 @@ class FinancialPlanInput {
   /// One-time signing bonus — shown separately, not annualised into
   /// guaranteed/risk-adjusted compensation.
   final num joiningBonusOneTime;
+
+  /// Annual ESOP/RSU headline value, entered at face value — kept out of
+  /// [FinancialPlanResult.corporateGuaranteedCompensation] and
+  /// [FinancialPlanResult.corporateRiskAdjustedCompensation] entirely
+  /// (equity isn't guaranteed cash, and there's no "expected realised %"
+  /// input to risk-weight it the way variable pay has), used only to flag
+  /// the headline-CTC composition warning and shown as its own reference
+  /// figure — never folded into a comparison number as if it were cash.
+  final num annualEquityValue;
 
   /// Extra monthly cost vs. what the officer pays today (in service) —
   /// each can be negative if the officer expects to pay less.
@@ -155,6 +165,7 @@ class FinancialPlanInput {
         'corporateMedicalValue': corporateMedicalValue,
         'corporateHousingEducationSupport': corporateHousingEducationSupport,
         'joiningBonusOneTime': joiningBonusOneTime,
+        'annualEquityValue': annualEquityValue,
         'monthlyRentDelta': monthlyRentDelta,
         'monthlyHealthcareDelta': monthlyHealthcareDelta,
         'monthlySchoolFeeDelta': monthlySchoolFeeDelta,
@@ -190,6 +201,7 @@ class FinancialPlanInput {
         corporateMedicalValue: json['corporateMedicalValue'] as num? ?? 0,
         corporateHousingEducationSupport: json['corporateHousingEducationSupport'] as num? ?? 0,
         joiningBonusOneTime: json['joiningBonusOneTime'] as num? ?? 0,
+        annualEquityValue: json['annualEquityValue'] as num? ?? 0,
         monthlyRentDelta: json['monthlyRentDelta'] as num,
         monthlyHealthcareDelta: json['monthlyHealthcareDelta'] as num,
         monthlySchoolFeeDelta: json['monthlySchoolFeeDelta'] as num,
@@ -239,6 +251,8 @@ class FinancialPlanResult {
     required this.oneTimeGratuityAndDsop,
     required this.oneTimeJoiningBonus,
     required this.oneTimeEchsSubscription,
+    required this.headlineCtc,
+    required this.annualEquityValue,
   });
 
   final num annualTaxGuaranteed;
@@ -301,6 +315,18 @@ class FinancialPlanResult {
 
   /// The one-time ECHS subscription cost for SSCOs/ECOs, if entered.
   final num oneTimeEchsSubscription;
+
+  /// Guaranteed compensation + full (not risk-weighted) target variable +
+  /// equity headline value — the "everything advertised" figure a
+  /// recruiter's headline CTC number represents, used to flag when
+  /// variable pay or equity make up an outsized share of it. Deliberately
+  /// distinct from [corporateRiskAdjustedCompensation], which risk-weights
+  /// variable pay and excludes equity entirely for comparison purposes.
+  final num headlineCtc;
+
+  /// Passed through from the input for display — never folded into
+  /// [corporateGuaranteedCompensation] or [corporateRiskAdjustedCompensation].
+  final num annualEquityValue;
 }
 
 const _slabBoundaries = [400000, 800000, 1200000, 1600000, 2000000, 2400000];
@@ -385,6 +411,8 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
       input.corporateHousingEducationSupport;
   final corporateRiskAdjustedCompensation = corporateGuaranteedCompensation +
       input.annualVariablePay * (input.variableAchievementPercent / 100);
+  final headlineCtc =
+      corporateGuaranteedCompensation + input.annualVariablePay + input.annualEquityValue;
 
   // --- Comparison (O-06 to O-09) ---
   final transitionCostAdjustmentAnnual = monthlyCostOfLivingDelta * 12;
@@ -404,7 +432,8 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
     monthlyCostOfLivingDelta: monthlyCostOfLivingDelta,
     effectiveMonthlyGuaranteed: netMonthlyGuaranteed - monthlyCostOfLivingDelta,
     effectiveMonthlyWithVariable: netMonthlyWithVariable - monthlyCostOfLivingDelta,
-    negotiationGuidance: _negotiationGuidance(input, netMonthlyGuaranteed, monthlyCostOfLivingDelta),
+    negotiationGuidance:
+        _negotiationGuidance(input, netMonthlyGuaranteed, monthlyCostOfLivingDelta, headlineCtc),
     militaryCashCompensation: militaryCashCompensation,
     militaryCurrentEconomicCompensation: militaryCurrentEconomicCompensation,
     militaryDeferredAnnualEquivalent: militaryDeferredAnnualEquivalent,
@@ -417,6 +446,8 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
     oneTimeGratuityAndDsop: input.oneTimeGratuityAndDsop,
     oneTimeJoiningBonus: input.joiningBonusOneTime,
     oneTimeEchsSubscription: input.oneTimeEchsSubscription,
+    headlineCtc: headlineCtc,
+    annualEquityValue: input.annualEquityValue,
   );
 }
 
@@ -426,6 +457,7 @@ String _negotiationGuidance(
   FinancialPlanInput input,
   num netMonthlyGuaranteed,
   num monthlyCostOfLivingDelta,
+  num headlineCtc,
 ) {
   final buffer = StringBuffer();
   if (input.drawsPension && input.monthlyPension > 0) {
@@ -450,6 +482,23 @@ String _negotiationGuidance(
         '— about $pct% of your guaranteed net income. A higher headline salary in a costlier city '
         'is not automatically a raise; confirm this offer clears that bar before comparing it to '
         'your service income.',
+      );
+    }
+  }
+  if (headlineCtc > 0) {
+    final variablePercent = input.annualVariablePay / headlineCtc * 100;
+    if (variablePercent > 25) {
+      buffer.write(
+        '\n\nAbout ${variablePercent.round()}% of this headline CTC is performance-linked variable '
+        'pay — ask what percentage of target variable has actually been paid out in the last two or '
+        'three years before treating the headline figure as reliable.',
+      );
+    }
+    final equityPercent = input.annualEquityValue / headlineCtc * 100;
+    if (equityPercent > 10) {
+      buffer.write(
+        '\n\nEquity (ESOP/RSU) makes up about ${equityPercent.round()}% of this headline CTC — '
+        'treat it as potential upside, not guaranteed cash, especially if unlisted or still unvested.',
       );
     }
   }

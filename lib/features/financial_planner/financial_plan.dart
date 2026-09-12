@@ -294,18 +294,32 @@ class FinancialPlanResult {
   /// O-05: Guaranteed + achievement-weighted variable pay.
   final num corporateRiskAdjustedCompensation;
 
-  /// O-06: Incremental annual post-service cost-of-living change.
+  /// O-06: Incremental annual post-service cost-of-living change — the full
+  /// swing from what the officer actually pays today for rent/healthcare/
+  /// school/transport to what they expect to actually pay after leaving,
+  /// not the *value* of a benefit.
   final num transitionCostAdjustmentAnnual;
 
-  /// O-07: Corporate value required to match current military economic
-  /// value after absorbing transition costs.
+  /// O-07: Military cash compensation ([militaryCashCompensation], not
+  /// [militaryCurrentEconomicCompensation]) plus the transition cost
+  /// delta — deliberately NOT based on current economic value. Economic
+  /// value already prices in the benefits (e.g. free housing valued at
+  /// market rent) that the transition-cost delta separately captures the
+  /// full cash cost of replacing (e.g. "extra rent now paid, from ~0 to
+  /// market rate") — basing break-even on economic value would double-count
+  /// the same benefit once as "value currently enjoyed" and again as
+  /// "extra cost after transition." Cash + delta is a clean incremental
+  /// cash-flow parity figure: what income the officer needs to keep
+  /// funding everything they fund today, plus the genuinely new costs.
   final num breakEvenCorporateCompensation;
 
   /// O-08: Break-even + the officer's own stated risk/transition premium.
   final num recommendedTargetCompensation;
 
-  /// O-09: Risk-adjusted corporate value minus military economic value
-  /// minus transition costs. Positive = offer clears break-even.
+  /// O-09: Risk-adjusted corporate value minus break-even (O-07), not
+  /// minus current economic value — kept consistent with O-07's basis so
+  /// this doesn't reintroduce the double-count O-07 itself avoids.
+  /// Positive = offer clears break-even.
   final num economicGap;
 
   /// One-time amounts, passed through from the input for display —
@@ -415,14 +429,17 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
       corporateGuaranteedCompensation + input.annualVariablePay + input.annualEquityValue;
 
   // --- Comparison (O-06 to O-09) ---
+  // Deliberately built on militaryCashCompensation (O-01), not
+  // militaryCurrentEconomicCompensation (O-02) — O-02 already prices in
+  // benefits like free housing at market-rent value, and
+  // transitionCostAdjustmentAnnual independently captures the full cash
+  // cost of replacing those same benefits (e.g. rent moving from ~0 to
+  // market rate). Basing break-even on O-02 would count that swing twice.
   final transitionCostAdjustmentAnnual = monthlyCostOfLivingDelta * 12;
-  final breakEvenCorporateCompensation =
-      militaryCurrentEconomicCompensation + transitionCostAdjustmentAnnual;
+  final breakEvenCorporateCompensation = militaryCashCompensation + transitionCostAdjustmentAnnual;
   final recommendedTargetCompensation =
       breakEvenCorporateCompensation * (1 + input.desiredRiskPremiumPercent / 100);
-  final economicGap = corporateRiskAdjustedCompensation -
-      militaryCurrentEconomicCompensation -
-      transitionCostAdjustmentAnnual;
+  final economicGap = corporateRiskAdjustedCompensation - breakEvenCorporateCompensation;
 
   return FinancialPlanResult(
     annualTaxGuaranteed: taxGuaranteed,

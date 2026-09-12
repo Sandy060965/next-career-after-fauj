@@ -200,16 +200,52 @@ void main() {
         ),
       );
       expect(result.transitionCostAdjustmentAnnual, 120000);
-      expect(result.breakEvenCorporateCompensation, result.militaryCurrentEconomicCompensation + 120000);
+      expect(result.breakEvenCorporateCompensation, result.militaryCashCompensation + 120000);
       expect(
         result.recommendedTargetCompensation,
         closeTo(result.breakEvenCorporateCompensation * 1.2, 0.01),
       );
       expect(
         result.economicGap,
-        result.corporateRiskAdjustedCompensation -
-            result.militaryCurrentEconomicCompensation -
-            120000,
+        result.corporateRiskAdjustedCompensation - result.breakEvenCorporateCompensation,
+      );
+    });
+
+    test(
+        "break-even uses cash compensation, not economic value, so a housing benefit isn't "
+        'double-counted against its own transition-cost delta', () {
+      // The officer enters BOTH: (a) the value of free government housing
+      // (comparableMonthlyMarketRent vs. what they actually pay), which
+      // feeds militaryCurrentEconomicCompensation, and (b) a rent delta
+      // describing the same real-world change (going from ~0 to paying
+      // full market rent after leaving). Break-even must not count that
+      // swing twice just because it's entered on two different fields.
+      final result = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 0,
+          militaryBasicPay: 100000,
+          inGovtAccommodation: true,
+          comparableMonthlyMarketRent: 50000,
+          actualMonthlyAccommodationCost: 5000,
+          monthlyRentDelta: 45000, // same ₹45,000/month swing as the housing benefit above
+        ),
+      );
+      // Current economic value DOES include the ₹540,000/year housing benefit...
+      expect(
+        result.militaryCurrentEconomicCompensation,
+        result.militaryCashCompensation + 540000,
+      );
+      // ...but break-even must be built on cash + the delta ONLY, not
+      // cash + housing benefit + delta, which would count the same
+      // ₹540,000 swing twice.
+      expect(
+        result.breakEvenCorporateCompensation,
+        result.militaryCashCompensation + 540000,
+      );
+      expect(
+        result.breakEvenCorporateCompensation,
+        isNot(result.militaryCurrentEconomicCompensation + 540000),
       );
     });
 

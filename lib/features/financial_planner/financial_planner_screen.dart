@@ -712,8 +712,19 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 _AmountRow('+ current benefits (housing, education, medical, CSD)',
                     result.militaryCurrentEconomicCompensation - result.militaryCashCompensation),
                 const Divider(),
-                _AmountRow('Current economic compensation', result.militaryCurrentEconomicCompensation,
-                    emphasize: true),
+                _AmountRow(
+                  'Current economic value — a separate comparison, below',
+                  result.militaryCurrentEconomicCompensation,
+                  emphasize: true,
+                ),
+                Text(
+                  "This is what your current pay plus benefits would cost to replace — it's shown "
+                  'for comparison only. Your break-even figure below is based on your cash pay, not '
+                  "this number, since the transition cost below already accounts for what it'll "
+                  'actually cost you to replace these benefits — adding both would count the same '
+                  'thing twice.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
                 const SizedBox(height: 8),
                 _AmountRow('Pension (deferred, shown separately)', result.militaryDeferredAnnualEquivalent),
               ],
@@ -776,12 +787,21 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
               children: [
                 Text('Does this offer clear the bar?', style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8),
-                _AmountRow('Transition cost adjustment', result.transitionCostAdjustmentAnnual),
+                Text(
+                  'What you need = what you already earn in cash, plus what the move will '
+                  'genuinely cost you extra — not your full current economic value plus that cost, '
+                  'which would double-count your benefits.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                _AmountRow('Your cash pay today', result.militaryCashCompensation),
+                _AmountRow('+ extra it will cost you after transition',
+                    result.transitionCostAdjustmentAnnual),
                 const Divider(),
-                _AmountRow('Floor — minimum acceptable (break-even)',
+                _AmountRow('= Floor — minimum acceptable (break-even)',
                     result.breakEvenCorporateCompensation),
                 _AmountRow(
-                  'Target — recommended (break-even + your risk margin)',
+                  '+ your risk margin = Target — recommended',
                   result.recommendedTargetCompensation,
                   emphasize: true,
                 ),
@@ -812,13 +832,13 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
               _AmountRow('O-05 · Corporate risk-adjusted compensation',
                   result.corporateRiskAdjustedCompensation),
               _AmountRow('O-06 · Transition cost adjustment', result.transitionCostAdjustmentAnnual),
-              _AmountRow('O-07 · Corporate break-even (O-02 + O-06)',
+              _AmountRow('O-07 · Corporate break-even (O-01 + O-06, not O-02 + O-06 — see note above)',
                   result.breakEvenCorporateCompensation),
               _AmountRow(
                 'O-08 · Recommended target (O-07 × your risk margin)',
                 result.recommendedTargetCompensation,
               ),
-              _AmountRow('O-09 · Economic gap (O-05 − O-02 − O-06)', result.economicGap),
+              _AmountRow('O-09 · Economic gap (O-05 − O-07)', result.economicGap),
             ],
           ),
         ),

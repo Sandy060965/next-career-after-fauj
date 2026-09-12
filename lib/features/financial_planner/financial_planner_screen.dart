@@ -221,6 +221,26 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
   num _parse(String text, {num fallback = 0}) =>
       text.trim().isEmpty ? fallback : (num.tryParse(text.trim()) ?? fallback);
 
+  /// Mirrors calculateFinancialPlan's own housing-benefit formula exactly,
+  /// so this breakdown can never drift out of sync with the real
+  /// calculation — read from the live form fields rather than duplicating
+  /// state, since FinancialPlanResult doesn't expose the components
+  /// separately.
+  num _housingBenefitValue() {
+    if (!_inGovtAccommodation) return 0;
+    final delta = _parse(_marketRentController.text) - _parse(_actualAccommodationCostController.text);
+    return (delta < 0 ? 0 : delta) * 12;
+  }
+
+  /// Mirrors calculateFinancialPlan's own education-benefit formula
+  /// exactly — see [_housingBenefitValue].
+  num _educationBenefitValue() {
+    final delta = _parse(_schoolCostComparableController.text) *
+            _parse(_dependentChildrenController.text).toInt() -
+        _parse(_schoolCostActualController.text);
+    return delta < 0 ? 0 : delta;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -343,7 +363,8 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 controller: _schoolCostActualController,
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: const InputDecoration(
-                  labelText: 'What you actually pay today, total (₹/year)',
+                  labelText: 'What you actually pay today — total for all children combined (₹/year)',
+                  helperText: 'Not per child — the combined figure across every dependent child.',
                 ),
               ),
               const SizedBox(height: 24),
@@ -559,7 +580,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 controller: _schoolFeeDeltaController,
                 keyboardType: const TextInputType.numberWithOptions(signed: true),
                 decoration: const InputDecoration(
-                  labelText: "Extra monthly children's education cost (₹)",
+                  labelText: "Extra monthly children's education cost — total for all children (₹)",
                 ),
               ),
               const SizedBox(height: 16),
@@ -711,6 +732,22 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                     result.militaryCashCompensation),
                 _AmountRow('+ current benefits (housing, education, medical, CSD)',
                     result.militaryCurrentEconomicCompensation - result.militaryCashCompensation),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _AmountRow('· Housing', _housingBenefitValue()),
+                      _AmountRow(
+                        '· Education (${_parse(_dependentChildrenController.text).toInt()} '
+                        'child${_parse(_dependentChildrenController.text).toInt() == 1 ? '' : 'ren'})',
+                        _educationBenefitValue(),
+                      ),
+                      _AmountRow('· Medical', _parse(_medicalBenchmarkController.text)),
+                      _AmountRow('· CSD/other savings', _parse(_csdSavingsController.text)),
+                    ],
+                  ),
+                ),
                 const Divider(),
                 _AmountRow(
                   'Current economic value — a separate comparison, below',
@@ -820,6 +857,7 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                   result.recommendedTargetCompensation,
                   emphasize: true,
                 ),
+                _TargetRealityCheck(target: result.recommendedTargetCompensation),
                 _StretchRow(target: result.recommendedTargetCompensation),
                 const Divider(),
                 _AmountRow('Economic gap (offer vs. break-even)', result.economicGap, emphasize: true),
@@ -921,6 +959,55 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
         RegExp(r'\B(?=(\d{3})+(?!\d))'),
         (match) => ',',
       );
+}
+
+/// A second, independent check on Target — not just Stretch — against the
+/// same real market-data ceiling, so an inflated transition-cost input
+/// (an unrealistic comparable rent or school-fee figure) gets caught here
+/// too, not only once it reaches the already-capped Stretch figure. Only
+/// shows anything when real market data exists; says nothing otherwise
+/// rather than guessing whether the number is reasonable.
+class _TargetRealityCheck extends StatelessWidget {
+  const _TargetRealityCheck({required this.target});
+
+  final num target;
+
+  @override
+  Widget build(BuildContext context) {
+    final marketMax = context.watch<ProfileRepository>().lastCompensationEstimate?.maxSalary;
+    if (marketMax == null || marketMax <= 0 || target <= marketMax * 1.25) {
+      return const SizedBox.shrink();
+    }
+    final excessPercent = ((target / marketMax - 1) * 100).round();
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.error),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Your target is about $excessPercent% above real market pay for this role. This '
+                "usually means one of your transition-cost inputs is too high — check what's driving "
+                'it before using this figure to negotiate.',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 /// "Stretch" only ever shows a number when it can be grounded in the real

@@ -249,6 +249,28 @@ void main() {
       );
     });
 
+    test('flags transition costs only once they look implausibly large vs. current cash pay', () {
+      final plausible = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1200000,
+          militaryBasicPay: 100000, // cash ~= 100000*12*1.6 = 1,920,000
+          monthlyRentDelta: 20000, // 240,000/year =~ 12.5% of cash
+        ),
+      );
+      expect(plausible.negotiationGuidance, isNot(contains('unusually high')));
+
+      final implausible = calculateFinancialPlan(
+        const FinancialPlanInput(
+          drawsPension: false,
+          annualFixedPay: 1200000,
+          militaryBasicPay: 100000, // cash ~= 1,920,000
+          monthlyRentDelta: 100000, // 1,200,000/year =~ 62.5% of cash
+        ),
+      );
+      expect(implausible.negotiationGuidance, contains('unusually high'));
+    });
+
     test('one-time amounts pass through without affecting any annual figure', () {
       final withOneTimes = calculateFinancialPlan(
         const FinancialPlanInput(
@@ -444,6 +466,59 @@ void main() {
       expect(find.text('Healthcare'), findsOneWidget);
       expect(find.text("Children's education"), findsOneWidget);
       expect(find.text('Transport'), findsOneWidget);
+    });
+
+    testWidgets(
+        'the current-benefits total breaks down by housing, education (with child count), '
+        'medical and CSD', (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('fixedPayField')), '1200000');
+      await tester.enterText(find.byKey(const Key('dependentChildrenField')), '2');
+      await tester.enterText(find.byKey(const Key('schoolCostComparableField')), '180000');
+      await tester.enterText(find.byKey(const Key('schoolCostActualField')), '60000');
+      await tester.enterText(find.byKey(const Key('medicalBenchmarkField')), '50000');
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
+      await tester.tap(find.byKey(const Key('calculateButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('· Housing'), findsOneWidget);
+      expect(find.text('· Education (2 children)'), findsOneWidget);
+      // 180,000 * 2 - 60,000 = 300,000 — confirms both children are counted.
+      expect(find.textContaining('300,000'), findsWidgets);
+      expect(find.text('· Medical'), findsOneWidget);
+      expect(find.text('· CSD/other savings'), findsOneWidget);
+    });
+
+    testWidgets('Target is flagged once it drifts too far above real market data', (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('fixedPayField')), '1200000');
+      await tester.enterText(find.byKey(const Key('militaryBasicPayField')), '150000');
+      await tester.enterText(find.byKey(const Key('rentDeltaField')), '150000');
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
+      await tester.tap(find.byKey(const Key('calculateButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('above real market pay'), findsNothing);
+
+      repo.saveCompensationEstimate(
+        const CompensationEstimate(
+          jobTitle: 'COO',
+          location: 'Mumbai',
+          maxSalary: 500000, // Well below the target this input produces.
+          negotiationGuidance: 'n/a',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('above real market pay'), findsOneWidget);
     });
 
     testWidgets('loading an illustrative example pre-fills rank, years and basic pay', (tester) async {

@@ -450,7 +450,13 @@ FinancialPlanResult calculateFinancialPlan(FinancialPlanInput input) {
     effectiveMonthlyGuaranteed: netMonthlyGuaranteed - monthlyCostOfLivingDelta,
     effectiveMonthlyWithVariable: netMonthlyWithVariable - monthlyCostOfLivingDelta,
     negotiationGuidance:
-        _negotiationGuidance(input, netMonthlyGuaranteed, monthlyCostOfLivingDelta, headlineCtc),
+        _negotiationGuidance(
+      input,
+      netMonthlyGuaranteed,
+      monthlyCostOfLivingDelta,
+      headlineCtc,
+      militaryCashCompensation,
+    ),
     militaryCashCompensation: militaryCashCompensation,
     militaryCurrentEconomicCompensation: militaryCurrentEconomicCompensation,
     militaryDeferredAnnualEquivalent: militaryDeferredAnnualEquivalent,
@@ -475,6 +481,7 @@ String _negotiationGuidance(
   num netMonthlyGuaranteed,
   num monthlyCostOfLivingDelta,
   num headlineCtc,
+  num militaryCashCompensation,
 ) {
   final buffer = StringBuffer();
   if (input.drawsPension && input.monthlyPension > 0) {
@@ -516,6 +523,19 @@ String _negotiationGuidance(
       buffer.write(
         '\n\nEquity (ESOP/RSU) makes up about ${equityPercent.round()}% of this headline CTC — '
         'treat it as potential upside, not guaranteed cash, especially if unlisted or still unvested.',
+      );
+    }
+  }
+  if (militaryCashCompensation > 0) {
+    final transitionCostAnnual = monthlyCostOfLivingDelta * 12;
+    final transitionCostPercent = transitionCostAnnual / militaryCashCompensation * 100;
+    if (transitionCostPercent > 50) {
+      buffer.write(
+        '\n\nThe transition costs you entered (₹${_fmt(transitionCostAnnual)}/year) come to over '
+        '${transitionCostPercent.round()}% of your current cash pay — unusually high. Double-check '
+        'your comparable-cost figures (market rent, school fees) look realistic for your city before '
+        'using the target below to negotiate, since an inflated input here inflates every figure '
+        'downstream from it.',
       );
     }
   }

@@ -797,6 +797,21 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
                 _AmountRow('Your cash pay today', result.militaryCashCompensation),
                 _AmountRow('+ extra it will cost you after transition',
                     result.transitionCostAdjustmentAnnual),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _AmountRow('· Rent (annual)', _parse(_rentDeltaController.text) * 12),
+                      _AmountRow('· Healthcare (annual)', _parse(_healthcareDeltaController.text) * 12),
+                      _AmountRow(
+                        "· Children's education (annual)",
+                        _parse(_schoolFeeDeltaController.text) * 12,
+                      ),
+                      _AmountRow('· Transport (annual)', _parse(_transportDeltaController.text) * 12),
+                    ],
+                  ),
+                ),
                 const Divider(),
                 _AmountRow('= Floor — minimum acceptable (break-even)',
                     result.breakEvenCorporateCompensation),
@@ -866,7 +881,13 @@ class _FinancialPlannerScreenState extends State<FinancialPlannerScreen> {
               children: [
                 Text('After your cost-of-living change', style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 8),
-                _AmountRow('Monthly cost-of-living delta', result.monthlyCostOfLivingDelta),
+                _AmountRow('Rent', _parse(_rentDeltaController.text)),
+                _AmountRow('Healthcare', _parse(_healthcareDeltaController.text)),
+                _AmountRow("Children's education", _parse(_schoolFeeDeltaController.text)),
+                _AmountRow('Transport', _parse(_transportDeltaController.text)),
+                const Divider(),
+                _AmountRow('Monthly cost-of-living delta', result.monthlyCostOfLivingDelta,
+                    emphasize: true),
                 const Divider(),
                 _AmountRow('Effective net (guaranteed)', result.effectiveMonthlyGuaranteed, emphasize: true),
                 _AmountRow(

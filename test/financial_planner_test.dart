@@ -419,6 +419,33 @@ void main() {
       expect(repo.lastFinancialPlanInput!.drawsPension, isFalse);
     });
 
+    testWidgets('the transition cost total breaks down by rent, healthcare, school and transport',
+        (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.ssc));
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byKey(const Key('fixedPayField')), '1200000');
+      await tester.enterText(find.byKey(const Key('rentDeltaField')), '10000');
+      await tester.enterText(find.byKey(const Key('healthcareDeltaField')), '5000');
+      await tester.enterText(find.byKey(const Key('schoolFeeDeltaField')), '3000');
+      await tester.enterText(find.byKey(const Key('transportDeltaField')), '2000');
+      await tester.ensureVisible(find.byKey(const Key('calculateButton')));
+      await tester.tap(find.byKey(const Key('calculateButton')));
+      await tester.pumpAndSettle();
+
+      // Annualised, in the "does this offer clear the bar" breakdown:
+      // ₹10,000/month rent delta -> ₹120,000/year.
+      expect(find.text('· Rent (annual)'), findsOneWidget);
+      expect(find.textContaining('120,000'), findsWidgets);
+      // Monthly, in the "after your cost-of-living change" card.
+      expect(find.text('Rent'), findsOneWidget);
+      expect(find.text('Healthcare'), findsOneWidget);
+      expect(find.text("Children's education"), findsOneWidget);
+      expect(find.text('Transport'), findsOneWidget);
+    });
+
     testWidgets('loading an illustrative example pre-fills rank, years and basic pay', (tester) async {
       _setTallViewport(tester);
       final repo = ProfileRepository()..saveProfile(_profile(segment: OfficerSegment.pmr));

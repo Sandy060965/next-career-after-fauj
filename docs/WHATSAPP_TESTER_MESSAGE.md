@@ -37,7 +37,7 @@ First thing you'll see is a Cloudflare login screen, separate from the app itsel
 
 Want it to feel like an installed app? Add it to your home screen — takes 10 seconds, no app store, works on laptop, iPhone, and Android:
 •⁠  ⁠Laptop (Chrome): open the link, look for a small install icon at the right end of the address bar (a monitor with a down-arrow) and click it, then click "Install." Don't see that icon? Use the ⋮ menu →
-  "Cast, save and share" → "Install page as app" instead. After installing, the app may not stay in your Dock taskbar on its own — right-click its icon while it's open and choose "Keep in Dock"
+  "Cast, save and share" → "Install page as app" instead. After installing, the app may not stay in your Dock/taskbar on its own — right-click its icon while it's open and choose "Keep in Dock"
   (Mac) or "Pin to taskbar" (Windows) to make that permanent.
 •⁠  ⁠iPhone (Safari): open the link, tap the Share icon (square with an arrow, bottom of the screen), scroll down and tap "Add to Home Screen."
 •⁠  ⁠Android (Chrome): open the link, tap the ⋮ menu (top right), tap

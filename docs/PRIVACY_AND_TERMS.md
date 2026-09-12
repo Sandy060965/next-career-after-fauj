@@ -26,9 +26,10 @@ file itself.
 type into the compensation calculator, financial planner, CV builder, and
 mentor sign-up screens.
 
-We deliberately **do not** ask for your ACR (Annual Confidential Report),
-any formal service record, or any unit/formation-identifying information —
-this app is built to never need or accept those.
+We deliberately **do not ask for or require** your **Record of Service,
+service-record documents, or any confidential or sensitive service
+information**. The app is designed to work without such information.
+Please do not upload it.
 
 ### How it's used and where it goes
 
@@ -77,9 +78,9 @@ Financial Planner give estimates based on figures you enter and
 publicly-sourced pay-matrix/tax data — verify anything before acting on
 it, especially for financial decisions.
 
-**Don't upload ACRs or formal service records.** The app is built to
-never need them; please don't submit unit-identifying or classified
-information anywhere in it.
+**Don't upload your Record of Service or confidential/sensitive service
+information.** The app is built to never need it; please don't submit any
+such information anywhere in it.
 
 **Your content stays yours.** Your CV and anything else you enter is
 processed only to generate the outputs you asked for (a refined CV, a

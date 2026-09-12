@@ -12,7 +12,8 @@ officers (typically 40–60, pensioned, longer service record to translate).
 
 **How it's organized.** Everything below sits behind a one-time,
 phone-verified sign-up (Service, Rank, Name, DOB, work experience, release
-date, and — deliberately — no ACR or unit-identifying information, ever).
+date, and — deliberately — no Record of Service, service-record documents,
+or confidential/sensitive service information, ever).
 From there, a Home dashboard (Transition Readiness score, next 3
 recommended actions) and a bottom navigation bar — Home / Career / Jobs /
 Learn / Profile — link out to every module, plus an AI Assistant (typed or
@@ -159,5 +160,5 @@ data; it never invents a score or CV detail it wasn't given.
 Every module that calls an AI or market-data backend does so through a
 real Cloudflare Worker (not a demo/mock) — the analysis, scores, and
 guidance officers see are real outputs on their real data, not sample
-content. Nothing in the app requires or accepts an ACR or unit-identifying
-information, by design.
+content. Nothing in the app requires your Record of Service, service-record
+documents, or confidential/sensitive service information.

@@ -26,8 +26,9 @@ confusing, it's a genuine bug or gap, not a placeholder.
 ## Before you start
 
 Please read the [Privacy Note & Terms](PRIVACY_AND_TERMS.md) — short
-version: don't upload your ACR or any unit-identifying information (the
-app never needs it), this is beta software so treat any guidance
+version: don't upload your **Record of Service, service-record documents,
+or any confidential or sensitive service information** (the app never
+needs it), this is beta software so treat any guidance
 (especially financial) as a starting point rather than final advice, and
 you can ask for your data to be deleted at any time.
 

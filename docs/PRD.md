@@ -15,7 +15,7 @@
 
 ## MVP Screens (6)
 
-1. **Onboarding & Intake** — service-verified sign-up, segment branching (A/B), choice between draft-CV upload or generalized structured-entry form (role + formation category + generalized context; no unit-identifying fields; ACR/service-record upload is a hard exclusion).
+1. **Onboarding & Intake** — service-verified sign-up, segment branching (A/B), choice between draft-CV upload or generalized structured-entry form (role + formation category + generalized context; no unit-identifying fields; Record of Service/service-record document upload is a hard exclusion).
 2. **Profile / Translated CV** — AI-translated corporate-language profile view, editable, exportable (PDF/DOCX).
 3. **JD Match** — paste a job description → match score, keyword-gap highlights, one-tap tailored CV/cover-letter regeneration; tags the JD's vertical/level against the career-taxonomy ladder.
 4. **Career Paths (Taxonomy)** — browsable job-profile taxonomy across 13 functional verticals (Security, Administration, Business Development, Supply Chain, Operations, HR, Manufacturing/Technical, Project Management, Corporate Affairs & Governance, L&D, Hospitality/Institutional Management, IT/Cybersecurity, PSU/Government), each showing a segment-matched entry role (SSC vs. PMR level) and its forward career trajectory; segment-aware default view, freely browsable.
@@ -34,7 +34,7 @@
 
 ## Non-Negotiable Constraints
 
-- **No ACR or formal service-record upload anywhere in the app** — confidential, security-sensitive, national-security implications. Data intake is limited to (1) officer-authored draft CV, or (2) generalized structured entry with no free-text unit/formation-identity field.
+- **No Record of Service or formal service-record upload anywhere in the app** — confidential, security-sensitive, national-security implications. Data intake is limited to (1) officer-authored draft CV, or (2) generalized structured entry with no free-text unit/formation-identity field.
 - **No automated multi-portal auto-apply** — job-board ToS violation and Google Play policy risk; the app supports tailored generation and a manual application tracker, not automated submission.
 - **DPDP Act 2023-aligned data handling** — explicit consent screens, minimal retention, no third-party/advertiser sharing of any service-related data, on-device processing where feasible.
 - **No implied government/Army endorsement** in branding, messaging, or app store listing.

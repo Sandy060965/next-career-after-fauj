@@ -3,19 +3,18 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/services/cv_redaction_scanner.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
-import '../onboarding/cv_redaction_review_sheet.dart';
+import '../../core/utils/privacy_copy.dart';
 
 Future<PickedFile?> _defaultPickCv() =>
     pickFileWithBytes(allowedExtensions: const ['pdf', 'docx']);
 
 /// Opens a bottom sheet letting an officer who already has a saved profile
 /// attach or replace their CV directly — the same pick/size-guard/DOCX-
-/// extraction/redaction-review logic onboarding uses, without re-entering
-/// the full onboarding wizard. Returns true once a CV has been saved.
+/// extraction logic onboarding uses, without re-entering the full
+/// onboarding wizard. Returns true once a CV has been saved.
 Future<bool> showCvUploadSheet(
   BuildContext context, {
   Future<PickedFile?> Function() pickFile = _defaultPickCv,
@@ -82,30 +81,8 @@ class _CvUploadSheetState extends State<CvUploadSheet> {
         final text = await extractDocxText(file.bytes);
         if (!mounted) return;
 
-        final matches = scanForRedactions(text);
-        var finalText = text;
-        if (matches.isNotEmpty) {
-          final reviewed = await showCvRedactionReview(
-            context,
-            extractedText: text,
-            matches: matches,
-          );
-          if (!mounted) return;
-          if (reviewed == null) {
-            // Officer chose to pick a different file rather than review —
-            // discard this upload entirely instead of keeping unreviewed text.
-            setState(() {
-              _isProcessing = false;
-              _uploadedFileName = null;
-              _cvExtractedText = null;
-            });
-            return;
-          }
-          finalText = reviewed;
-        }
-
         setState(() {
-          _cvExtractedText = finalText;
+          _cvExtractedText = text;
           _isProcessing = false;
         });
       } on DocxExtractionException catch (e) {
@@ -169,8 +146,7 @@ class _CvUploadSheetState extends State<CvUploadSheet> {
           Text('Upload your CV', style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 4),
           Text(
-            "We only accept a CV you've written / vetted yourself — never your "
-            'official record of service.',
+            kCvSourceDisclaimer,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),

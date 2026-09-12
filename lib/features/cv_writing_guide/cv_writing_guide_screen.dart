@@ -97,10 +97,10 @@ const _guidelines = [
         '— see the Skill Equivalency Matrix for real course/appointment translations.',
   ),
   _Guideline(
-    title: 'Never include ACR, classified, or unit-identifying content',
-    detail: 'The same rule that applies everywhere else in this app applies to your CV '
-        'too — no service-record documents, no classified details, no unit-identifying '
-        'specifics.',
+    title: 'Never include your Record of Service or confidential/sensitive service information',
+    detail: 'The same rule that applies everywhere else in this app applies to your CV too '
+        '— no service-record documents, no confidential or sensitive service details, no '
+        'classified content.',
   ),
   _Guideline(
     title: 'Describe challenges, not just duties',

@@ -46,7 +46,7 @@ Uint8List _buildDocxBytes(String bodyText) {
 }
 
 /// Drives every onboarding step up to (but not including) picking a CV file
-/// — factored out so the redaction-review tests below don't repeat the
+/// — factored out so the CV-upload-focused tests below don't repeat the
 /// full ~15-step sequence the happy-path test above already covers in full.
 Future<void> _completeStepsUpToCvUpload(WidgetTester tester, {String? corpsOrArm}) async {
   await tester.tap(find.byKey(const Key('serviceDropdown')));
@@ -281,105 +281,33 @@ void main() {
     },
   );
 
-  testWidgets(
-    'a .docx with flagged content shows the redaction review; confirming redacts checked '
-    'items but keeps unchecked ones',
-    (tester) async {
-      tester.view.physicalSize = const Size(430, 2000);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      final repository = ProfileRepository();
-      final docxBytes = _buildDocxBytes(
-        'Experienced leader. Part of a Regiment. Commanded a Battalion.',
-      );
-
-      await tester.pumpWidget(
-        _appUnderTest(
-          repository: repository,
-          pickFile: () async => PickedFile(name: 'resume.docx', bytes: docxBytes),
-        ),
-      );
-      await _completeStepsUpToCvUpload(tester);
-
-      // Not pumpAndSettle: the upload panel's spinner animates indefinitely
-      // while _pickCv awaits the dialog below, which would time out settle.
-      await tester.tap(find.byKey(const Key('browseButton')));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-
-      // The review dialog should appear with one row per unique flagged term.
-      expect(find.text('Review before continuing'), findsOneWidget);
-      expect(find.byKey(const Key('redactionCheckbox_Regiment')), findsOneWidget);
-      expect(find.byKey(const Key('redactionCheckbox_Battalion')), findsOneWidget);
-
-      // Uncheck Regiment — keep it; leave Battalion checked — redact it.
-      // Still not pumpAndSettle: the dialog hasn't closed yet, so the
-      // upload panel's spinner underneath is still animating.
-      await tester.tap(find.byKey(const Key('redactionCheckbox_Regiment')));
-      await tester.pump();
-      await tester.tap(find.byKey(const Key('confirmRedactionReviewButton')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Review before continuing'), findsNothing);
-      expect(find.text('resume.docx'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('continueButton')));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 6));
-
-      final savedText = repository.profile?.cvExtractedText ?? '';
-      expect(savedText, contains('Regiment'));
-      expect(savedText, contains('[REDACTED]'));
-      expect(savedText, isNot(contains('Battalion')));
-    },
-  );
-
-  testWidgets('choosing "a different file" on the redaction review discards the upload',
-      (tester) async {
+  testWidgets('a .docx CV upload extracts its text and saves it to the profile', (tester) async {
     tester.view.physicalSize = const Size(430, 2000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final docxBytes = _buildDocxBytes('Commanded a Battalion during operations.');
-
-    await tester.pumpWidget(
-      _appUnderTest(pickFile: () async => PickedFile(name: 'resume.docx', bytes: docxBytes)),
-    );
-    await _completeStepsUpToCvUpload(tester);
-
-    await tester.tap(find.byKey(const Key('browseButton')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.text('Review before continuing'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('cancelRedactionReviewButton')));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Review before continuing'), findsNothing);
-    expect(find.text('No file selected (PDF or Word)'), findsOneWidget);
-  });
-
-  testWidgets('a clean .docx with nothing flagged skips the review entirely', (tester) async {
-    tester.view.physicalSize = const Size(430, 2000);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
+    final repository = ProfileRepository();
     final docxBytes = _buildDocxBytes('Experienced operations leader with a strong record.');
 
     await tester.pumpWidget(
-      _appUnderTest(pickFile: () async => PickedFile(name: 'resume.docx', bytes: docxBytes)),
+      _appUnderTest(
+        repository: repository,
+        pickFile: () async => PickedFile(name: 'resume.docx', bytes: docxBytes),
+      ),
     );
     await _completeStepsUpToCvUpload(tester);
 
     await tester.tap(find.byKey(const Key('browseButton')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Review before continuing'), findsNothing);
     expect(find.text('resume.docx'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('continueButton')));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 6));
+
+    expect(repository.profile?.cvExtractedText, contains('Experienced operations leader'));
   });
 
   testWidgets('an optional Corps/Arm selection is captured and persisted to the profile',

@@ -22,7 +22,7 @@ This is real, not a demo — your CV, profile, and inputs go through the actual 
 
 ## Before you start
 
-Please read the [Privacy Note & Terms] (PRIVACY_AND_TERMS.md) — short version: don't upload your Record of Service or any Confidential Information (the app never needs it), this is beta software so treat any guidance
+Please read the [Privacy Note & Terms] (PRIVACY_AND_TERMS.md) — short version: don't upload your *Record of Service, service-record documents, or any confidential or sensitive service information* (the app never needs it), this is beta software so treat any guidance
 (especially financial) as a starting point rather than final advice, and you can ask for your data to be deleted at any time.
 
 ## How to access it

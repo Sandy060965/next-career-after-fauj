@@ -11,8 +11,8 @@ import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/cv_upload/cv_upload_sheet.dart';
 import 'package:provider/provider.dart';
 
-/// Same minimal real .docx builder used in onboarding_flow_test.dart, so the
-/// redaction-review path is exercised for real rather than stubbed.
+/// Same minimal real .docx builder used in onboarding_flow_test.dart, so
+/// docx extraction is exercised for real rather than stubbed.
 Uint8List _buildDocxBytes(String bodyText) {
   const xmlTemplate = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
@@ -104,10 +104,10 @@ void main() {
     expect(repository.profile?.cvFileName, ''); // unchanged
   });
 
-  testWidgets('a .docx with flagged content shows the redaction review before saving',
+  testWidgets('a .docx CV extracts its text and attaches it to the existing profile',
       (tester) async {
     final repository = ProfileRepository()..saveProfile(_existingProfile());
-    final docxBytes = _buildDocxBytes('Commanded a Battalion during the tenure.');
+    final docxBytes = _buildDocxBytes('Commanded a battalion-sized team during the tenure.');
 
     await tester.pumpWidget(
       _hostScreen(
@@ -119,21 +119,14 @@ void main() {
     await tester.tap(find.byKey(const Key('openSheetButton')));
     await tester.pumpAndSettle();
 
-    // Not pumpAndSettle: the panel's spinner animates while the dialog is
-    // still pending, same reasoning as onboarding_flow_test.dart.
     await tester.tap(find.byKey(const Key('cvUploadSheetBrowseButton')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.text('Review before continuing'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('confirmRedactionReviewButton')));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('cvUploadSheetSaveButton')));
     await tester.pumpAndSettle();
 
     expect(repository.profile?.cvFileName, 'resume.docx');
-    expect(repository.profile?.cvExtractedText, contains('[REDACTED]'));
+    expect(repository.profile?.cvExtractedText, contains('Commanded a battalion-sized team'));
   });
 
   testWidgets('a PDF larger than the size limit is rejected with a clear reason', (tester) async {

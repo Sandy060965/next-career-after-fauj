@@ -278,7 +278,7 @@ void main() {
     // asked for — defence jargon, challenges, KPI-based achievements.
     for (final title in [
       'Never use defence abbreviations or jargon',
-      'Never include ACR, classified, or unit-identifying content',
+      'Never include your Record of Service or confidential/sensitive service information',
       'Describe challenges, not just duties',
       'Quantify achievements — build a real KPI-based achievement matrix',
       'State designation and exact dates for every role',

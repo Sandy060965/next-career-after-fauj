@@ -14,6 +14,7 @@ import {
   handleGetProgress,
   handleSubmitSupportTicket,
   handleAdminListOfficers,
+  handleAdminLinkOfficerEmail,
   handleAdminListSupportTickets,
   handleAdminResolveTicket,
   handleAdminListAllowedPhones,
@@ -1411,6 +1412,8 @@ export default {
     if (path === '/officer-progress/me') return handleGetProgress(request, env);
     if (path === '/support-ticket') return handleSubmitSupportTicket(request, body, env);
     if (path === '/admin/officers') return handleAdminListOfficers(request, env);
+    if (path === '/admin/link-officer-email')
+      return handleAdminLinkOfficerEmail(request, body, env);
     if (path === '/admin/support-tickets') return handleAdminListSupportTickets(request, env);
     if (path === '/admin/resolve-ticket') return handleAdminResolveTicket(request, body, env);
     if (path === '/admin/allowed-phones') return handleAdminListAllowedPhones(request, env);

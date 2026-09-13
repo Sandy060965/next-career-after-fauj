@@ -506,5 +506,96 @@ void main() {
 
       expect(rejectedId, 'sub-2');
     });
+
+    testWidgets('linking an email to a phone-only officer calls the service and refreshes',
+        (tester) async {
+      String? linkedOfficerId;
+      String? linkedEmail;
+      var fetchCount = 0;
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async {
+            fetchCount++;
+            return [_officer];
+          },
+          linkOfficerEmail: (key, officerId, email) async {
+            linkedOfficerId = officerId;
+            linkedEmail = email;
+          },
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('linkOfficerEmailButton_officer-1')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('linkOfficerEmailButton_officer-1')));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('linkOfficerEmailField')),
+        'officer1@gmail.com',
+      );
+      await tester.tap(find.byKey(const Key('confirmLinkOfficerEmailButton')));
+      await tester.pumpAndSettle();
+
+      expect(linkedOfficerId, 'officer-1');
+      expect(linkedEmail, 'officer1@gmail.com');
+      expect(fetchCount, 2);
+    });
+
+    testWidgets("doesn't show the link-email action for an officer who already has an email",
+        (tester) async {
+      final officerWithEmail = AdminOfficerSummary(
+        id: 'officer-3',
+        email: 'already@gmail.com',
+        createdAt: DateTime(2026, 1, 10),
+        entitlementTier: 'free',
+        readinessDimensionsCompleted: 0,
+        readinessDimensionsTotal: 0,
+        cvUploaded: false,
+        civilianizedCvDone: false,
+        builtCvDone: false,
+        jdMatchDone: false,
+        financialPlanDone: false,
+        targetRoleStrategyDone: false,
+        applicationsCount: 0,
+      );
+      await tester.pumpWidget(
+        _wrap(AdminDashboardScreen(
+          adminKey: 'key',
+          fetchOfficers: (key) async => [officerWithEmail],
+          fetchSupportTickets: (key) async => [],
+          resolveTicket: (key, id) async {},
+          fetchAllowedPhones: _noAllowedPhones,
+          fetchAllowedEmails: _noAllowedEmails,
+          fetchPhoneRecoveryGrants: _noPhoneRecoveryGrants,
+          grantPhoneRecovery: _noopGrantPhoneRecovery,
+          revokePhoneRecoveryGrant: _noopRevokePhoneRecoveryGrant,
+          addAllowedPhone: _noopAdd,
+          removeAllowedPhone: _noopRemove,
+          fetchLoginHistory: _noLogins,
+          fetchCourseSubmissions: _noCourseSubmissions,
+          approveCourseSubmission: _noopApprove,
+          rejectCourseSubmission: _noopReject,
+        )),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('linkOfficerEmailButton_officer-3')), findsNothing);
+    });
   });
 }

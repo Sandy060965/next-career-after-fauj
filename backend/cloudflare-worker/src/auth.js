@@ -703,6 +703,37 @@ async function handleAdminListOfficers(request, env) {
   });
 }
 
+// Attaches an email to an officer row that signed up via phone recovery
+// (mobile_number set, email null), so a later Google Sign-In with that
+// email resolves to this same officer instead of forking a new one —
+// findOrCreateOfficerByEmail above looks up strictly by email, so an
+// officer with no email on file would otherwise always get a fresh row
+// the first time they sign in with Google. Never called by the app
+// itself; an admin does this deliberately for one officer at a time,
+// after confirming with them which email they'll use going forward.
+async function handleAdminLinkOfficerEmail(request, body, env) {
+  if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
+
+  const officerId = String(body.officerId ?? '').trim();
+  if (!officerId) return json({ error: 'officerId is required' }, 400);
+
+  const email = normalizeEmail(body.email);
+  if (!email) return json({ error: 'A valid email address is required' }, 400);
+
+  const officer = await env.DB.prepare('SELECT id FROM officers WHERE id = ?').bind(officerId).first();
+  if (!officer) return json({ error: 'No officer found with that id' }, 404);
+
+  const emailInUse = await env.DB.prepare('SELECT id FROM officers WHERE email = ? AND id != ?')
+    .bind(email, officerId)
+    .first();
+  if (emailInUse) {
+    return json({ error: 'That email is already linked to a different officer account' }, 409);
+  }
+
+  await env.DB.prepare('UPDATE officers SET email = ? WHERE id = ?').bind(email, officerId).run();
+  return json({ status: 'linked' });
+}
+
 async function handleAdminListSupportTickets(request, env) {
   if (!requireAdmin(request, env)) return json({ error: 'Unauthorized' }, 401);
 
@@ -995,6 +1026,7 @@ export {
   handleGetProgress,
   handleSubmitSupportTicket,
   handleAdminListOfficers,
+  handleAdminLinkOfficerEmail,
   handleAdminListSupportTickets,
   handleAdminResolveTicket,
   handleAdminListAllowedPhones,

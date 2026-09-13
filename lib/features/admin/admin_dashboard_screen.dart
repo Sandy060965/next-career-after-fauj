@@ -15,6 +15,7 @@ class AdminDashboardScreen extends StatefulWidget {
     super.key,
     required this.adminKey,
     this.fetchOfficers = httpFetchAdminOfficers,
+    this.linkOfficerEmail = httpLinkOfficerEmail,
     this.fetchSupportTickets = httpFetchAdminSupportTickets,
     this.resolveTicket = httpResolveSupportTicket,
     this.fetchAllowedPhones = httpFetchAllowedPhones,
@@ -34,6 +35,7 @@ class AdminDashboardScreen extends StatefulWidget {
 
   final String adminKey;
   final FetchAdminOfficers fetchOfficers;
+  final LinkOfficerEmail linkOfficerEmail;
   final FetchAdminSupportTickets fetchSupportTickets;
   final ResolveSupportTicket resolveTicket;
   final FetchAllowedPhones fetchAllowedPhones;
@@ -109,6 +111,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Future<void> _resolve(String ticketId) async {
     try {
       await widget.resolveTicket(widget.adminKey, ticketId);
+      if (!mounted) return;
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  Future<void> _linkOfficerEmail(String officerId, String email) async {
+    try {
+      await widget.linkOfficerEmail(widget.adminKey, officerId, email);
       if (!mounted) return;
       await _load();
     } catch (e) {
@@ -265,7 +280,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   )
                 : TabBarView(
                     children: [
-                      _OfficersTab(officers: _officers, logins: _logins),
+                      _OfficersTab(
+                        officers: _officers,
+                        logins: _logins,
+                        onLinkEmail: _linkOfficerEmail,
+                      ),
                       _SupportTicketsTab(tickets: _tickets, onResolve: _resolve),
                       _AllowedPhonesTab(
                         phones: _allowedPhones,
@@ -296,10 +315,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 }
 
 class _OfficersTab extends StatelessWidget {
-  const _OfficersTab({required this.officers, required this.logins});
+  const _OfficersTab({required this.officers, required this.logins, required this.onLinkEmail});
 
   final List<AdminOfficerSummary> officers;
   final List<LoginEvent> logins;
+  final Future<void> Function(String officerId, String email) onLinkEmail;
 
   @override
   Widget build(BuildContext context) {
@@ -313,17 +333,61 @@ class _OfficersTab extends StatelessWidget {
       itemBuilder: (context, index) {
         final officer = officers[index];
         final officerLogins = logins.where((l) => l.officerId == officer.id).toList();
-        return _OfficerCard(officer: officer, logins: officerLogins);
+        return _OfficerCard(officer: officer, logins: officerLogins, onLinkEmail: onLinkEmail);
       },
     );
   }
 }
 
 class _OfficerCard extends StatelessWidget {
-  const _OfficerCard({required this.officer, required this.logins});
+  const _OfficerCard({required this.officer, required this.logins, required this.onLinkEmail});
 
   final AdminOfficerSummary officer;
   final List<LoginEvent> logins;
+  final Future<void> Function(String officerId, String email) onLinkEmail;
+
+  Future<void> _showLinkEmailDialog(BuildContext context) async {
+    final controller = TextEditingController();
+    final email = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Link Google email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This officer signed up via phone (${officer.mobileNumber}) and has no email on '
+              'file. Linking one lets them sign in with Google from now on, using this same '
+              'account and all their existing progress.',
+              style: Theme.of(dialogContext).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('linkOfficerEmailField'),
+              controller: controller,
+              autofocus: true,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: 'Google email address'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            key: const Key('confirmLinkOfficerEmailButton'),
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
+            child: const Text('Link'),
+          ),
+        ],
+      ),
+    );
+    if (email == null || email.isEmpty) return;
+    await onLinkEmail(officer.id, email);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -355,6 +419,18 @@ class _OfficerCard extends StatelessWidget {
               '${o.mobileNumber ?? o.email ?? 'no contact on file'} • signed up ${_formatDate(o.createdAt)}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            if (o.mobileNumber != null && o.email == null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  key: ValueKey('linkOfficerEmailButton_${o.id}'),
+                  onPressed: () => _showLinkEmailDialog(context),
+                  icon: const Icon(Icons.link, size: 16),
+                  label: const Text('Link Google email'),
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
             if (!o.hasOpenedApp)
               Text(

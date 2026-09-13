@@ -73,6 +73,21 @@ Future<void> httpResolveSupportTicket(String adminKey, String ticketId) async {
   }
 }
 
+typedef LinkOfficerEmail = Future<void> Function(String adminKey, String officerId, String email);
+
+Future<void> httpLinkOfficerEmail(String adminKey, String officerId, String email) async {
+  final response = await _post('/admin/link-officer-email', adminKey, {
+    'officerId': officerId,
+    'email': email,
+  });
+  if (response.statusCode == 409) {
+    throw AdminException('That email is already linked to a different officer account.');
+  }
+  if (response.statusCode != 200) {
+    throw AdminException('Could not link this email (${response.statusCode}).');
+  }
+}
+
 typedef FetchAllowedPhones = Future<List<AllowedPhoneSummary>> Function(String adminKey);
 typedef AddAllowedPhone = Future<void> Function(String adminKey, String mobileNumber, String? note);
 typedef RemoveAllowedPhone = Future<void> Function(String adminKey, String mobileNumber);

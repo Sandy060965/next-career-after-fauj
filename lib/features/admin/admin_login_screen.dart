@@ -11,6 +11,7 @@ class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({
     super.key,
     this.fetchOfficers = httpFetchAdminOfficers,
+    this.linkOfficerEmail = httpLinkOfficerEmail,
     this.fetchSupportTickets = httpFetchAdminSupportTickets,
     this.resolveTicket = httpResolveSupportTicket,
     this.fetchAllowedPhones = httpFetchAllowedPhones,
@@ -29,6 +30,7 @@ class AdminLoginScreen extends StatefulWidget {
   });
 
   final FetchAdminOfficers fetchOfficers;
+  final LinkOfficerEmail linkOfficerEmail;
   final FetchAdminSupportTickets fetchSupportTickets;
   final ResolveSupportTicket resolveTicket;
   final FetchAllowedPhones fetchAllowedPhones;
@@ -81,6 +83,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           builder: (_) => AdminDashboardScreen(
             adminKey: key,
             fetchOfficers: widget.fetchOfficers,
+            linkOfficerEmail: widget.linkOfficerEmail,
             fetchSupportTickets: widget.fetchSupportTickets,
             resolveTicket: widget.resolveTicket,
             fetchAllowedPhones: widget.fetchAllowedPhones,

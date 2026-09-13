@@ -183,6 +183,24 @@ every signed-up officer with a self-reported onboarding-progress snapshot
 tracked), and a Support Tickets tab for messages officers submit in-app via
 Profile → Help & Support.
 
+## Before going live
+
+Two gates exist specifically to keep this a closed beta and need to come
+out before a public launch — everything else (Phone Recovery, the
+"Link Google email" admin action, the Admin Dashboard, session/refresh
+tokens) is launch-ready as-is, not beta-specific:
+
+- **Cloudflare Access** (see "Access control" above) — remove or
+  reconfigure the "Beta Testers" policy so the site doesn't sit behind an
+  email-OTP wall before the app even loads.
+- **The email allowlist gate on Google Sign-In** (`email_allowlist` table,
+  checked in `handleGoogleSignIn` in
+  `backend/cloudflare-worker/src/auth.js`) — right now a brand-new email
+  must be pre-approved via the Admin Dashboard's "Allowed Emails" tab
+  before Google Sign-In will create an account for it. Remove that check
+  (or make it opt-in rather than blocking) so any new user can sign up
+  directly.
+
 ## What's not built yet
 
 - **Subscription/paywall** — no payment gateway; the only entitlement

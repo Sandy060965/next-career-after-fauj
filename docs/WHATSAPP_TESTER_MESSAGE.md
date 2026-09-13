@@ -33,7 +33,9 @@ Web (all devices, including iOS):
 https://nextcareerafterfauj.com
 — open it in your browser, no install needed.
 
-First thing you'll see is a Cloudflare login screen, separate from the app itself — this restricts access to invited testers only. Enter the exact email address we invited you with, and Cloudflare will email you a one-time code to enter. This is a one-time-per-session check before the app loads; it's not part of the app's own sign-up (that comes right after, using your phone number).
+First thing you'll see is a Cloudflare login screen, separate from the app itself — this restricts access to invited testers only. Enter the exact email address we invited you with, and Cloudflare will email you a one-time code to enter. This is a one-time-per-session check before the app loads; it's not part of the app's own sign-up.
+
+Inside the app, sign in with Google using that same invited email — that's the app's own account, and it should go through in one tap. If you see a message saying your email isn't recognized yet, message us first so we can add you, then try again — please don't use the "Trouble signing in?" phone-number option on your own initiative. That option only works when we've explicitly enabled it for your number, and it creates a separate account from your Google one. So once you're in — whichever way that happened — stick with that same method every time, rather than switching between Google and phone sign-in.
 
 Want it to feel like an installed app? Add it to your home screen — takes 10 seconds, no app store, works on laptop, iPhone, and Android:
 •⁠  ⁠Laptop (Chrome): open the link, look for a small install icon at the right end of the address bar (a monitor with a down-arrow) and click it, then click "Install." Don't see that icon? Use the ⋮ menu →

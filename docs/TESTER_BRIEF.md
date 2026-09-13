@@ -41,8 +41,17 @@ you can ask for your data to be deleted at any time.
 app itself — this restricts access to invited testers only. Enter the
 exact email address we invited you with, and Cloudflare will email you a
 one-time code to enter. This is a one-time-per-session check before the
-app loads; it's not part of the app's own sign-up (that comes right after,
-using your phone number).
+app loads; it's not part of the app's own sign-up.
+
+**Inside the app, sign in with Google** using that same invited email —
+that's the app's own account, and it should go through in one tap. If you
+see a message saying your email isn't recognized yet, message us first so
+we can add you, then try again — please don't use the "Trouble signing
+in?" phone-number option on your own initiative. That option only works
+when we've explicitly enabled it for your number, and it creates a
+**separate** account from your Google one. So once you're in — whichever
+way that happened — stick with that same method every time, rather than
+switching between Google and phone sign-in.
 
 **Want it to feel like an installed app?** Add it to your home screen —
 takes 10 seconds, no app store, works on iPhone, Android, and laptop:

@@ -49,10 +49,15 @@ class _FakeVoiceInputService implements VoiceInputService {
   bool simulateNoResult = false;
   void Function(bool isListening)? _onListeningChanged;
 
+  /// Simulates the underlying plugin throwing instead of resolving to
+  /// false — e.g. an unexpected mic-permission API shape on iOS Safari.
+  bool throwOnInitialize = false;
+
   @override
   Future<bool> initialize({void Function(bool isListening)? onListeningChanged}) async {
     initializeCalled = true;
     _onListeningChanged = onListeningChanged;
+    if (throwOnInitialize) throw Exception('simulated plugin failure');
     return available;
   }
 
@@ -306,6 +311,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining("Didn't catch that"), findsOneWidget);
+    });
+
+    testWidgets('shows a clear error instead of doing nothing if the plugin throws', (tester) async {
+      final fakeVoice = _FakeVoiceInputService()..throwOnInitialize = true;
+      await tester.pumpWidget(
+        _wrap(InterviewPracticeScreen(question: question, voiceInputService: fakeVoice)),
+      );
+
+      await tester.tap(find.byKey(const Key('micButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining("Couldn't use the microphone"), findsOneWidget);
     });
   });
 }

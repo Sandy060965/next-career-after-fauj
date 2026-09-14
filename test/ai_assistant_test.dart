@@ -20,8 +20,15 @@ class _FakeVoiceInputService implements VoiceInputService {
   bool _listening = false;
   String dictatedText = 'Dictated question.';
 
+  /// Simulates the underlying plugin throwing instead of resolving to
+  /// false — e.g. an unexpected mic-permission API shape on iOS Safari.
+  bool throwOnInitialize = false;
+
   @override
-  Future<bool> initialize({void Function(bool isListening)? onListeningChanged}) async => available;
+  Future<bool> initialize({void Function(bool isListening)? onListeningChanged}) async {
+    if (throwOnInitialize) throw Exception('simulated plugin failure');
+    return available;
+  }
 
   @override
   bool get isListening => _listening;
@@ -304,6 +311,22 @@ void main() {
 
     expect(fakeVoice.startListeningCalled, isFalse);
     expect(find.textContaining('Speech recognition isn\'t available'), findsOneWidget);
+  });
+
+  testWidgets('shows a clear error instead of doing nothing if the plugin throws', (tester) async {
+    final fakeVoice = _FakeVoiceInputService()..throwOnInitialize = true;
+    final repo = ProfileRepository();
+
+    await tester.pumpWidget(
+      _wrap(repository: repo, child: AiAssistantScreen(voiceInputService: fakeVoice)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('assistantMicButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("Couldn't use the microphone"), findsOneWidget);
+    expect(find.byIcon(Icons.mic_none_outlined), findsOneWidget);
   });
 
   testWidgets('sending a message while listening stops the microphone', (tester) async {

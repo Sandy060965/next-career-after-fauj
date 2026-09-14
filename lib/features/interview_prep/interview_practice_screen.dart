@@ -38,38 +38,51 @@ class _InterviewPracticeScreenState extends State<InterviewPracticeScreen> {
       return;
     }
 
-    final available = await widget.voiceInputService.initialize(
-      onListeningChanged: (listening) {
+    // The underlying plugin can throw on some browsers rather than
+    // resolving `initialize()` to false (e.g. an unexpected mic-permission
+    // API shape on iOS Safari) — without this, that exception was silently
+    // swallowed by Flutter's zone error handling and the mic button just
+    // did nothing at all, with no feedback of any kind.
+    try {
+      final available = await widget.voiceInputService.initialize(
+        onListeningChanged: (listening) {
+          if (!mounted) return;
+          setState(() {
+            final wasListening = _isListening;
+            _isListening = listening;
+            if (wasListening && !listening && !_gotVoiceResult) {
+              _voiceError = "Didn't catch that — try again or type your answer.";
+            }
+          });
+        },
+      );
+      if (!available) {
         if (!mounted) return;
-        setState(() {
-          final wasListening = _isListening;
-          _isListening = listening;
-          if (wasListening && !listening && !_gotVoiceResult) {
-            _voiceError = "Didn't catch that — try again or type your answer.";
-          }
-        });
-      },
-    );
-    if (!available) {
-      if (!mounted) return;
-      setState(() => _voiceError = 'Speech recognition isn\'t available on this device.');
-      return;
-    }
+        setState(() => _voiceError = 'Speech recognition isn\'t available on this device.');
+        return;
+      }
 
-    setState(() {
-      _isListening = true;
-      _gotVoiceResult = false;
-      _voiceError = null;
-    });
-    await widget.voiceInputService.startListening(
-      onResult: (text) {
-        if (!mounted) return;
-        setState(() {
-          _answerController.text = text;
-          if (text.trim().isNotEmpty) _gotVoiceResult = true;
-        });
-      },
-    );
+      setState(() {
+        _isListening = true;
+        _gotVoiceResult = false;
+        _voiceError = null;
+      });
+      await widget.voiceInputService.startListening(
+        onResult: (text) {
+          if (!mounted) return;
+          setState(() {
+            _answerController.text = text;
+            if (text.trim().isNotEmpty) _gotVoiceResult = true;
+          });
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isListening = false;
+        _voiceError = "Couldn't use the microphone — try again or type your answer.";
+      });
+    }
   }
 
   @override

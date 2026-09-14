@@ -5,7 +5,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 /// Transcription happens entirely on-device via the OS; nothing spoken is
 /// ever sent to the Worker or Claude.
 abstract class VoiceInputService {
-  Future<bool> initialize();
+  Future<bool> initialize({void Function(bool isListening)? onListeningChanged});
   Future<void> startListening({required void Function(String text) onResult});
   Future<void> stopListening();
   bool get isListening;
@@ -16,9 +16,11 @@ class SpeechToTextVoiceInputService implements VoiceInputService {
   bool _initialized = false;
 
   @override
-  Future<bool> initialize() async {
+  Future<bool> initialize({void Function(bool isListening)? onListeningChanged}) async {
     if (_initialized) return true;
-    _initialized = await _speech.initialize();
+    _initialized = await _speech.initialize(
+      onStatus: (status) => onListeningChanged?.call(status == stt.SpeechToText.listeningStatus),
+    );
     return _initialized;
   }
 
@@ -29,7 +31,23 @@ class SpeechToTextVoiceInputService implements VoiceInputService {
   Future<void> startListening({required void Function(String text) onResult}) async {
     final available = await initialize();
     if (!available) return;
-    await _speech.listen(onResult: (result) => onResult(result.recognizedWords));
+    // partialResults defaults to true in the plugin, which on web also sets
+    // both interimResults and continuous to true on the browser's
+    // SpeechRecognition object — the two modes documented as unreliable on
+    // Safari/WebKit (interim results often never fire; continuous mode
+    // produces a forever-growing single result that never finalizes).
+    // Forcing partialResults: false switches Safari into single-shot,
+    // final-result-only recognition, which is the mode it actually
+    // supports. pauseFor/listenFor bound the session so it reliably ends
+    // and delivers a result instead of listening indefinitely.
+    await _speech.listen(
+      onResult: (result) => onResult(result.recognizedWords),
+      listenOptions: stt.SpeechListenOptions(
+        partialResults: false,
+        pauseFor: const Duration(seconds: 5),
+        listenFor: const Duration(seconds: 120),
+      ),
+    );
   }
 
   @override

@@ -33,6 +33,7 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
   final TextEditingController _answerController = TextEditingController();
   int _index = 0;
   bool _isListening = false;
+  bool _gotVoiceResult = false;
   bool _isSubmitting = false;
   String? _voiceError;
   MockInterviewFeedback? _feedback;
@@ -52,7 +53,18 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
       setState(() => _isListening = false);
       return;
     }
-    final available = await widget.voiceInputService.initialize();
+    final available = await widget.voiceInputService.initialize(
+      onListeningChanged: (listening) {
+        if (!mounted) return;
+        setState(() {
+          final wasListening = _isListening;
+          _isListening = listening;
+          if (wasListening && !listening && !_gotVoiceResult) {
+            _voiceError = "Didn't catch that — try again or type your answer.";
+          }
+        });
+      },
+    );
     if (!available) {
       if (!mounted) return;
       setState(() => _voiceError = 'Speech recognition isn\'t available on this device.');
@@ -60,12 +72,16 @@ class _MockInterviewScreenState extends State<MockInterviewScreen> {
     }
     setState(() {
       _isListening = true;
+      _gotVoiceResult = false;
       _voiceError = null;
     });
     await widget.voiceInputService.startListening(
       onResult: (text) {
         if (!mounted) return;
-        setState(() => _answerController.text = text);
+        setState(() {
+          _answerController.text = text;
+          if (text.trim().isNotEmpty) _gotVoiceResult = true;
+        });
       },
     );
   }

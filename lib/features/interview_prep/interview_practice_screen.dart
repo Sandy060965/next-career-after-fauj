@@ -21,6 +21,7 @@ class InterviewPracticeScreen extends StatefulWidget {
 class _InterviewPracticeScreenState extends State<InterviewPracticeScreen> {
   final TextEditingController _answerController = TextEditingController();
   bool _isListening = false;
+  bool _gotVoiceResult = false;
   String? _voiceError;
 
   @override
@@ -37,7 +38,18 @@ class _InterviewPracticeScreenState extends State<InterviewPracticeScreen> {
       return;
     }
 
-    final available = await widget.voiceInputService.initialize();
+    final available = await widget.voiceInputService.initialize(
+      onListeningChanged: (listening) {
+        if (!mounted) return;
+        setState(() {
+          final wasListening = _isListening;
+          _isListening = listening;
+          if (wasListening && !listening && !_gotVoiceResult) {
+            _voiceError = "Didn't catch that — try again or type your answer.";
+          }
+        });
+      },
+    );
     if (!available) {
       if (!mounted) return;
       setState(() => _voiceError = 'Speech recognition isn\'t available on this device.');
@@ -46,12 +58,16 @@ class _InterviewPracticeScreenState extends State<InterviewPracticeScreen> {
 
     setState(() {
       _isListening = true;
+      _gotVoiceResult = false;
       _voiceError = null;
     });
     await widget.voiceInputService.startListening(
       onResult: (text) {
         if (!mounted) return;
-        setState(() => _answerController.text = text);
+        setState(() {
+          _answerController.text = text;
+          if (text.trim().isNotEmpty) _gotVoiceResult = true;
+        });
       },
     );
   }

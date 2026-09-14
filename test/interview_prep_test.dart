@@ -43,9 +43,16 @@ class _FakeVoiceInputService implements VoiceInputService {
   bool _listening = false;
   bool available = true;
 
+  /// When true, [startListening] simulates a session that ends with no
+  /// words recognized — e.g. Safari's speech recognition silently failing —
+  /// instead of the normal instant-dictation behavior below.
+  bool simulateNoResult = false;
+  void Function(bool isListening)? _onListeningChanged;
+
   @override
-  Future<bool> initialize() async {
+  Future<bool> initialize({void Function(bool isListening)? onListeningChanged}) async {
     initializeCalled = true;
+    _onListeningChanged = onListeningChanged;
     return available;
   }
 
@@ -56,6 +63,11 @@ class _FakeVoiceInputService implements VoiceInputService {
   Future<void> startListening({required void Function(String text) onResult}) async {
     startListeningCalled = true;
     _listening = true;
+    if (simulateNoResult) {
+      _listening = false;
+      _onListeningChanged?.call(false);
+      return;
+    }
     onResult('Dictated practice answer.');
   }
 
@@ -281,6 +293,19 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('isn\'t available'), findsOneWidget);
+    });
+
+    testWidgets('shows a fallback message if the session ends with no words recognized',
+        (tester) async {
+      final fakeVoice = _FakeVoiceInputService()..simulateNoResult = true;
+      await tester.pumpWidget(
+        _wrap(InterviewPracticeScreen(question: question, voiceInputService: fakeVoice)),
+      );
+
+      await tester.tap(find.byKey(const Key('micButton')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining("Didn't catch that"), findsOneWidget);
     });
   });
 }

@@ -75,6 +75,14 @@ void main() {
     }
   });
 
+  testWidgets('the number badge has an explicit, legible background color', (tester) async {
+    _setTallViewport(tester);
+    await tester.pumpWidget(_wrap(const CorporateCultureScreen()));
+
+    final badge = tester.widget<CircleAvatar>(find.byType(CircleAvatar).first);
+    expect(badge.backgroundColor, isNotNull);
+  });
+
   testWidgets('tapping a section with scenarios opens its detail screen', (tester) async {
     _setTallViewport(tester);
     await tester.pumpWidget(_wrap(const CorporateCultureScreen()));

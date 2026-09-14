@@ -35,7 +35,14 @@ class CorporateCultureScreen extends StatelessWidget {
               key: Key('corporateCultureEntry_${kCorporateCultureSections[i].title}'),
               leading: CircleAvatar(
                 radius: 14,
-                child: Text('${i + 1}', style: Theme.of(context).textTheme.labelSmall),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Text(
+                  '${i + 1}',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
               title: Text(kCorporateCultureSections[i].title),
               trailing: const Icon(Icons.chevron_right),

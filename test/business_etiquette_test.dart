@@ -47,6 +47,13 @@ void main() {
       expect(titles.any((t) => t.contains('Statutory Boundaries')), isTrue);
       expect(titles.any((t) => t.contains('Body Language & Vocal Presence')), isTrue);
     });
+
+    test('no title has a number embedded — numbering comes from the badge only', () {
+      for (final s in kBusinessEtiquetteSections) {
+        expect(RegExp(r'^\d').hasMatch(s.title), isFalse,
+            reason: '"${s.title}" starts with a digit — would double up with the number badge');
+      }
+    });
   });
 
   testWidgets('shows the intro and every section title', (tester) async {
@@ -57,6 +64,14 @@ void main() {
     for (final section in kBusinessEtiquetteSections) {
       expect(find.byKey(Key('businessEtiquetteEntry_${section.title}')), findsOneWidget);
     }
+  });
+
+  testWidgets('the number badge has an explicit, legible background color', (tester) async {
+    _setTallViewport(tester);
+    await tester.pumpWidget(_wrap(const BusinessEtiquetteScreen()));
+
+    final badge = tester.widget<CircleAvatar>(find.byType(CircleAvatar).first);
+    expect(badge.backgroundColor, isNotNull);
   });
 
   testWidgets('tapping a section with scenarios opens its detail screen', (tester) async {

@@ -10,7 +10,7 @@ import '../../core/models/guide_section.dart';
 /// Situation/Encounter/Response/Avoid voice as the rest of the guide.
 const List<GuideSection> kBusinessEtiquetteSections = [
   GuideSection(
-    title: '1. Addressing People',
+    title: 'Addressing People',
     scenarios: [
       GuideScenario(
         heading: 'The First-Name Introduction',
@@ -39,7 +39,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '2. Introductions & Small Talk',
+    title: 'Introductions & Small Talk',
     scenarios: [
       GuideScenario(
         heading: 'Self-Introduction',
@@ -60,7 +60,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '3. Email Etiquette',
+    title: 'Email Etiquette',
     scenarios: [
       GuideScenario(
         heading: 'Email to Senior Management',
@@ -95,7 +95,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '4. Teams / Slack / WhatsApp',
+    title: 'Teams / Slack / WhatsApp',
     scenarios: [
       GuideScenario(
         heading: 'Quick Question',
@@ -123,7 +123,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '5. Meetings',
+    title: 'Meetings',
     scenarios: [
       GuideScenario(
         heading: 'Joining Late',
@@ -159,7 +159,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '6. Virtual Meeting Etiquette',
+    title: 'Virtual Meeting Etiquette',
     scenarios: [
       GuideScenario(
         heading: 'Camera / Background',
@@ -187,7 +187,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '7. Presentations',
+    title: 'Presentations',
     scenarios: [
       GuideScenario(
         heading: 'Executive Presentation',
@@ -208,7 +208,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '8. Workplace Behaviour',
+    title: 'Workplace Behaviour',
     scenarios: [
       GuideScenario(
         heading: 'Open Office',
@@ -238,7 +238,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '9. Business Meals & Dining',
+    title: 'Business Meals & Dining',
     scenarios: [
       GuideScenario(
         heading: 'Client Meal',
@@ -266,7 +266,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '10. Networking & LinkedIn',
+    title: 'Networking & LinkedIn',
     scenarios: [
       GuideScenario(
         heading: 'Conference Introduction',
@@ -286,7 +286,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '11. Client & Vendor Etiquette',
+    title: 'Client & Vendor Etiquette',
     scenarios: [
       GuideScenario(
         heading: 'Vendor Meeting',
@@ -307,7 +307,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '12. Professional Boundaries',
+    title: 'Professional Boundaries',
     scenarios: [
       GuideScenario(
         heading: 'Personal Questions',
@@ -335,7 +335,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '13. Diversity & Inclusion',
+    title: 'Diversity & Inclusion',
     scenarios: [
       GuideScenario(
         heading: 'Different Work Styles',
@@ -357,7 +357,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '14. Confidentiality & Social Media',
+    title: 'Confidentiality & Social Media',
     scenarios: [
       GuideScenario(
         heading: 'Office Photograph',
@@ -378,7 +378,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '15. Business Travel',
+    title: 'Business Travel',
     scenarios: [
       GuideScenario(
         heading: 'Travelling With Colleagues',
@@ -391,7 +391,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '16. Gifts, Hospitality & Conflicts',
+    title: 'Gifts, Hospitality & Conflicts',
     scenarios: [
       GuideScenario(
         heading: 'Client Gift',
@@ -410,7 +410,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '17. First 30 Days Etiquette Checklist',
+    title: 'First 30 Days Etiquette Checklist',
     scenarios: [
       GuideScenario(
         heading: 'Observation',
@@ -439,7 +439,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '18. Practical Phrases That Work Well',
+    title: 'Practical Phrases That Work Well',
     translations: [
       GuideTranslation(from: 'Give me a brief.', to: 'Could you give me the two-minute version?'),
       GuideTranslation(from: 'What is the problem?', to: 'What is driving the issue?'),
@@ -460,7 +460,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '19. The Professional Conduct Test',
+    title: 'The Professional Conduct Test',
     paragraphs: [
       'Before sending an email, making a comment, sharing information or reacting in a '
           'meeting, ask:',
@@ -475,7 +475,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     ],
   ),
   GuideSection(
-    title: '20. Final Reminder to the Transitioning Officer',
+    title: 'Final Reminder to the Transitioning Officer',
     paragraphs: [
       'You do not need to imitate corporate behaviour. You need to understand it. Your '
           'discipline, integrity, ability to work under pressure, ownership, planning and '
@@ -488,7 +488,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
     closingNote: 'Same Values. New Horizons.',
   ),
   GuideSection(
-    title: '21. Statutory Boundaries & Workplace Conduct',
+    title: 'Statutory Boundaries & Workplace Conduct',
     paragraphs: [
       'Some workplace conduct is not a matter of local norm or personal judgement — it is '
           'governed by law, and organisations are required to act on it. Knowing where these '
@@ -546,7 +546,7 @@ const List<GuideSection> kBusinessEtiquetteSections = [
         'informally.',
   ),
   GuideSection(
-    title: '22. Body Language & Vocal Presence',
+    title: 'Body Language & Vocal Presence',
     paragraphs: [
       'Command presence — a straight posture, a carrying voice, a directive tone — is trained '
           'into you for a setting where clarity under pressure can be a matter of safety. In '

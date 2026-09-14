@@ -6,6 +6,9 @@ import 'skill_equivalency.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
 const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
+// Best-effort enrichment — bounded so a stalled connection can't leave this
+// pending forever; the caller already treats any failure here as non-fatal.
+const _requestTimeout = Duration(seconds: 30);
 
 class CourseCivilianizationException implements Exception {
   CourseCivilianizationException(this.message);
@@ -22,11 +25,13 @@ class CourseCivilianizationException implements Exception {
 /// design at the call site: the curated list alone is already complete and
 /// useful, so a failure here should never block or error the whole screen.
 Future<List<SkillEquivalency>> httpFetchApprovedEquivalencies() async {
-  final response = await http.post(
-    Uri.parse('$_baseUrl/skill-equivalencies'),
-    headers: const {'content-type': 'application/json', 'x-app-key': _appSharedKey},
-    body: '{}',
-  );
+  final response = await http
+      .post(
+        Uri.parse('$_baseUrl/skill-equivalencies'),
+        headers: const {'content-type': 'application/json', 'x-app-key': _appSharedKey},
+        body: '{}',
+      )
+      .timeout(_requestTimeout);
   if (response.statusCode != 200) {
     throw CourseCivilianizationException(
       'Could not load recently added courses (${response.statusCode}).',

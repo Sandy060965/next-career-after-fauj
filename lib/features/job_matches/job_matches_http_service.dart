@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -12,6 +13,9 @@ const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
 const _maxAttempts = 3;
 const _retryDelay = Duration(seconds: 2);
 const _retryableStatusCodes = {502, 503, 504, 522, 523, 524};
+// Bounds a stalled mobile connection so it surfaces a clear error instead
+// of leaving the request pending forever with no feedback.
+const _requestTimeout = Duration(seconds: 90);
 
 class JobMatchesException implements Exception {
   JobMatchesException(this.message);
@@ -50,14 +54,16 @@ Future<List<JobMatch>> httpAnalyzeJobMatches({
   Object? lastError;
   for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
     try {
-      response = await http.post(
-        Uri.parse(_workerUrl),
-        headers: const {
-          'content-type': 'application/json',
-          'x-app-key': _appSharedKey,
-        },
-        body: encodedBody,
-      );
+      response = await http
+          .post(
+            Uri.parse(_workerUrl),
+            headers: const {
+              'content-type': 'application/json',
+              'x-app-key': _appSharedKey,
+            },
+            body: encodedBody,
+          )
+          .timeout(_requestTimeout);
     } catch (e) {
       lastError = e;
       response = null;
@@ -69,7 +75,11 @@ Future<List<JobMatch>> httpAnalyzeJobMatches({
   }
 
   if (response == null) {
-    throw JobMatchesException('Could not reach the job search service: $lastError');
+    throw JobMatchesException(
+      lastError is TimeoutException
+          ? 'This is taking longer than expected — check your connection and try again.'
+          : 'Could not reach the job search service: $lastError',
+    );
   }
   if (response.statusCode != 200) {
     throw JobMatchesException(

@@ -12,6 +12,9 @@ import 'support_ticket_summary.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
 const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
+// Bounds a stalled connection so it surfaces a clear error instead of
+// leaving the request pending forever with no feedback.
+const _requestTimeout = Duration(seconds: 30);
 
 class AdminException implements Exception {
   AdminException(this.message);
@@ -23,15 +26,17 @@ class AdminException implements Exception {
 }
 
 Future<http.Response> _post(String path, String adminKey, [Map<String, dynamic> body = const {}]) {
-  return http.post(
-    Uri.parse('$_baseUrl$path'),
-    headers: {
-      'content-type': 'application/json',
-      'x-app-key': _appSharedKey,
-      'x-admin-key': adminKey,
-    },
-    body: jsonEncode(body),
-  );
+  return http
+      .post(
+        Uri.parse('$_baseUrl$path'),
+        headers: {
+          'content-type': 'application/json',
+          'x-app-key': _appSharedKey,
+          'x-admin-key': adminKey,
+        },
+        body: jsonEncode(body),
+      )
+      .timeout(_requestTimeout);
 }
 
 typedef FetchAdminOfficers = Future<List<AdminOfficerSummary>> Function(String adminKey);

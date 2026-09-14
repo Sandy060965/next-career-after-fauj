@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -8,6 +9,9 @@ import 'profile_repository.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
 const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
+// Bounds a stalled mobile connection so it surfaces a clear error instead
+// of leaving the request pending forever with no feedback.
+const _requestTimeout = Duration(seconds: 30);
 
 class AuthException implements Exception {
   AuthException(this.message);
@@ -60,15 +64,21 @@ class AuthService {
     return OfficerAccount.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  Future<http.Response> _post(String path, Map<String, dynamic> body) {
-    return http.post(
-      Uri.parse('$_baseUrl$path'),
-      headers: {
-        'content-type': 'application/json',
-        'x-app-key': _appSharedKey,
-      },
-      body: jsonEncode(body),
-    );
+  Future<http.Response> _post(String path, Map<String, dynamic> body) async {
+    try {
+      return await http
+          .post(
+            Uri.parse('$_baseUrl$path'),
+            headers: {
+              'content-type': 'application/json',
+              'x-app-key': _appSharedKey,
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      throw AuthException('This is taking longer than expected — check your connection and try again.');
+    }
   }
 
   String _errorMessage(http.Response response, {required String fallback}) {

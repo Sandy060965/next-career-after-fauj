@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -10,6 +11,9 @@ import 'auth_service.dart';
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
 const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
 const _googleServerClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+// Bounds a stalled mobile connection so it surfaces a clear error instead
+// of leaving the request pending forever with no feedback.
+const _requestTimeout = Duration(seconds: 30);
 
 /// Google Sign-In against Google's own OAuth directly — no Firebase. The
 /// same GOOGLE_CLIENT_ID (a Web-application OAuth Client ID) is used here as
@@ -78,11 +82,18 @@ class GoogleAuthService {
   /// gets its ID token from an authentication-event stream instead of a
   /// direct `authenticate()` return value.
   Future<VerifyOtpResult> exchangeIdToken(String idToken) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/auth/google-signin'),
-      headers: {'content-type': 'application/json', 'x-app-key': _appSharedKey},
-      body: jsonEncode({'idToken': idToken}),
-    );
+    final http.Response response;
+    try {
+      response = await http
+          .post(
+            Uri.parse('$_baseUrl/auth/google-signin'),
+            headers: {'content-type': 'application/json', 'x-app-key': _appSharedKey},
+            body: jsonEncode({'idToken': idToken}),
+          )
+          .timeout(_requestTimeout);
+    } on TimeoutException {
+      throw AuthException('This is taking longer than expected — check your connection and try again.');
+    }
     if (response.statusCode != 200) {
       throw AuthException(_errorMessage(response));
     }

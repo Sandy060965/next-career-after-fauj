@@ -7,6 +7,9 @@ import 'profile_repository.dart';
 
 const _baseUrl = 'https://next-career-after-fauj-fitment.sandy060965.workers.dev';
 const _appSharedKey = String.fromEnvironment('APP_SHARED_KEY');
+// Bounds a stalled mobile connection so it surfaces a clear error instead
+// of leaving the request pending forever with no feedback.
+const _requestTimeout = Duration(seconds: 30);
 
 /// POSTs to [path] with the officer's current access token. Access tokens
 /// are short-lived (1 hour) by design, so on a 401 this makes exactly one
@@ -20,7 +23,8 @@ Future<http.Response> authenticatedPost(
 ) async {
   final encodedBody = jsonEncode(body);
 
-  Future<http.Response> attempt(String token) => http.post(
+  Future<http.Response> attempt(String token) => http
+      .post(
         Uri.parse('$_baseUrl$path'),
         headers: {
           'content-type': 'application/json',
@@ -28,7 +32,8 @@ Future<http.Response> authenticatedPost(
           'authorization': 'Bearer $token',
         },
         body: encodedBody,
-      );
+      )
+      .timeout(_requestTimeout);
 
   final token = profileRepository.sessionToken;
   if (token == null) {
@@ -50,11 +55,13 @@ Future<String?> _tryRefresh(ProfileRepository profileRepository) async {
   if (refreshToken == null) return null;
 
   try {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/auth/refresh'),
-      headers: const {'content-type': 'application/json', 'x-app-key': _appSharedKey},
-      body: jsonEncode({'refreshToken': refreshToken}),
-    );
+    final response = await http
+        .post(
+          Uri.parse('$_baseUrl/auth/refresh'),
+          headers: const {'content-type': 'application/json', 'x-app-key': _appSharedKey},
+          body: jsonEncode({'refreshToken': refreshToken}),
+        )
+        .timeout(_requestTimeout);
     if (response.statusCode != 200) return null;
 
     final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -73,11 +80,13 @@ Future<String?> _tryRefresh(ProfileRepository profileRepository) async {
 /// always succeed locally even if this call fails.
 Future<void> revokeRefreshToken(String refreshToken) async {
   try {
-    await http.post(
-      Uri.parse('$_baseUrl/auth/logout'),
-      headers: const {'content-type': 'application/json', 'x-app-key': _appSharedKey},
-      body: jsonEncode({'refreshToken': refreshToken}),
-    );
+    await http
+        .post(
+          Uri.parse('$_baseUrl/auth/logout'),
+          headers: const {'content-type': 'application/json', 'x-app-key': _appSharedKey},
+          body: jsonEncode({'refreshToken': refreshToken}),
+        )
+        .timeout(_requestTimeout);
   } catch (_) {
     // Best-effort — the local session is already cleared regardless.
   }

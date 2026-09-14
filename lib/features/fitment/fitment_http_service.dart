@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -22,6 +23,12 @@ class FitmentAnalysisException implements Exception {
 
 const _maxAttempts = 3;
 const _retryDelay = Duration(seconds: 2);
+// A real CV+JD analysis can legitimately take a while (Claude reads PDFs
+// natively), but a stalled mobile connection can otherwise leave the
+// request pending forever with no error and no feedback — this bounds
+// each attempt so a genuinely stuck connection surfaces a clear error
+// instead of an infinite "Working out the gaps..." spinner.
+const _requestTimeout = Duration(seconds: 90);
 
 /// Status codes worth retrying: gateway/upstream timeouts and transient
 /// server errors. Deliberately excludes 401 (bad key) and 400 (bad
@@ -56,14 +63,16 @@ Future<FitmentResult> httpAnalyzeFitment({
   Object? lastError;
   for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
     try {
-      response = await http.post(
-        Uri.parse(_workerUrl),
-        headers: const {
-          'content-type': 'application/json',
-          'x-app-key': _appSharedKey,
-        },
-        body: encodedBody,
-      );
+      response = await http
+          .post(
+            Uri.parse(_workerUrl),
+            headers: const {
+              'content-type': 'application/json',
+              'x-app-key': _appSharedKey,
+            },
+            body: encodedBody,
+          )
+          .timeout(_requestTimeout);
     } catch (e) {
       lastError = e;
       response = null;
@@ -75,7 +84,11 @@ Future<FitmentResult> httpAnalyzeFitment({
   }
 
   if (response == null) {
-    throw FitmentAnalysisException('Could not reach the analysis service: $lastError');
+    throw FitmentAnalysisException(
+      lastError is TimeoutException
+          ? 'This is taking longer than expected — check your connection and try again.'
+          : 'Could not reach the analysis service: $lastError',
+    );
   }
 
   if (response.statusCode != 200) {

@@ -106,6 +106,23 @@ void main() {
     expect(find.byKey(const Key('submitAssessmentButton')), findsOneWidget);
   });
 
+  testWidgets('questions are numbered continuously 1..N across topic sections, not restarted per topic',
+      (tester) async {
+    _setTallViewport(tester);
+    final questions = _fixedTestQuestions();
+    await tester.pumpWidget(_appUnderTest(questions: questions));
+    await tester.pumpAndSettle();
+
+    // First question overall is numbered 1.
+    expect(find.textContaining('1. ${questions.first.prompt}'), findsOneWidget);
+    // Last question overall carries the full count, not a per-topic restart.
+    expect(find.textContaining('${questions.length}. ${questions.last.prompt}'), findsOneWidget);
+    // The first question of the second topic continues the count rather than
+    // restarting at 1 — 5 questions per topic in the fixed test set.
+    final secondTopicFirstQuestion = questions[5];
+    expect(find.textContaining('6. ${secondTopicFirstQuestion.prompt}'), findsOneWidget);
+  });
+
   testWidgets('submitting with unanswered questions shows a snackbar and does not call the service',
       (tester) async {
     _setTallViewport(tester);

@@ -33,6 +33,19 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
   final Map<String, dynamic> _answers = {};
   bool _isAnalyzing = false;
 
+  /// Question id -> its serial number (1, 2, 3, ...), continuous across all
+  /// topic sections in the same order they're displayed below.
+  Map<String, int> get _questionNumbers {
+    final numbers = <String, int>{};
+    var n = 1;
+    for (final topic in AiReadinessTopic.values) {
+      for (final question in _questions.where((q) => q.topic == topic)) {
+        numbers[question.id] = n++;
+      }
+    }
+    return numbers;
+  }
+
   bool _isAnswered(ScenarioQuestion q) {
     final answer = _answers[q.id];
     if (q.type == QuestionType.multipleChoice) return answer is int;
@@ -105,6 +118,7 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
               for (final question in _questions.where((q) => q.topic == topic))
                 _QuestionCard(
                   key: ValueKey(question.id),
+                  number: _questionNumbers[question.id]!,
                   question: question,
                   answer: _answers[question.id],
                   onChanged: (v) => setState(() => _answers[question.id] = v),
@@ -133,8 +147,15 @@ class _AiReadinessQuizScreenState extends State<AiReadinessQuizScreen> {
 }
 
 class _QuestionCard extends StatelessWidget {
-  const _QuestionCard({super.key, required this.question, required this.answer, required this.onChanged});
+  const _QuestionCard({
+    super.key,
+    required this.number,
+    required this.question,
+    required this.answer,
+    required this.onChanged,
+  });
 
+  final int number;
   final ScenarioQuestion question;
   final dynamic answer;
   final ValueChanged<dynamic> onChanged;
@@ -149,7 +170,7 @@ class _QuestionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(question.prompt, style: Theme.of(context).textTheme.bodyMedium),
+            Text('$number. ${question.prompt}', style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 4),
             if (question.type == QuestionType.multipleChoice)
               RadioGroup<int>(

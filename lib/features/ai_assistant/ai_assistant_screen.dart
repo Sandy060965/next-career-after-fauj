@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/services/standalone_mode_stub.dart'
+    if (dart.library.html) '../../core/services/standalone_mode_web.dart' as platform_mode;
 import '../../core/services/transition_readiness.dart';
 import '../../core/services/voice_input_service.dart';
 import '../../core/widgets/home_button.dart';
@@ -171,6 +173,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       await widget.voiceInputService.stopListening();
       if (!mounted) return;
       setState(() => _isListening = false);
+      return;
+    }
+    // Confirmed this session: Safari's speech recognition silently produces
+    // zero results when the site is running as an installed home-screen
+    // app, even though it works in a plain Safari tab on the same device —
+    // catch this up front rather than let a doomed attempt run.
+    if (platform_mode.isRunningAsInstalledApp()) {
+      setState(
+        () => _voiceError =
+            "Voice input doesn't work in the installed app — open the site in your browser "
+            'instead (not the home-screen icon) to use the mic.',
+      );
       return;
     }
     // The underlying plugin can throw on some browsers rather than

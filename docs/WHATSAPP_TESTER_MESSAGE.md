@@ -50,8 +50,7 @@ Either way, you get a real icon that opens full-screen — no browser address ba
 This beta is web-only for now (no separate Android APK) — every update we ship is live at the link above immediately, so you're always testing the
 latest version without needing to reinstall anything.
 
-A note on the AI Assistant's voice input: it works well on Chrome (desktop or Android). On iPhone/Safari, voice recognition support varies
-and may not respond — if that happens, just type your question instead, that path always works.
+A note on voice input (the mic button in the AI Assistant, Mock Interview, and Interview Practice): it works well on Chrome (desktop or Android). On iPhone, it only works in Safari itself — not in the installed home-screen app. If you've added the app to your home screen, open the site in Safari directly (not the icon) when you want to use the mic; from the icon, typing is the reliable path instead.
 
 ## What to try
 

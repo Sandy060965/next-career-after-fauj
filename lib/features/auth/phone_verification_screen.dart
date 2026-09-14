@@ -130,7 +130,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Next Career After Fauj')),
+      appBar: AppBar(title: const Text('Career After Fauj')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

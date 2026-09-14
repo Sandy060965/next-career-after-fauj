@@ -101,7 +101,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: profileRepository,
       child: MaterialApp(
-        title: 'Next Career After Fauj',
+        title: 'Career After Fauj',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         // Every route (not just the first one Flutter resolves at launch)

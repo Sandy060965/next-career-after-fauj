@@ -1,4 +1,12 @@
-# Next Career After Fauj
+# Career After Fauj
+
+Branded "Career After Fauj" as of this rename — the underlying package
+name, Cloudflare Worker names, D1 database, and domain (documented below)
+all still use the earlier "next-career-after-fauj" identifier and were
+deliberately left unchanged, since renaming those carries real breakage
+risk (import paths, deployed worker identity, the live custom domain) for
+no user-visible benefit. Only user-facing text — app title, PWA manifest,
+in-app branding, the logo — reflects the new name.
 
 An AI career-transition app for Indian Armed Forces officers (SSC/PMR/
 Superannuation) moving into civilian careers — CV translation and tailoring,

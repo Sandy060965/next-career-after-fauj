@@ -1266,7 +1266,7 @@ async function handleCompensation(body, env) {
   });
 }
 
-const AI_ASSISTANT_SYSTEM_PROMPT = `You are a conversational assistant embedded in "Next Career After Fauj", an
+const AI_ASSISTANT_SYSTEM_PROMPT = `You are a conversational assistant embedded in "Career After Fauj", an
 app helping Indian Armed Forces officers transition to civilian careers.
 You answer questions about the officer's own transition, explain corporate
 terms, and point the officer to the right in-app module — you do not

@@ -1,4 +1,4 @@
-# Next Career After Fauj — Executive Summary
+# Career After Fauj — Executive Summary
 
 **What it is.** A mobile/web app that helps Indian Armed Forces officers
 (Short Service Commission, Premature Retirement, or Superannuation) turn

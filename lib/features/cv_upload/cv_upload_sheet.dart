@@ -47,8 +47,15 @@ class _CvUploadSheetState extends State<CvUploadSheet> {
   bool _isSaving = false;
 
   Future<void> _pickCv() async {
-    final file = await widget.pickFile();
-    if (file == null) return;
+    final PickedFile? picked;
+    try {
+      picked = await widget.pickFile();
+    } on UnsupportedFileTypeException catch (e) {
+      setState(() => _error = e.message);
+      return;
+    }
+    if (picked == null) return;
+    final file = picked;
 
     final extension = file.name.split('.').last.toLowerCase();
     setState(() {

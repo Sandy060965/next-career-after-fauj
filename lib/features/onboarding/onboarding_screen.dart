@@ -212,8 +212,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _pickCv() async {
-    final file = await widget.pickFile();
-    if (file == null) return;
+    final PickedFile? picked;
+    try {
+      picked = await widget.pickFile();
+    } on UnsupportedFileTypeException catch (e) {
+      setState(() => _cvError = e.message);
+      return;
+    }
+    if (picked == null) return;
+    final file = picked;
 
     final extension = file.name.split('.').last.toLowerCase();
     setState(() {

@@ -144,4 +144,25 @@ void main() {
     expect(find.textContaining('larger than $kMaxUploadPdfMb MB'), findsOneWidget);
     expect(find.text('huge-scan.pdf'), findsNothing);
   });
+
+  testWidgets('an unsupported file type shows a clear inline error instead of failing silently',
+      (tester) async {
+    final repository = ProfileRepository()..saveProfile(_existingProfile());
+    await tester.pumpWidget(
+      _hostScreen(
+        repository,
+        () async => throw const UnsupportedFileTypeException(
+          "That file type isn't supported here — please choose a PDF or DOCX file.",
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('openSheetButton')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('cvUploadSheetBrowseButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining("isn't supported here"), findsOneWidget);
+    expect(repository.profile?.cvFileName, ''); // unchanged
+  });
 }

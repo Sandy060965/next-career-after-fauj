@@ -21,7 +21,7 @@ class _FakeVoiceInputService implements VoiceInputService {
   String dictatedText = 'Dictated question.';
 
   @override
-  Future<bool> initialize() async => available;
+  Future<bool> initialize({void Function(bool isListening)? onListeningChanged}) async => available;
 
   @override
   bool get isListening => _listening;

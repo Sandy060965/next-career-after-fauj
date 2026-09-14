@@ -171,14 +171,20 @@ class CvWritingGuideScreen extends StatefulWidget {
 
 class _CvWritingGuideScreenState extends State<CvWritingGuideScreen> {
   bool _isUpdatingPhoto = false;
+  String? _photoError;
 
   Future<void> _addPhoto() async {
-    setState(() => _isUpdatingPhoto = true);
+    setState(() {
+      _isUpdatingPhoto = true;
+      _photoError = null;
+    });
     try {
       final picked = await widget.pickPhoto();
       if (picked != null && mounted) {
         await context.read<ProfileRepository>().updatePhoto(photoFileName: picked.name, photoBytes: picked.bytes);
       }
+    } on UnsupportedFileTypeException catch (e) {
+      if (mounted) setState(() => _photoError = e.message);
     } finally {
       if (mounted) setState(() => _isUpdatingPhoto = false);
     }
@@ -255,6 +261,14 @@ class _CvWritingGuideScreenState extends State<CvWritingGuideScreen> {
             onAdd: _addPhoto,
             onRemove: _removePhoto,
           ),
+          if (_photoError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _photoError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12),
+              ),
+            ),
           if (!hasCvData) ...[
             const SizedBox(height: 12),
             Card(

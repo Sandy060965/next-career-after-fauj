@@ -147,6 +147,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   final FocusNode _focusNode = FocusNode();
   bool _isSending = false;
   bool _isListening = false;
+  bool _gotVoiceResult = false;
   String? _voiceError;
   String? _error;
 
@@ -172,7 +173,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       setState(() => _isListening = false);
       return;
     }
-    final available = await widget.voiceInputService.initialize();
+    final available = await widget.voiceInputService.initialize(
+      onListeningChanged: (listening) {
+        if (!mounted) return;
+        setState(() {
+          final wasListening = _isListening;
+          _isListening = listening;
+          if (wasListening && !listening && !_gotVoiceResult) {
+            _voiceError = "Didn't catch that — try again or type your question.";
+          }
+        });
+      },
+    );
     if (!available) {
       if (!mounted) return;
       setState(() => _voiceError = 'Speech recognition isn\'t available on this device.');
@@ -180,6 +192,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     }
     setState(() {
       _isListening = true;
+      _gotVoiceResult = false;
       _voiceError = null;
     });
     await widget.voiceInputService.startListening(
@@ -188,14 +201,22 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         setState(() {
           _controller.text = text;
           _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+          if (text.trim().isNotEmpty) _gotVoiceResult = true;
         });
       },
     );
   }
 
   Future<void> _pickAttachment() async {
-    final file = await widget.pickFile();
-    if (file == null) return;
+    final PickedFile? picked;
+    try {
+      picked = await widget.pickFile();
+    } on UnsupportedFileTypeException catch (e) {
+      setState(() => _attachmentError = e.message);
+      return;
+    }
+    if (picked == null) return;
+    final file = picked;
 
     setState(() {
       _attachmentName = file.name;

@@ -10,16 +10,48 @@ import 'package:file_picker/file_picker.dart';
 const kMaxUploadPdfMb = 8;
 const kMaxUploadPdfBytes = kMaxUploadPdfMb * 1024 * 1024;
 
+/// Thrown when the user picks a file whose extension isn't in the caller's
+/// [allowedExtensions] list. Kept distinct from a plain `null` return (which
+/// means "cancelled") so callers can show a specific message.
+class UnsupportedFileTypeException implements Exception {
+  const UnsupportedFileTypeException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
+String _friendlyExtensionList(List<String> extensions) =>
+    extensions.map((e) => e.toUpperCase()).join(' or ');
+
+/// True if [fileName]'s extension (case-insensitive) is in [allowedExtensions].
+bool _hasAllowedExtension(String fileName, List<String> allowedExtensions) {
+  final extension = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
+  return allowedExtensions.map((e) => e.toLowerCase()).contains(extension);
+}
+
 typedef FileNamePicker = Future<String?> Function();
 
-/// Opens the native file picker restricted to [allowedExtensions] and
-/// returns the chosen file's name, or `null` if the user cancelled.
+/// Opens the native file picker and returns the chosen file's name, or
+/// `null` if the user cancelled.
+///
+/// Always opens with no type restriction at the OS level (FileType.any) —
+/// restricting via `allowedExtensions` maps to an HTML `accept` attribute on
+/// web, which Mobile Safari is known to filter unreliably (the Files/iCloud
+/// source can fail to appear at all for an extension-restricted picker).
+/// [allowedExtensions], if given, is instead validated after the file comes
+/// back, throwing [UnsupportedFileTypeException] with a clear message.
 Future<String?> pickFileName({List<String>? allowedExtensions}) async {
-  final file = await FilePicker.pickFile(
-    type: allowedExtensions == null ? FileType.any : FileType.custom,
-    allowedExtensions: allowedExtensions,
-  );
-  return file?.name;
+  final file = await FilePicker.pickFile(type: FileType.any);
+  if (file == null) return null;
+  if (allowedExtensions != null && !_hasAllowedExtension(file.name, allowedExtensions)) {
+    throw UnsupportedFileTypeException(
+      'That file type isn\'t supported here — please choose a '
+      '${_friendlyExtensionList(allowedExtensions)} file.',
+    );
+  }
+  return file.name;
 }
 
 /// A picked file's name plus its raw bytes, for callers that need the
@@ -31,12 +63,17 @@ class PickedFile {
   final Uint8List bytes;
 }
 
-/// Like [pickFileName] but also reads the file's bytes.
+/// Like [pickFileName] but also reads the file's bytes. See [pickFileName]
+/// for why type filtering happens after picking rather than via the OS
+/// picker's own type restriction.
 Future<PickedFile?> pickFileWithBytes({List<String>? allowedExtensions}) async {
-  final file = await FilePicker.pickFile(
-    type: allowedExtensions == null ? FileType.any : FileType.custom,
-    allowedExtensions: allowedExtensions,
-  );
+  final file = await FilePicker.pickFile(type: FileType.any);
   if (file == null) return null;
+  if (allowedExtensions != null && !_hasAllowedExtension(file.name, allowedExtensions)) {
+    throw UnsupportedFileTypeException(
+      'That file type isn\'t supported here — please choose a '
+      '${_friendlyExtensionList(allowedExtensions)} file.',
+    );
+  }
   return PickedFile(name: file.name, bytes: await file.readAsBytes());
 }

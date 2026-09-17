@@ -29,6 +29,7 @@ class AppRoutes {
   static const String careerHandbook = '/career-handbook';
   static const String corpsMatrix = '/corps-vertical-matrix';
   static const String corporateLanguageGuide = '/corporate-language-guide';
+  static const String skillEquivalency = '/skill-equivalency';
   static const String readingProgramme = '/reading-programme';
   static const String corporateCultureGuide = '/corporate-culture-guide';
   static const String businessEtiquetteGuide = '/business-etiquette-guide';

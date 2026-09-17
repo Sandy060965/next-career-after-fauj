@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/cv_builder/built_cv.dart';
@@ -174,6 +175,46 @@ void main() {
       );
       // No manual field for a curated pick.
       expect(find.byKey(const Key('courseOtherField_0')), findsNothing);
+    });
+
+    testWidgets(
+        'a course already mentioned in the officer\'s CV is flagged in the dropdown',
+        (tester) async {
+      _setTallViewport(tester);
+      final repo = ProfileRepository()
+        ..saveProfile(
+          OfficerProfile(
+            rank: 'Lt Col',
+            fullName: 'Lt Col A Verma',
+            dateOfBirth: DateTime(1978, 5, 10),
+            workExperienceYears: 18,
+            workExperienceMonths: 2,
+            releaseStatus: ReleaseStatus.tentative,
+            releaseDate: DateTime(2027, 6, 30),
+            service: OfficerService.army,
+            mobileNumber: '9876543210',
+            email: 'a.verma@example.com',
+            segment: OfficerSegment.pmr,
+            cvFileName: 'resume.pdf',
+            cvExtractedText: 'Completed the Higher Command Course in 2021.',
+          ),
+        );
+      await tester.pumpWidget(_wrap(repo));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('addCourseButton')));
+      await tester.tap(find.byKey(const Key('addCourseButton')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('courseNameDropdown_0')));
+      await tester.tap(find.byKey(const Key('courseNameDropdown_0')));
+      await tester.pumpAndSettle();
+
+      // A checkmark appears next to the matched course's option in the open
+      // dropdown menu — the exact same icon the standalone Skill
+      // Equivalency Matrix screen uses for "found in your CV".
+      expect(find.byIcon(Icons.check_circle), findsWidgets);
+      expect(find.text('Higher Command Course'), findsWidgets);
     });
 
     testWidgets(

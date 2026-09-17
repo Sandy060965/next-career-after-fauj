@@ -237,6 +237,15 @@ const List<ModulePhase> kLearnModules = [
             'to a military-familiar equivalent, across 20 business-function categories (Finance, '
             'Sales & Marketing, Technology, HR and more) — built to speed up your settling-in.',
       ),
+      ModuleEntry(
+        keyName: 'skillEquivalencyButton',
+        route: AppRoutes.skillEquivalency,
+        label: 'Skill Equivalency Matrix',
+        description: 'Look up how your courses, institutions and appointments translate to '
+            'civilian language — the same reference CV Builder draws from, with anything already '
+            'found in your uploaded CV flagged automatically. To add one to your CV, use Build My '
+            'Civilian CV.',
+      ),
     ],
   ),
   ModulePhase(

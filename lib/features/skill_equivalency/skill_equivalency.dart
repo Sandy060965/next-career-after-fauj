@@ -1,3 +1,22 @@
+final _abbreviationPattern = RegExp(r'\(([A-Z]{2,})\)');
+
+/// Whether [cvText] mentions this equivalency's course/institution/
+/// appointment — checked against the full term and, since these are
+/// consistently long, decorated names (e.g. "Defence Services Staff
+/// College (DSSC), Wellington") that an officer's own CV is more likely to
+/// abbreviate, against any bracketed abbreviation the term itself defines.
+/// Deliberately simple substring matching, not fuzzy/NLP, matching the
+/// same pragmatic approach as the Learning Resources tag matcher — shared
+/// by CV Builder's course dropdown and the Skill Equivalency Matrix
+/// reference screen so a course is flagged consistently in both places.
+bool cvMentionsEquivalency(String? cvText, SkillEquivalency equivalency) {
+  if (cvText == null || cvText.trim().isEmpty) return false;
+  final text = cvText.toLowerCase();
+  if (text.contains(equivalency.militaryTerm.toLowerCase())) return true;
+  final abbreviation = _abbreviationPattern.firstMatch(equivalency.militaryTerm)?.group(1);
+  return abbreviation != null && text.contains(abbreviation.toLowerCase());
+}
+
 /// A military course, institution, or appointment mapped to its civilian
 /// corporate equivalent. Fixed, curated content — every entry is either a
 /// well-known, real defence training institution, or a role/responsibility

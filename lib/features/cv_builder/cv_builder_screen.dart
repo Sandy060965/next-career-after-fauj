@@ -607,6 +607,21 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
         }
       }
     }
+    // Courses already mentioned in the officer's uploaded CV are sorted to
+    // the top (so they're never buried in a ~60-entry dropdown) and marked
+    // with a checkmark — the same detection used by the standalone Skill
+    // Equivalency Matrix reference screen, so a course reads consistently
+    // as "found in your CV" wherever it shows up.
+    final cvText = context.watch<ProfileRepository>().profile?.cvExtractedText;
+    // Partitioned rather than List.sort (which Dart doesn't guarantee is
+    // stable) so the curated order within each group never shuffles
+    // between rebuilds.
+    final matched = <SkillEquivalency>[];
+    final unmatched = <SkillEquivalency>[];
+    for (final equivalency in _courseEquivalencies) {
+      (cvMentionsEquivalency(cvText, equivalency) ? matched : unmatched).add(equivalency);
+    }
+    final sortedEquivalencies = [...matched, ...unmatched];
     return Card(
       key: ValueKey('courseCard_$index'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -638,8 +653,21 @@ class _CvBuilderScreenState extends State<CvBuilderScreen> {
                 // course isn't listed shouldn't have to scroll through all of
                 // them to reach the escape hatch.
                 const DropdownMenuItem(value: kOtherCourseOption, child: Text(kOtherCourseOption)),
-                for (final equivalency in _courseEquivalencies)
-                  DropdownMenuItem(value: equivalency.militaryTerm, child: Text(equivalency.militaryTerm)),
+                for (final equivalency in sortedEquivalencies)
+                  DropdownMenuItem(
+                    value: equivalency.militaryTerm,
+                    child: Row(
+                      children: [
+                        if (cvMentionsEquivalency(cvText, equivalency)) ...[
+                          Icon(Icons.check_circle, size: 16, color: colorScheme.primary),
+                          const SizedBox(width: 6),
+                        ],
+                        Expanded(
+                          child: Text(equivalency.militaryTerm, overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
               onChanged: (v) => setState(() => c.selected = v),
             ),

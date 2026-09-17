@@ -53,6 +53,7 @@ import 'features/networking/network_directory_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'features/skill_equivalency/course_civilianization_http_service.dart';
+import 'features/skill_equivalency/skill_equivalency_screen.dart';
 import 'features/start_here/start_here_screen.dart';
 import 'features/support/support_screen.dart';
 import 'features/transition_plan/transition_plan_screen.dart';
@@ -192,6 +193,7 @@ class NextCareerAfterFaujApp extends StatelessWidget {
     AppRoutes.corpsMatrix: (_) => const CorpsMatrixScreen(),
     AppRoutes.corporateLanguageGuide: (_) =>
         const CorporateLanguageGuideScreen(),
+    AppRoutes.skillEquivalency: (_) => const SkillEquivalencyScreen(),
     AppRoutes.readingProgramme: (_) => const ReadingProgrammeScreen(),
     AppRoutes.corporateCultureGuide: (_) => const CorporateCultureScreen(),
     AppRoutes.businessEtiquetteGuide: (_) => const BusinessEtiquetteScreen(),

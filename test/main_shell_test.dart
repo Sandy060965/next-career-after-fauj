@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:next_career_after_fauj/core/routing/app_routes.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
+import 'package:next_career_after_fauj/features/shell/app_sidebar.dart';
 import 'package:next_career_after_fauj/features/shell/main_shell.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,6 +106,11 @@ void main() {
       await tester.pumpWidget(_wrap(ProfileRepository()));
       await tester.pumpAndSettle();
 
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('sidebarTab_Profile')),
+        300,
+        scrollable: find.descendant(of: find.byType(AppSidebar), matching: find.byType(Scrollable)),
+      );
       await tester.tap(find.byKey(const ValueKey('sidebarTab_Profile')));
       await tester.pumpAndSettle();
 

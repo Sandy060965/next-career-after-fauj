@@ -133,6 +133,23 @@ void main() {
       expect(find.text('Onboarding screen'), findsOneWidget);
     });
 
+    testWidgets('a rapid double-tap on Verify only calls verifyOtp once', (tester) async {
+      final authService = _FakeAuthService();
+      await tester.pumpWidget(_wrapOtpScreen(authService));
+
+      await tester.enterText(find.byKey(const Key('otpField')), '123456');
+      // Deliberately no pump() between these two taps — both land on the
+      // same pre-rebuild widget tree, reproducing the race a fast
+      // double-tap can cause before the button's onPressed-null guard
+      // repaints. The synchronous guard inside _verify() is what's
+      // actually under test here.
+      await tester.tap(find.byKey(const Key('verifyOtpButton')));
+      await tester.tap(find.byKey(const Key('verifyOtpButton')));
+      await tester.pumpAndSettle();
+
+      expect(authService.verifiedCodes.length, 1);
+    });
+
     testWidgets('rejects a short code without calling the service', (tester) async {
       final authService = _FakeAuthService();
       await tester.pumpWidget(_wrapOtpScreen(authService));

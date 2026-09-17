@@ -8,6 +8,8 @@ import '../../core/routing/app_routes.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/services/standalone_mode_stub.dart'
+    if (dart.library.html) '../../core/services/standalone_mode_web.dart' as platform_mode;
 import '../../core/utils/date_format.dart';
 import '../../core/utils/privacy_copy.dart';
 import 'corps_options.dart';
@@ -39,6 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final TextEditingController _releaseDateController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
+  final TextEditingController _selfDescriptionController = TextEditingController();
 
   int _step = 0;
   bool _consentGiven = false;
@@ -94,6 +97,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _cvExtractedText = existing.cvExtractedText;
       _cvPdfBytes = existing.cvPdfBytes;
     } else {
+      // Whichever identity they already signed in with (Google email or
+      // phone-OTP number — see OfficerAccount) is redundant to re-ask here;
+      // pre-fill it, still editable, rather than making them retype what
+      // the app already has.
+      final account = repo.account;
+      if (account?.email != null) _emailController.text = account!.email!;
+      if (account?.mobileNumber != null) _mobileController.text = account!.mobileNumber!;
+
       // A fresh sign-in on a device with no local profile (reinstall, new
       // device) — the backend may already know this officer's rank/name/
       // service/segment from a previous sync (see officer_progress_prefill
@@ -130,6 +141,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _releaseDateController.dispose();
     _emailController.dispose();
     _mobileController.dispose();
+    _selfDescriptionController.dispose();
     super.dispose();
   }
 
@@ -219,7 +231,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       setState(() => _cvError = e.message);
       return;
     }
-    if (picked == null) return;
+    if (picked == null) {
+      if (platform_mode.isRunningAsInstalledApp()) {
+        setState(() => _cvError = kInstalledAppFilePickerHint);
+      }
+      return;
+    }
     final file = picked;
 
     final extension = file.name.split('.').last.toLowerCase();
@@ -274,6 +291,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     // templates gallery) — carry over whatever the existing profile already
     // has so an edit here doesn't silently wipe a previously-added photo.
     final repo = context.read<ProfileRepository>();
+    // A free-text self-description is a fallback for officers who don't
+    // have a CV ready (or couldn't get file upload working) — only used
+    // when no file was actually uploaded, so an uploaded CV always wins.
+    final selfDescription = _selfDescriptionController.text.trim();
+    final usingSelfDescription = _uploadedFileName == null && selfDescription.isNotEmpty;
     final profile = OfficerProfile(
       rank: _rank!,
       fullName: _nameController.text.trim(),
@@ -286,8 +308,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       mobileNumber: _mobileController.text.trim(),
       email: _emailController.text.trim(),
       segment: _segment!,
-      cvFileName: _uploadedFileName ?? '',
-      cvExtractedText: _cvExtractedText,
+      cvFileName: _uploadedFileName ?? (usingSelfDescription ? 'Self-described background' : ''),
+      cvExtractedText: usingSelfDescription ? selfDescription : _cvExtractedText,
       cvPdfBytes: _cvPdfBytes,
       corpsOrArm: _corpsOrArm,
       photoFileName: repo.profile?.photoFileName,
@@ -642,6 +664,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(color: colorScheme.error, fontSize: 12),
               ),
             ),
+          if (_uploadedFileName == null) ...[
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text('or', style: Theme.of(context).textTheme.bodySmall),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No CV ready? Describe your background in a few lines instead — rank, '
+              "years of service, and what you've done — and we'll work with that.",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              key: const Key('selfDescriptionField'),
+              controller: _selfDescriptionController,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                hintText: 'e.g. Lt Col with 18 years in the Army Service Corps, led logistics '
+                    'for a 500-person unit, managed a ₹40 Cr annual budget...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
           if (_uploadedFileName == null && !_isProcessingCv)
             Padding(
               padding: const EdgeInsets.only(top: 12),

@@ -242,7 +242,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       setState(() => _attachmentError = e.message);
       return;
     }
-    if (picked == null) return;
+    if (picked == null) {
+      if (platform_mode.isRunningAsInstalledApp()) {
+        setState(() => _attachmentError = kInstalledAppFilePickerHint);
+      }
+      return;
+    }
     final file = picked;
 
     setState(() {

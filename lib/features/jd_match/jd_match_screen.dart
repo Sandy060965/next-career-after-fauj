@@ -9,6 +9,8 @@ import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/services/standalone_mode_stub.dart'
+    if (dart.library.html) '../../core/services/standalone_mode_web.dart' as platform_mode;
 import '../../core/widgets/analysis_loading_indicator.dart';
 import '../../core/widgets/home_button.dart';
 import '../career_paths/career_vertical.dart';
@@ -158,7 +160,12 @@ class _JdMatchScreenState extends State<JdMatchScreen> {
       setState(() => _error = e.message);
       return;
     }
-    if (picked == null) return;
+    if (picked == null) {
+      if (platform_mode.isRunningAsInstalledApp()) {
+        setState(() => _error = kInstalledAppFilePickerHint);
+      }
+      return;
+    }
     final file = picked;
 
     setState(() {

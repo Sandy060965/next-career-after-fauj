@@ -41,9 +41,12 @@ open the link, then use your browser's Share/⋮ menu → **"Add to Home
 Screen"** (iPhone/Android) or **"Install"** (laptop Chrome). You'll get a
 real icon that opens full-screen.
 
-**One thing to know:** the mic/voice button (AI Assistant, Mock
-Interview) only works in Safari itself on iPhone — not from an installed
-home-screen icon. Typing always works everywhere, no exceptions.
+**One thing to know:** on iPhone, a couple of things only work reliably
+in Safari itself, not from an installed home-screen icon — the mic/voice
+button (AI Assistant, Mock Interview), and sometimes file upload (CV/JD/
+photo), where the file picker can open but not actually return your
+selection. If either acts up, open the site directly in Safari instead of
+the icon (typing always works everywhere, no exceptions either way).
 
 ## What to try
 

@@ -22,6 +22,18 @@ class UnsupportedFileTypeException implements Exception {
   String toString() => message;
 }
 
+/// Shown when the file picker returns nothing while the app is running as
+/// an installed home-screen icon on iOS — a documented WebKit bug where
+/// input[type=file] can complete with no file returned even after a real
+/// selection, specifically in standalone display mode (works fine in a
+/// plain Safari tab). Genuinely indistinguishable from an ordinary cancel
+/// at the code level, so this is only shown in that mode, not on every
+/// cancel.
+const kInstalledAppFilePickerHint =
+    "If you selected a file and it didn't appear, this is a known Safari issue "
+    'in the installed app — try opening the site directly in Safari instead of '
+    'the home-screen icon.';
+
 String _friendlyExtensionList(List<String> extensions) =>
     extensions.map((e) => e.toUpperCase()).join(' or ');
 

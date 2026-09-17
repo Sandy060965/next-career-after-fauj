@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../core/services/document_text_extractor.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/services/standalone_mode_stub.dart'
+    if (dart.library.html) '../../core/services/standalone_mode_web.dart' as platform_mode;
 import '../../core/utils/privacy_copy.dart';
 
 Future<PickedFile?> _defaultPickCv() =>
@@ -54,7 +56,12 @@ class _CvUploadSheetState extends State<CvUploadSheet> {
       setState(() => _error = e.message);
       return;
     }
-    if (picked == null) return;
+    if (picked == null) {
+      if (platform_mode.isRunningAsInstalledApp()) {
+        setState(() => _error = kInstalledAppFilePickerHint);
+      }
+      return;
+    }
     final file = picked;
 
     final extension = file.name.split('.').last.toLowerCase();

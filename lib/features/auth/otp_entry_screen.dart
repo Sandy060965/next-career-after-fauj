@@ -34,6 +34,13 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
   }
 
   Future<void> _verify() async {
+    // Belt-and-suspenders alongside the button's onPressed-null guard below:
+    // two very fast taps can both fire before the first setState repaints
+    // and disables the button, and since OTP codes are single-use, a second
+    // concurrent verify request genuinely fails server-side — this
+    // synchronous check closes that race outright.
+    if (_isVerifying) return;
+
     final code = _codeController.text.trim();
     if (code.length != 6) {
       ScaffoldMessenger.of(context)
@@ -66,6 +73,7 @@ class _OtpEntryScreenState extends State<OtpEntryScreen> {
   }
 
   Future<void> _resend() async {
+    if (_isResending) return;
     setState(() => _isResending = true);
     try {
       await widget.authService.requestOtp(widget.mobileNumber);

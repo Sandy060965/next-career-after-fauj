@@ -4,15 +4,46 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:next_career_after_fauj/core/models/officer_account.dart';
 import 'package:next_career_after_fauj/core/models/officer_profile.dart';
 import 'package:next_career_after_fauj/core/routing/app_routes.dart';
 import 'package:next_career_after_fauj/core/services/file_picker_service.dart';
 import 'package:next_career_after_fauj/core/services/profile_repository.dart';
+import 'package:next_career_after_fauj/core/services/session_storage.dart';
 import 'package:next_career_after_fauj/core/theme/app_theme.dart';
 import 'package:next_career_after_fauj/features/onboarding/onboarding_screen.dart';
 import 'package:next_career_after_fauj/features/profile/profile_screen.dart';
 import 'package:next_career_after_fauj/features/start_here/start_here_screen.dart';
 import 'package:provider/provider.dart';
+
+// SessionStorage wraps FlutterSecureStorage, which has no platform
+// implementation in a plain `flutter test` VM run — its method-channel calls
+// hang rather than failing fast, so saveSession() called directly (not via
+// a UI-driven flow) hangs this test forever the moment it's called. An
+// in-memory fake avoids the platform channel entirely — same fix as
+// app_routing_test.dart's _FakeSessionStorage.
+class _FakeSessionStorage implements SessionStorage {
+  String? token;
+  String? refreshToken;
+
+  @override
+  Future<String?> readToken() async => token;
+
+  @override
+  Future<void> saveToken(String value) async => token = value;
+
+  @override
+  Future<String?> readRefreshToken() async => refreshToken;
+
+  @override
+  Future<void> saveRefreshToken(String value) async => refreshToken = value;
+
+  @override
+  Future<void> clearToken() async {
+    token = null;
+    refreshToken = null;
+  }
+}
 
 Widget _appUnderTest({required Future<PickedFile?> Function() pickFile, ProfileRepository? repository}) {
   return ChangeNotifierProvider(
@@ -240,6 +271,68 @@ void main() {
   );
 
   testWidgets(
+    'a free-text self-description is used as the CV when no file is uploaded',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final repository = ProfileRepository();
+      await tester.pumpWidget(
+        _appUnderTest(repository: repository, pickFile: () async => null),
+      );
+      await _completeStepsUpToCvUpload(tester);
+
+      await tester.enterText(
+        find.byKey(const Key('selfDescriptionField')),
+        'Lt Col with 18 years in the Army Service Corps, led logistics for a 500-person unit.',
+      );
+      await tester.tap(find.byKey(const Key('continueButton')));
+      await tester.pumpAndSettle();
+
+      expect(repository.profile?.cvFileName, 'Self-described background');
+      expect(
+        repository.profile?.cvExtractedText,
+        'Lt Col with 18 years in the Army Service Corps, led logistics for a 500-person unit.',
+      );
+    },
+  );
+
+  testWidgets(
+    'an uploaded CV takes priority over a free-text self-description',
+    (tester) async {
+      tester.view.physicalSize = const Size(430, 2000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final repository = ProfileRepository();
+      await tester.pumpWidget(
+        _appUnderTest(
+          repository: repository,
+          pickFile: () async => PickedFile(name: 'resume.pdf', bytes: Uint8List.fromList([1, 2, 3])),
+        ),
+      );
+      await _completeStepsUpToCvUpload(tester);
+
+      // Type a self-description first, then upload a file — the file wins.
+      await tester.enterText(
+        find.byKey(const Key('selfDescriptionField')),
+        'Ignored once a real CV is uploaded.',
+      );
+      await tester.tap(find.byKey(const Key('browseButton')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('continueButton')));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 6));
+
+      expect(repository.profile?.cvFileName, 'resume.pdf');
+    },
+  );
+
+  testWidgets(
     'the CV upload step offers an explicit "Skip for now" action that creates the profile',
     (tester) async {
       tester.view.physicalSize = const Size(430, 2000);
@@ -460,5 +553,34 @@ void main() {
 
     // Consumed once — reading it again shouldn't still return the prefill.
     expect(repository.progressPrefill, isNull);
+  });
+
+  testWidgets(
+      'a fresh Google sign-in prefills the email field from the account instead of asking again',
+      (tester) async {
+    tester.view.physicalSize = const Size(430, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repository = ProfileRepository(sessionStorage: _FakeSessionStorage());
+    await repository.saveSession(
+      'token',
+      const OfficerAccount(
+        id: 'officer-1',
+        email: 'mohit@example.com',
+        entitlementTier: EntitlementTier.free,
+        entitlementExpiresAt: null,
+      ),
+      refreshToken: 'refresh-token',
+    );
+
+    await tester.pumpWidget(
+      _appUnderTest(repository: repository, pickFile: () async => null),
+    );
+    await tester.pumpAndSettle();
+
+    final emailField = tester.widget<TextFormField>(find.byKey(const Key('emailField')));
+    expect(emailField.controller?.text, 'mohit@example.com');
   });
 }

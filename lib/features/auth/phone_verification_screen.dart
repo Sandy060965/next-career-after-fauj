@@ -41,6 +41,7 @@ class _PhoneVerificationScreenState extends State<PhoneVerificationScreen> {
   }
 
   Future<void> _sendCode() async {
+    if (_isSending) return;
     final mobileNumber = _mobileController.text.trim();
     if (mobileNumber.length != 10 || int.tryParse(mobileNumber) == null) {
       ScaffoldMessenger.of(context)

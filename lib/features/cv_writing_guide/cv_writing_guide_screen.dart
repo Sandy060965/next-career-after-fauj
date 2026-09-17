@@ -7,6 +7,8 @@ import '../../core/routing/app_routes.dart';
 import '../../core/services/file_picker_service.dart';
 import '../../core/services/pdf_export.dart';
 import '../../core/services/profile_repository.dart';
+import '../../core/services/standalone_mode_stub.dart'
+    if (dart.library.html) '../../core/services/standalone_mode_web.dart' as platform_mode;
 import '../../core/widgets/home_button.dart';
 import '../cv_templates/cv_pdf_fonts.dart';
 import '../cv_templates/cv_template_data.dart';
@@ -182,6 +184,8 @@ class _CvWritingGuideScreenState extends State<CvWritingGuideScreen> {
       final picked = await widget.pickPhoto();
       if (picked != null && mounted) {
         await context.read<ProfileRepository>().updatePhoto(photoFileName: picked.name, photoBytes: picked.bytes);
+      } else if (picked == null && mounted && platform_mode.isRunningAsInstalledApp()) {
+        setState(() => _photoError = kInstalledAppFilePickerHint);
       }
     } on UnsupportedFileTypeException catch (e) {
       if (mounted) setState(() => _photoError = e.message);

@@ -493,15 +493,50 @@ async function callClaude(env, { system, userContent, maxTokens = 8192 }) {
       max_tokens: maxTokens,
       system,
       messages: [{ role: 'user', content: userContent }],
+      stream: true,
     }),
   });
   if (!response.ok) {
     const detail = await response.text();
     throw new Error(`Upstream error: ${detail}`);
   }
-  const data = await response.json();
-  const text = data.content?.[0]?.text ?? '';
+  const text = await readClaudeStream(response);
   return JSON.parse(stripCodeFence(text));
+}
+
+// A fitment/CV-builder reply can legitimately take a while to generate
+// (long output — e.g. a full refined CV — or Claude reading a PDF
+// natively), and a single non-streaming request that long is exactly the
+// shape that trips Cloudflare's upstream gateway timeout (524) even when
+// Claude itself would have finished fine — confirmed live this session on
+// a JD Match request. Streaming keeps the connection actively flowing
+// data the whole time instead of sitting idle waiting for one giant
+// response, sidestepping that timeout regardless of how long generation
+// takes.
+async function readClaudeStream(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let text = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop(); // last line may be a partial line — keep for next chunk
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const payload = line.slice('data: '.length).trim();
+      if (!payload) continue;
+      const event = JSON.parse(payload);
+      if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+        text += event.delta.text;
+      } else if (event.type === 'error') {
+        throw new Error(`Upstream error: ${JSON.stringify(event.error)}`);
+      }
+    }
+  }
+  return text;
 }
 
 function buildCvSection(cvText, cvPdfBase64) {

@@ -86,8 +86,10 @@ themselves fall into seven natural groups:
 
 ## 4. Skills, interviews, and AI-readiness
 
-- **Skill Equivalency Matrix** — maps military courses/qualifications to
-  their civilian equivalents.
+- **Skill Equivalency Matrix** — a searchable reference mapping military
+  courses/qualifications to their civilian equivalents; anything already
+  found in an officer's uploaded CV is flagged automatically, and the same
+  flagging appears in CV Builder's own course picker.
 - **AI Readiness** — a scenario-based quiz assessing comfort with AI tools
   relevant to civilian roles.
 - **Interview Prep** — a question bank plus JD-specific mock interview

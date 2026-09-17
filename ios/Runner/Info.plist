@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Next Career After Fauj</string>
+	<string>Career After Fauj</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -30,6 +30,8 @@
 	<string>Used only when you tap the microphone to dictate a practice interview answer.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Used only to transcribe your spoken practice answer into text on this device.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used only when you choose to add a photo from your library, e.g. in the CV Writing Guide.</string>
 	<!-- Google Sign-In (iOS): the reversed Client ID of a separate iOS-type
 	     OAuth client from Google Cloud Console (Credentials > Create
 	     Credentials > OAuth Client ID > iOS), registered against this app's

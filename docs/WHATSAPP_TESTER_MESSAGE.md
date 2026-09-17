@@ -37,7 +37,7 @@ You don't need to use every module, but if you can, please try:
 4. The AI Assistant — tap the sparkle button, try a quick action, then ask it something in your own words, by typing or voice.
 5. Financial Planner — load an example close to your own rank/service, then swap in your real numbers and see if the output makes sense.
 6. Compensation Guidance — read the "reading a corporate offer" section — does it make sense, is anything missing?
-7. The Learn tab — under "Prepare," try the Corporate Culture and Business Etiquette guides and the Learning Resources Library. Under "Build Your CV," check the Sample CV Library for your own rank/service — does it read as realistic, or generic?
+7. The Learn tab — under "Prepare," try the Corporate Culture and Business Etiquette guides and the Learning Resources Library. Under "Build Your CV," check the Sample CV Library for your own rank/service — does it read as realistic, or generic? Also try the Skill Equivalency Matrix — look up a course or appointment from your own career; if you've uploaded a CV, anything it already found there is flagged automatically.
 8. Anything else relevant to where you are in your own transition.
 
 *What to report*

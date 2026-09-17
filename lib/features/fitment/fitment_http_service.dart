@@ -24,11 +24,15 @@ class FitmentAnalysisException implements Exception {
 const _maxAttempts = 3;
 const _retryDelay = Duration(seconds: 2);
 // A real CV+JD analysis can legitimately take a while (Claude reads PDFs
-// natively), but a stalled mobile connection can otherwise leave the
-// request pending forever with no error and no feedback — this bounds
-// each attempt so a genuinely stuck connection surfaces a clear error
-// instead of an infinite "Working out the gaps..." spinner.
-const _requestTimeout = Duration(seconds: 90);
+// natively, and generating a full refined CV in the output adds to that),
+// but a stalled mobile connection can otherwise leave the request pending
+// forever with no error and no feedback — this bounds each attempt so a
+// genuinely stuck connection surfaces a clear error instead of an infinite
+// "Working out the gaps..." spinner. 90s was too tight for legitimately
+// slow-but-healthy generations — confirmed live this session giving up
+// and retrying while the (now-streaming, no-longer-524ing) backend was
+// still actively working — so this is bounded generously instead.
+const _requestTimeout = Duration(seconds: 180);
 
 /// Status codes worth retrying: gateway/upstream timeouts and transient
 /// server errors. Deliberately excludes 401 (bad key) and 400 (bad

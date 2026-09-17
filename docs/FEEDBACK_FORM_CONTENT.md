@@ -27,12 +27,12 @@ for bugs (what you tapped, what you expected, what happened instead).
 Listed in the app's own navigation order (Home / Career / Jobs / Learn /
 Profile tabs):
 Options: My Transition Plan / Career Paths / Career Vertical Handbook /
-Corps/Arm/Branch Fit Matrix / Skill Equivalency Matrix / Transition
-Readiness Index / AI Readiness / Career Vertical Fit / Target Role
-Strategy / JD Match / Refined CV / Gap Roadmap / Base CV, Civilianized /
-Build My Civilian CV / CV Writing Guide & Templates / Sample CV Library /
-Corporate Language Guide / Corporate Transition - Reading Programme /
-Interview Prep / Corporate Culture & Work Environment / Business
+Corps/Arm/Branch Fit Matrix / Transition Readiness Index / AI Readiness /
+Career Vertical Fit / Target Role Strategy / JD Match / Refined CV / Gap
+Roadmap / Base CV, Civilianized / Build My Civilian CV / CV Writing Guide
+& Templates / Sample CV Library / Corporate Language Guide / Military
+Experience & Skill Equivalency / Corporate Transition - Reading Programme
+/ Interview Prep / Corporate Culture & Work Environment / Business
 Etiquette & Professional Conduct / Learning Resources Library / Job
 Matches / Application Tracker / Future Mentor Sign Up / LinkedIn Write-up
 / Compensation Guidance / Financial & Cost-of-Living Calculator / Your

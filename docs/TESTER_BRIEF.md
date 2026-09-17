@@ -71,9 +71,9 @@ You don't need to use every module, but if you can, please try:
    Business Etiquette guides and the Learning Resources Library. Under
    "Build Your CV," check the **Sample CV Library** for your own
    rank/service — does it read as realistic, or generic? Also try the
-   **Skill Equivalency Matrix** — look up a course or appointment from your
-   own career; if you've uploaded a CV, anything it already found there is
-   flagged automatically.
+   **Military Experience & Skill Equivalency** — look up a course or
+   appointment from your own career; if you've uploaded a CV, anything it
+   already found there is flagged automatically.
 8. Anything else relevant to where you are in your own transition.
 
 ## What to report

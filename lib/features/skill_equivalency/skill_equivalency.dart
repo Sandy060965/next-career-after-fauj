@@ -7,8 +7,9 @@ final _abbreviationPattern = RegExp(r'\(([A-Z]{2,})\)');
 /// abbreviate, against any bracketed abbreviation the term itself defines.
 /// Deliberately simple substring matching, not fuzzy/NLP, matching the
 /// same pragmatic approach as the Learning Resources tag matcher — shared
-/// by CV Builder's course dropdown and the Skill Equivalency Matrix
-/// reference screen so a course is flagged consistently in both places.
+/// by CV Builder's course dropdown and the Military Experience & Skill
+/// Equivalency reference screen so a course is flagged consistently in
+/// both places.
 bool cvMentionsEquivalency(String? cvText, SkillEquivalency equivalency) {
   if (cvText == null || cvText.trim().isEmpty) return false;
   final text = cvText.toLowerCase();

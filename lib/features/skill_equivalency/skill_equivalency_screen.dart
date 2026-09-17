@@ -46,7 +46,10 @@ class _SkillEquivalencyScreenState extends State<SkillEquivalencyScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Skill Equivalency Matrix'), actions: const [HomeButton()]),
+      appBar: AppBar(
+        title: const Text('Military Experience & Skill Equivalency'),
+        actions: const [HomeButton()],
+      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [

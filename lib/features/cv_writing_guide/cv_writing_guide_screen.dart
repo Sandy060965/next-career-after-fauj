@@ -16,8 +16,8 @@ import '../cv_templates/cv_template_registry.dart';
 
 /// One section of the recommended CV structure — a major heading plus the
 /// sub-points that belong under it. Fixed, hand-authored reference content,
-/// the same discipline as the Skill Equivalency Matrix: real guidance, not
-/// AI-generated per request.
+/// the same discipline as Military Experience & Skill Equivalency: real
+/// guidance, not AI-generated per request.
 class _StructureSection {
   const _StructureSection({required this.heading, required this.points});
 
@@ -96,7 +96,8 @@ const _guidelines = [
     title: 'Never use defence abbreviations or jargon',
     detail: 'Terms like "GSO", "adm", or unit/formation shorthand mean nothing to a '
         'civilian recruiter. Translate rank, appointment, and scale into plain language '
-        '— see the Skill Equivalency Matrix for real course/appointment translations.',
+        '— see Military Experience & Skill Equivalency for real course/appointment '
+        'translations.',
   ),
   _Guideline(
     title: 'Never include your Record of Service or confidential/sensitive service information',

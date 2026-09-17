@@ -240,7 +240,7 @@ const List<ModulePhase> kLearnModules = [
       ModuleEntry(
         keyName: 'skillEquivalencyButton',
         route: AppRoutes.skillEquivalency,
-        label: 'Skill Equivalency Matrix',
+        label: 'Military Experience & Skill Equivalency',
         description: 'Look up how your courses, institutions and appointments translate to '
             'civilian language — the same reference CV Builder draws from, with anything already '
             'found in your uploaded CV flagged automatically. To add one to your CV, use Build My '

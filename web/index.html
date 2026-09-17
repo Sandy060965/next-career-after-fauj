@@ -21,23 +21,12 @@
   <meta name="description" content="AI career-translation app for Indian Armed Forces officers transitioning to civilian careers.">
 
   <!-- iOS meta tags & icons -->
-  <!-- Deliberately "no" (experimental, being tested live) — manifest.json
-       still declares display:"standalone" so Chrome's Mac "Install"
-       feature (which only reads the manifest, not these tags) keeps
-       working. apple-mobile-web-app-capable is the tag iOS has
-       historically keyed off for standalone/fullscreen "Add to Home
-       Screen" launches; setting it to "no" is an attempt to make iOS fall
-       back to a normal Safari tab instead — which would sidestep the
-       WebKit bugs that only exist in standalone mode (mic in AI
-       Assistant/Mock Interview, and the file picker in CV/JD/photo
-       upload — see lib/core/services/standalone_mode_web.dart). Since
-       iOS 16.4, Safari also reads manifest.json's own display field
-       directly, and what wins when these two signals disagree isn't
-       documented — if testing shows the icon still launches standalone,
-       revert this and treat the caution-message workaround as the
-       long-term answer for the web build. -->
-  <meta name="apple-mobile-web-app-capable" content="no">
-  <meta name="mobile-web-app-capable" content="no">
+  <!-- apple-mobile-web-app-capable is the tag Safari has historically keyed
+       off for reliable standalone/fullscreen "Add to Home Screen" behavior
+       across iOS versions; mobile-web-app-capable is the newer vendor-
+       neutral equivalent — both are included for maximum compatibility. -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Career After Fauj">
   <meta name="theme-color" content="#34452F">

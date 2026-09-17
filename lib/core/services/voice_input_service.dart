@@ -37,7 +37,19 @@ class SpeechToTextVoiceInputService implements VoiceInputService {
           onListeningChanged?.call(listening);
         }
         if (!listening && _sessionActive) {
-          _listen();
+          // Confirmed on a real iPhone this session: restarting
+          // SpeechRecognition with zero delay right after it ends works on
+          // desktop Safari/Chrome, but on iOS Safari the restart silently
+          // no-ops — recognition never actually re-arms, so no further
+          // words are ever captured even though nothing throws and the UI
+          // (correctly, per the suppression above) still shows
+          // "Listening...". A brief pause before restarting is the
+          // standard workaround for this WebKit quirk. _sessionActive is
+          // re-checked after the delay in case the user tapped stop while
+          // this was pending.
+          Future<void>.delayed(const Duration(milliseconds: 350), () {
+            if (_sessionActive) _listen();
+          });
         }
       },
     );
